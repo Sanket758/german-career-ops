@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career-Ops Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <header class="header">
+      <h1>⚡ Career-Ops Settings</h1>
+      <p class="subtitle">Configure your job search profile</p>
+    </header>
+
+    <main class="options-main">
+      <!-- Profile Section -->
+      <section class="options-section">
+        <h2>Your Profile</h2>
+        <form id="profileForm">
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Sanket Sadashiv Gadge">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="gadgesanket75@gmail.com">
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" placeholder="+49 17676475359">
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="Berlin, Germany">
+          </div>
+          <div class="form-group">
+            <label for="linkedin">LinkedIn</label>
+            <input type="text" id="linkedin" name="linkedin" placeholder="linkedin.com/in/...">
+          </div>
+          <div class="form-group">
+            <label for="github">GitHub</label>
+            <input type="text" id="github" name="github" placeholder="github.com/...">
+          </div>
+          <div class="form-group">
+            <label for="visaStatus">Visa Status</label>
+            <input type="text" id="visaStatus" name="visaStatus" placeholder="§16b AufenthG - 20h/week">
+          </div>
+        </form>
+      </section>
+
+      <!-- Target Roles -->
+      <section class="options-section">
+        <h2>Target Roles</h2>
+        <p class="section-desc">What roles are you looking for?</p>
+        <div class="tags-input" id="targetRoles">
+          <!-- Tags will be added here -->
+        </div>
+        <input type="text" id="newRole" placeholder="Add a role and press Enter">
+      </section>
+
+      <!-- Preferences -->
+      <section class="options-section">
+        <h2>Preferences</h2>
+        <form id="preferencesForm">
+          <div class="form-group">
+            <label for="language">Language Detection</label>
+            <select id="language" name="language">
+              <option value="auto">Auto-detect from job posting</option>
+              <option value="en">English</option>
+              <option value="de">German (Deutsch)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cvVersion">Default CV Version</label>
+            <select id="cvVersion" name="cvVersion">
+              <option value="werkstudent">Werkstudent (EN)</option>
+              <option value="werkstudent_de">Werkstudent (DE)</option>
+              <option value="full">Full CV (2-page)</option>
+            </select>
+          </div>
+          <div class="form-group checkbox">
+            <input type="checkbox" id="autoDetect" name="autoDetect" checked>
+            <label for="autoDetect">Auto-detect job on page load</label>
+          </div>
+          <div class="form-group checkbox">
+            <input type="checkbox" id="notifications" name="notifications" checked>
+            <label for="notifications">Show notifications</label>
+          </div>
+        </form>
+      </section>
+
+      <!-- Actions -->
+      <section class="options-actions">
+        <button class="btn btn-primary" id="saveBtn">Save Settings</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset to Defaults</button>
+        <button class="btn btn-ghost" id="openMainBtn">Open Career-Ops Main</button>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Career-Ops v1.0.0 | <a href="#">Docs</a> | <a href="#">GitHub</a></p>
+    </footer>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

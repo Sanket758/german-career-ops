@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career-Ops</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+</head>
+<body>
+  <div class="popup-container">
+    <header class="header">
+      <div class="logo">⚡ Career-Ops</div>
+      <div class="status" id="status">Ready</div>
+    </header>
+
+    <section class="current-job" id="currentJob">
+      <div class="section-title">Current Job</div>
+      <div class="job-preview" id="jobPreview">
+        <div class="empty-state">No job detected on this page</div>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button class="btn btn-primary" id="evaluateBtn" disabled>
+        <span class="btn-icon">📊</span> Evaluate
+      </button>
+      <button class="btn btn-success" id="generateCvBtn" disabled>
+        <span class="btn-icon">📄</span> Generate CV
+      </button>
+      <button class="btn btn-accent" id="generateCoverBtn" disabled>
+        <span class="btn-icon">✉️</span> Cover Letter
+      </button>
+    </section>
+
+    <section class="tracker">
+      <div class="section-title">Application Tracker</div>
+      <div class="tracker-stats" id="trackerStats">
+        <div class="stat"><span class="stat-value" id="appliedCount">0</span><span class="stat-label">Applied</span></div>
+        <div class="stat"><span class="stat-value" id="pendingCount">0</span><span class="stat-label">Pending</span></div>
+        <div class="stat"><span class="stat-value" id="responseCount">0</span><span class="stat-label">Responses</span></div>
+      </div>
+      <button class="btn btn-secondary" id="openTrackerBtn">
+        <span class="btn-icon">📋</span> Open Tracker
+      </button>
+    </section>
+
+    <section class="settings">
+      <button class="btn btn-ghost" id="settingsBtn">
+        <span class="btn-icon">⚙️</span> Settings
+      </button>
+    </section>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Evaluation Result</h3>
+        <button class="modal-close" id="modalClose">×</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

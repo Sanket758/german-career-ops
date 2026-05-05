@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# career-ops — Terminal-native career operations CLI
+#
+# Usage:
+#   ./career-ops scan
+#   ./career-ops evaluate <url>
+#   ./career-ops pipeline
+#   ./career-ops patterns
+#   ./career-ops tracker
+#   ./career-ops cover-letter <file.md>
+#   ./career-ops cover-letters
+#
+# Override model: OLLAMA_MODEL=qwen2.5-coder:7b ./career-ops evaluate <url>
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Activate venv if it exists
+if [ -d "${SCRIPT_DIR}/.career-ops-env" ]; then
+    source "${SCRIPT_DIR}/.career-ops-env/bin/activate"
+fi
+
+exec python "${SCRIPT_DIR}/career_ops_cli.py" "$@"

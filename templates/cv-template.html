@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<title>{{NAME}} — Lebenslauf</title>
+<style>
+  /* ── FONTS ────────────────────────────────────────────────────────────── */
+  /* font-display:block prevents swap-flicker; fonts MUST load before render */
+  @font-face {
+    font-family: 'Space Grotesk';
+    src: url('./fonts/space-grotesk-latin.woff2') format('woff2');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'Space Grotesk';
+    src: url('./fonts/space-grotesk-latin-ext.woff2') format('woff2');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'DM Sans';
+    src: url('./fonts/dm-sans-latin.woff2') format('woff2');
+    font-weight: 100 1000;
+    font-style: normal;
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'DM Sans';
+    src: url('./fonts/dm-sans-latin-ext.woff2') format('woff2');
+    font-weight: 100 1000;
+    font-style: normal;
+    font-display: block;
+  }
+
+  /* ── PAGE SETUP ───────────────────────────────────────────────────────── */
+  /* Locking to exact A4 eliminates all page-count variance */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: #1a1a2e;
+    background: #ffffff;
+  }
+
+  /* Fixed 210mm = A4 width. Padding = physical margins.
+     Content area: 210 - 30mm = 180mm wide, 297 - 22mm = 275mm tall.
+     This is DETERMINISTIC — no variance between runs. */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 11mm 15mm 10mm 15mm;
+  }
+
+  /* ── SECTION 1: HEADER / PERSONAL INFO ───────────────────────────────── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 9px;
+  }
+
+  .header-left { flex: 1; }
+
+  .name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 25px;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 5px;
+  }
+
+  .header-gradient {
+    height: 2px;
+    background: linear-gradient(to right, hsl(187, 74%, 32%), hsl(270, 70%, 45%));
+    border-radius: 1px;
+    margin-bottom: 6px;
+  }
+
+  /* Contact links row */
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    font-size: 9.5px;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .contact-row a { color: #555; text-decoration: none; }
+  .sep { color: #ccc; }
+
+  /* Personal data row (DOB, nationality) */
+  .personal-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 9.5px;
+    color: #555;
+    margin-top: 3px;
+  }
+
+  /* Visa status — must be immediately visible to recruiter */
+  .visa-badge {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: hsl(187, 74%, 26%);
+    background: hsl(187, 45%, 93%);
+    border: 1px solid hsl(187, 45%, 80%);
+    padding: 2px 9px;
+    border-radius: 3px;
+  }
+
+  /* Photo: German standard 35 × 45 mm */
+  .photo-box {
+    width: 33mm;
+    height: 43mm;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .photo-placeholder {
+    font-size: 8px;
+    color: #bbb;
+    text-align: center;
+    line-height: 1.5;
+    padding: 4px;
+  }
+
+  /* ── SECTION COMMON ───────────────────────────────────────────────────── */
+  .section { margin-bottom: 9px; }
+
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: hsl(187, 74%, 30%);
+    border-bottom: 1.5px solid #e0e0e0;
+    padding-bottom: 3px;
+    margin-bottom: 7px;
+    line-height: 1.2;
+  }
+
+  /* ── SECTION 2: SUMMARY ───────────────────────────────────────────────── */
+  .summary-text {
+    font-size: 10.5px;
+    line-height: 1.65;
+    color: #2f2f2f;
+  }
+
+  .tech-stack {
+    font-size: 10px;
+    color: #444;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .tech-stack strong { font-weight: 700; color: #333; }
+
+  /* ── SECTION 3: WORK EXPERIENCE ──────────────────────────────────────── */
+  .job { margin-bottom: 10px; }
+
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .job-company {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: hsl(270, 70%, 42%);
+  }
+
+  .job-period {
+    font-size: 9.5px;
+    color: #777;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .job-role {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 1px;
+    margin-bottom: 4px;
+  }
+
+  .job ul {
+    padding-left: 13px;
+  }
+
+  .job li {
+    font-size: 10px;
+    line-height: 1.55;
+    color: #333;
+    margin-bottom: 3px;
+  }
+
+  /* ── SECTION 4: EDUCATION ─────────────────────────────────────────────── */
+  .edu-item { margin-bottom: 7px; }
+
+  .edu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .edu-org {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: hsl(270, 70%, 42%);
+  }
+
+  .edu-year {
+    font-size: 9.5px;
+    color: #777;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .edu-degree {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 1px;
+  }
+
+  .edu-desc {
+    font-size: 9.5px;
+    color: #666;
+    margin-top: 2px;
+    line-height: 1.45;
+  }
+
+  /* ── SECTION 5: SKILLS (KENNTNISSE) ───────────────────────────────────── */
+  /* Tabular format — easy to scan in 5 seconds */
+  .skill-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+    align-items: baseline;
+  }
+
+  .skill-cat {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 9.5px;
+    color: #333;
+    white-space: nowrap;
+    min-width: 88px;
+  }
+
+  .skill-vals {
+    font-size: 9.5px;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  /* ── SECTION 6: LANGUAGES & CERTIFICATIONS ────────────────────────────── */
+  .lang-cert-grid {
+    display: flex;
+    gap: 20px;
+  }
+
+  .lang-col, .cert-col { flex: 1; }
+
+  .subsection-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+    margin-bottom: 4px;
+  }
+
+  .lang-item, .cert-item {
+    font-size: 9.5px;
+    color: #444;
+    margin-bottom: 3px;
+    line-height: 1.45;
+  }
+
+  .lang-item strong, .cert-item strong {
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* ── OPTIONAL: ACADEMIC PROJECTS ──────────────────────────────────────── */
+  /* Include only when applying for research/robotics roles */
+  .project { margin-bottom: 7px; }
+
+  .project-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: hsl(270, 70%, 42%);
+  }
+
+  .project-desc {
+    font-size: 9.5px;
+    color: #444;
+    margin-top: 2px;
+    line-height: 1.5;
+  }
+
+  /* ── SIGNATURE ─────────────────────────────────────────────────────────── */
+  .signature-block {
+    margin-top: 10mm;
+    font-size: 10px;
+    color: #333;
+  }
+
+  .signature-line {
+    margin-top: 10mm;
+    border-top: 1px solid #555;
+    width: 160px;
+    font-size: 9px;
+    color: #888;
+    padding-top: 3px;
+  }
+
+  /* ── UTILITIES ─────────────────────────────────────────────────────────── */
+  a { text-decoration: none; }
+
+  .avoid-break { break-inside: avoid; page-break-inside: avoid; }
+  .job         { break-inside: avoid; page-break-inside: avoid; }
+  .edu-item    { break-inside: avoid; page-break-inside: avoid; }
+  .project     { break-inside: avoid; page-break-inside: avoid; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 1 — PERSÖNLICHE INFORMATIONEN
+       Photo (35×45mm) + name + contact + DOB/nationality + visa badge
+       Visa must be scannable in < 2 seconds. Do NOT bury it in summary.
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="header avoid-break">
+    <div class="header-left">
+      <div class="name">{{NAME}}</div>
+      <div class="header-gradient"></div>
+
+      <div class="contact-row">
+        <span>{{EMAIL}}</span>
+        <span class="sep">|</span>
+        <span>{{PHONE}}</span>
+        <span class="sep">|</span>
+        <a href="{{LINKEDIN_URL}}">{{LINKEDIN_DISPLAY}}</a>
+        <span class="sep">|</span>
+        <a href="{{GITHUB_URL}}">{{GITHUB_DISPLAY}}</a>
+      </div>
+
+      <div class="personal-row">
+        {{PERSONAL_DATA}}
+      </div>
+
+      <div>
+        <span class="visa-badge">{{VISA_STATUS}}</span>
+      </div>
+    </div>
+
+    <div class="photo-box">
+      {{PHOTO}}
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 2 — BERUFLICHER SCHWERPUNKT (Summary)
+       Max 2-3 sentences. KISS. Add tech stack line for dev roles.
+       Save details for the interview — don't put everything here.
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_SUMMARY}}</div>
+    <div class="summary-text">{{SUMMARY_TEXT}}</div>
+    <div class="tech-stack">{{SUMMARY_TECH}}</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 3 — BERUFSERFAHRUNG (Work Experience)
+       Max 3 bullets per role. Short bullets — 1 line ideally.
+       Timeline must be instantly scannable.
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">{{SECTION_EXPERIENCE}}</div>
+    {{EXPERIENCE}}
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 4 — AUSBILDUNG (Education)
+       Reverse chronological. MSc first.
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_EDUCATION}}</div>
+    {{EDUCATION}}
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 5 — KENNTNISSE (Skills)
+       Max 15-20 items. Tabular format. Scannable in 5 seconds.
+       Remove anything you can't defend in an interview.
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_SKILLS}}</div>
+    {{SKILLS}}
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 6 — SPRACHEN & ZERTIFIKATE
+       Split into two sub-columns. Compact.
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_LANG_CERT}}</div>
+    {{LANG_CERT}}
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       OPTIONAL: AKADEMISCHE PROJEKTE
+       Use only for robotics/research roles where academic work is relevant.
+       Generator fills this block only when --include-projects flag is set.
+       Block is completely removed otherwise (no empty section heading).
+  ═══════════════════════════════════════════════════════════════════ -->
+  {{PROJECTS_BLOCK}}
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       UNTERSCHRIFT — required in German applications
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="signature-block avoid-break">
+    <div>{{SIGNATURE_LOCATION}}, den {{SIGNATURE_DATE}}</div>
+    <div class="signature-line">Unterschrift ({{NAME}})</div>
+  </div>
+
+</div>
+</body>
+</html>

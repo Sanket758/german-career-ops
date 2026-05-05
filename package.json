@@ -1,0 +1,41 @@
+{
+  "name": "career-ops",
+  "version": "1.0.0",
+  "description": "AI-powered job search pipeline built on Claude Code",
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "verify": "node scripts/verify-pipeline.mjs",
+    "normalize": "node scripts/normalize-statuses.mjs",
+    "dedup": "node scripts/dedup-tracker.mjs",
+    "merge": "node scripts/merge-tracker.mjs",
+    "pdf": "node scripts/generate-pdf.mjs",
+    "sync-check": "node scripts/cv-sync-check.mjs",
+    "update:check": "node scripts/update-system.mjs check",
+    "update": "node scripts/update-system.mjs apply",
+    "rollback": "node scripts/update-system.mjs rollback",
+    "liveness": "node scripts/check-liveness.mjs",
+    "scan": "node scripts/scan.mjs",
+    "scan:loop": "node scripts/scan-loop.mjs",
+    "cover-letter": "node scripts/generate-cover-letter-pdf.mjs",
+    "cover-letters": "node scripts/generate-cover-letter-pdf.mjs --all"
+  },
+  "keywords": [
+    "ai",
+    "job-search",
+    "claude-code",
+    "career",
+    "automation"
+  ],
+  "author": "Santiago Fernández de Valderrama <hi@santifer.io> (https://santifer.io)",
+  "homepage": "https://santifer.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/santifer/career-ops"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@playwright/mcp": "^0.0.70",
+    "js-yaml": "^4.1.1",
+    "playwright": "^1.58.1"
+  }
+}

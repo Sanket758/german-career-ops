@@ -1,0 +1,100 @@
+# Personal data (user fills these)
+cv.md
+article-digest.md
+pending.md
+interview-prep/
+data/session-state.json
+data/applications.md
+data/pipeline.md
+data/scan-history.tsv
+reports/*.md
+!reports/.gitkeep
+output/*
+!output/.gitkeep
+batch/logs/*
+!batch/logs/.gitkeep
+batch/batch-state.tsv
+batch/batch-input.tsv
+batch/tracker-additions/**/*.tsv
+!batch/tracker-additions/.gitkeep
+jds/*
+!jds/.gitkeep
+
+# User config and customization (never auto-updated)
+config/profile.yml
+portals.yml
+modes/_profile.md
+.update-dismissed
+.update-lock
+
+# Generated
+.resolved-prompt-*
+node_modules/
+bun.lock
+
+# OS
+.DS_Store
+*.mov
+*.mp4
+
+# Claude Code local
+.claude/settings.local.json
+.claude/memory/
+career-dashboard
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.gco-env/
+.career-ops-env/
+.venv/
+venv/
+env/
+*.so
+
+# Credentials & Environments
+.env
+.env.*
+!.env.example
+.envrc
+token.json
+credentials.json
+*.pem
+*.key
+*.cert
+secrets.yml
+
+# Other Local/Temp Folders
+temp/
+archives/
+.playwright/
+.playwright-cli/
+.playwright_profile/
+.ocx/
+.opencode/
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Temporary files
+.agents
+*.csv
+fraunhofer
+archives/
+.github
+data/
+*sanket*

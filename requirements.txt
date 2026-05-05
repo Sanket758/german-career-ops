@@ -1,0 +1,20 @@
+# Career-Ops Germany — Python Dependencies
+# Install: uv pip install -r career-ops-germany/requirements.txt
+# Python: 3.10+
+
+# ── Gmail Sync (gmail_bridge.py ← gmail_sync.py upstream) ──
+google-auth>=2.0,<3.0
+google-auth-oauthlib>=1.0,<2.0
+google-api-python-client>=2.0,<3.0
+tqdm>=4.60,<5.0
+
+# ── YAML parsing (profile.yml, portals.yml, states.yml, story-fragments.yml) ──
+PyYAML>=6.0,<7.0
+
+# ── HTTP requests (portal scanning, liveness checks) ──
+requests>=2.28,<3.0
+
+# ── Playwright Python bindings (PDF generation fallback) ──
+# Only needed if using Python instead of Node for HTML→PDF
+# Uncomment if needed:
+# playwright>=1.40,<2.0
