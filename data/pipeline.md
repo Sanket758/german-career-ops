@@ -1,0 +1,73 @@
+# Pipeline — Pending Offers (CODE RED curated — full-time only, 2026-08-05)
+
+## Pendientes
+
+- [ ] https://jobs.ashbyhq.com/n8n/d195a389-6af5-4b95-82e5-2258953c7297 | n8n | Sr AI Engineer | Remote - Europe | TS/Vue/NodeJS
+- [ ] https://careers.hellofresh.com/global/en/job/7988916?gh_jid=7988916 | HelloFresh | Senior Staff Machine Learning Engineer, Menu Personalisation (m,f,x) 
+- [ ] https://job-boards.greenhouse.io/blackforestlabs/jobs/5276450008 | Black Forest Labs | Forward Deployed Robotics Engineer
+- [ ] https://job-boards.greenhouse.io/blackforestlabs/jobs/4132217008 | Black Forest Labs | Member of Technical Staff - Image / Video Generation
+- [ ] https://job-boards.greenhouse.io/blackforestlabs/jobs/5193512008 | Black Forest Labs | Member of Technical Staff - Post Training
+- [ ] https://job-boards.greenhouse.io/blackforestlabs/jobs/5193508008 | Black Forest Labs | Member of Technical Staff - Pretraining
+- [ ] https://job-boards.greenhouse.io/celonis/jobs/7819725003?gh_jid=7819725003 | Celonis | Associate Applied (AI) Value Engineer (DACH)
+- [ ] https://job-boards.greenhouse.io/celonis/jobs/7640401003?gh_jid=7640401003 | Celonis | Enterprise Business Development Representative (German speaker) | Relocation to Madrid, Spain
+- [ ] https://job-boards.greenhouse.io/celonis/jobs/7610416003?gh_jid=7610416003 | Celonis | Field CTO - AI & Enterprise Modernization
+- [ ] https://job-boards.greenhouse.io/celonis/jobs/7790264003?gh_jid=7790264003 | Celonis | Senior Software Engineer - AI & Task Mining
+- [ ] https://n26.com/en-eu/careers/positions/8020406?gh_jid=8020406 | N26 | Principal AI Engineer - Conversational Banking
+- [ ] https://job-boards.eu.greenhouse.io/parloa/jobs/4843389101 | Parloa | Senior Data Engineer - Internal Platform
+- [ ] https://sumup.com/careers/positions/8596505002?gh_jid=8596505002 | SumUp | AI Experience Lead - Operations
+- [ ] https://sumup.com/careers/positions/8530960002?gh_jid=8530960002 | SumUp | Engineering Manager - Edge AI
+- [ ] https://sumup.com/careers/positions/8459126002?gh_jid=8459126002 | SumUp | Senior Data Science/ML Engineer - Financial Crime
+- [ ] https://sumup.com/careers/positions/8498275002?gh_jid=8498275002 | SumUp | Senior Machine Learning Engineer I
+- [ ] https://job-boards.greenhouse.io/anthropic/jobs/5226862008 | Anthropic | Applied AI Architect, Applied AI (Digital Natives Business)
+- [ ] https://job-boards.greenhouse.io/anthropic/jobs/4977624008 | Anthropic | Applied AI Architect, Industries
+- [ ] https://job-boards.greenhouse.io/anthropic/jobs/5370167008 | Anthropic | Regional State and Local Affairs Lead, Southern States
+- [ ] https://job-boards.greenhouse.io/anthropic/jobs/5198108008 | Anthropic | Research Engineer, Machine Learning (RL Velocity)
+- [ ] https://job-boards.greenhouse.io/anthropic/jobs/4616971008 | Anthropic | Research Engineer/Research Scientist, Pre-training
+- [ ] https://job-boards.greenhouse.io/arizeai/jobs/6030903004 | Arize AI | AI Solutions Manager, Digital Native
+- [ ] https://job-boards.greenhouse.io/arizeai/jobs/6030902004 | Arize AI | AI Solutions Manager, East
+- [ ] https://job-boards.greenhouse.io/arizeai/jobs/5989510004 | Arize AI | AI Solutions Manager, EMEA
+- [ ] https://job-boards.greenhouse.io/arizeai/jobs/5783026004 | Arize AI | AI Solutions Manager, West
+- [ ] https://job-boards.greenhouse.io/arizeai/jobs/5980312004 | Arize AI | DevSecOps Engineer (TypeScript & Agentic AI)
+- [ ] https://job-boards.greenhouse.io/arizeai/jobs/5993755004 | Arize AI | Forward Deployed AI Engineer, East
+- [ ] https://job-boards.greenhouse.io/arizeai/jobs/6030953004 | Arize AI | Forward Deployed AI Engineer, West
+- [ ] https://job-boards.greenhouse.io/intercom/jobs/7824142 | Intercom | AI Infrastructure Engineer
+- [ ] https://job-boards.greenhouse.io/humeai/jobs/4775962008 | Hume AI | AI Researcher
+- [ ] https://job-boards.greenhouse.io/humeai/jobs/4003488008 | Hume AI | Senior/Staff AI Research Engineer
+- [ ] https://helsing.ai/jobs/4372802101?gh_jid=4372802101 | Helsing | AI Research Engineer - ML & Signal Processing
+- [ ] https://helsing.ai/jobs/4871604101?gh_jid=4871604101 | Helsing | Finance Data Engineer
+- [ ] https://helsing.ai/jobs/4741565101?gh_jid=4741565101 | Helsing | Software Engineer - Airborne Mission Systems
+- [ ] https://helsing.ai/jobs/4741571101?gh_jid=4741571101 | Helsing | Software Engineer - Autonomous Air Systems
+- [ ] https://helsing.ai/jobs/4741219101?gh_jid=4741219101 | Helsing | Software Engineer - Autonomous Air System V&V
+- [ ] https://helsing.ai/jobs/4741242101?gh_jid=4741242101 | Helsing | Software Engineer - Ground to Air HMI
+- [ ] https://helsing.ai/jobs/4865991101?gh_jid=4865991101 | Helsing | Technical Programme Manager - Air
+- [ ] https://wayve.firststage.co/jobs?gh_jid=8644800002 | Wayve | Data Engineer
+- [ ] https://wayve.firststage.co/jobs?gh_jid=8431120002 | Wayve | Machine Learning Engineer
+- [ ] https://wayve.firststage.co/jobs?gh_jid=8622189002 | Wayve | Machine Learning Engineer, ADAS
+- [ ] https://job-boards.greenhouse.io/hightouch/jobs/5618829004 | Hightouch | AI Strategy Consultant 
+- [ ] https://job-boards.greenhouse.io/hightouch/jobs/5542602004 | Hightouch | Software Engineer, AI Agents
+- [ ] https://job-boards.greenhouse.io/hightouch/jobs/6020404004 | Hightouch | Staff Engineer, AI Productivity
+- [ ] https://jobs.ashbyhq.com/supabase/3b5d54ca-741b-45ac-bd3f-31605a0d3541 | Supabase | AI Platform Engineer
+- [ ] https://job-boards.eu.greenhouse.io/amplemarket/jobs/4108094101 | Amplemarket | Spontaneous Application - Data Engineer
+- [ ] https://www.scandit.com/careers/job-description/?gh_jid=8083196 | Scandit | Senior Computer Vision Engineer (Action Recognition) 
+- [ ] https://jobs.ashbyhq.com/synthesia/e9c63d3d-13cc-4049-ae0a-5fef402c595b | Synthesia | Principal ML Platform Engineer
+- [ ] https://jobs.ashbyhq.com/synthesia/6730e2e5-0d32-4919-a438-625f1673b70c | Synthesia | ML Platform Engineer
+- [ ] https://jobs.sap.com/job/Garching-bei-München-(Munich)-Forward-Deployed-(Senior)-AI-Engineer-(fmd)-85748/1421692233/ | SAP | Forward Deployed (Senior) AI Engineer | Munich | junior-friendly (research top pick)
+- [ ] https://job-boards.greenhouse.io/artefactlinkedin/jobs/8634429002 | Artefact | Junior AI Engineer (m/f/d) | Berlin/Hamburg/Munich | true junior (research top pick)
+- [ ] https://carbmee.jobs.personio.com/job/2556440?language=en | carbmee | Data & AI Engineer Consultant (All Levels) | Munich/Berlin (research top pick)
+- [ ] https://career.quantum-systems.com/o/computer-vision-ai-engineer-interceptor-cuas-mfd | Quantum Systems | Computer Vision & AI Engineer, Interceptor C-UAS | Gilching (research top pick)
+- [ ] https://ats.rippling.com/eternal/jobs/ebbd222a-cc62-42ab-9dd3-bc4a52bfdd82 | eternal.ag | Computer Vision Engineer (All levels, New Grad OK) | Cologne (research top pick)
+- [ ] https://schwarz-digits.de/en/jobsearch/mlops-engineer-m-f-d-48274 | Schwarz Digits | MLOps Engineer | Bad Friedrichshall/remote
+- [ ] https://schwarz.jobs.schwarz/job-invite/47243/ | Schwarz | Software Engineer in AI | Neckarsulm
+- [ ] https://jobs.ashbyhq.com/black-forest-labs/c7792936-1dcd-4e7b-9d6c-700e2af376ab | Black Forest Labs | MTS Image/Video Generation | Freiburg
+- [ ] https://zeissgroup.wd3.myworkdayjobs.com/en-US/External/job/Oberkochen/Machine-Learning-Engineer--m-f-x-_JR_1047245-1 | ZEISS | Machine Learning Engineer | Oberkochen
+- [ ] https://jobs.sonova.com/job/Berlin-Data-Scientist-(Deep-Learning)-(mfd)/1383278933/ | Sonova | Data Scientist (Deep Learning) | Berlin
+- [ ] https://job-boards.greenhouse.io/awin/jobs/7709658003 | Awin | Machine Learning Engineer | Berlin/Munich/Warsaw/London
+- [ ] https://careers.deliveryhero.com/job/junior-data-scientist-consumer-all-genders-in-berlin-germany-jid-1929 | Delivery Hero | Junior Data Scientist, Consumer | Berlin
+- [ ] https://jobs.bmwgroup.com/job/München-Senior-ML-Engineer-Next-Generation-Autonomous-Driving-(fmx)-BY-80809/1398666033/ | BMW Group | Senior ML Engineer, Next-Gen Autonomous Driving | Munich | senior stretch
+- [ ] https://twentyfour-industries.jobs.personio.com/job/2734831 | Twentyfour Industries | Computer Vision Engineer | Munich
+- [ ] https://helsing.ai/jobs/4334842101?gh_jid=4334842101 | Helsing | AI Research Engineer - Computer Vision | Berlin/London/Munich
+- [ ] https://helsing.ai/jobs/4911999101?gh_jid=4911999101 | Helsing | AI Research Engineer - 3D Computer Vision | Berlin/Munich
+- [ ] https://helsing.ai/jobs/4516967101?gh_jid=4516967101 | Helsing | Deployed AI Engineer | multi-city DE | most junior-accessible
+
+## Procesadas
+

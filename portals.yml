@@ -1,0 +1,1997 @@
+# Portal Scanner Configuration
+# Used by /career-ops scan to discover new offers automatically.
+#
+# Strategy (3 levels):
+#   1. Playwright → careers_url of each company (real-time, reliable)
+#   2. Greenhouse API → structured JSON (fast, Greenhouse-only)
+#   3. WebSearch with site: filters (broad discovery, may be stale)
+#
+# IMPORTANT: Each company in tracked_companies MUST have careers_url.
+#
+# HOW TO CUSTOMIZE:
+#   1. Copy this file to portals.yml in the project root
+#   2. Edit title_filter.positive with YOUR target role keywords
+#   3. Add/remove companies in tracked_companies
+#   4. Adjust search_queries for your preferred job boards
+#   5. Set enabled: false on companies you don't care about
+
+# -- Location Priority --
+# TIER 1 (PRIMARY): German priority cities
+# TIER 2 (SECONDARY): International relocation targets
+# TIER 3 (RELOCATE): Asia/Remote/Other EU if good fit
+
+location_priority:
+  tier1:
+    - Berlin
+    - Munich
+    - Bavaria
+    - Dusseldorf
+    - Dortmund
+    - Essen
+  tier2:
+    - Luxembourg
+    - Switzerland
+    - UK
+    - Belgium
+    - Poland
+    - Netherlands
+  tier3:
+    - Seoul
+    - South Korea
+    - Japan
+    - remote
+    - Europe
+    - EU
+
+# -- Title filter --
+# The scanner uses these keywords to decide if a title is relevant.
+# At least 1 positive must match AND 0 negatives must match (case-insensitive).
+
+title_filter:
+  positive:
+    # -- AI/ML core roles (Sanket's primary targets) --
+    - "AI"
+    - "ML"
+    - "Machine Learning"
+    - "Deep Learning"
+    - "LLM"
+    - "GenAI"
+    - "Generative AI"
+    - "NLP"
+    - "LLMOps"
+    - "MLOps"
+    # -- Computer Vision (strongest fit) --
+    - "Computer Vision"
+    - "Vision"
+    - "Perception"
+    - "Object Detection"
+    - "Image"
+    # -- Robotics --
+    - "Robotics"
+    - "ROS"
+    - "Autonomous"
+    - "Edge"
+    # -- Python/Backend --
+    - "Python"
+    - "Data Engineer"
+    - "Data Scientist"
+    # -- RAG & Agents --
+    - "Agent"
+    - "Agentic"
+    - "RAG"
+    - "Retrieval"
+    # -- German AI/ML keywords (DACH market) --
+    - "KI"
+    - "Künstliche Intelligenz"
+    - "KI Engineer"
+  negative:
+    # Exclude non-matching tech stacks and roles
+    - ".NET"
+    - "Java "
+    - "iOS"
+    - "Android"
+    - "PHP"
+    - "Ruby"
+    - "FPGA"
+    - "ASIC"
+    - "Blockchain"
+    - "Web3"
+    - "Crypto"
+    - "Salesforce Admin"
+    - "SAP "
+    - "Oracle EBS"
+    - "Mainframe"
+    - "COBOL"
+    - "Product Manager"
+    - "DevRel"
+    - "Developer Advocate"
+    - "Marketing"
+    - "Sales"
+    - "Recruiter"
+    # CODE RED 2026-08-05 — block business/GTM/leadership noise that matches 'AI'/'ML'
+    - "Account Executive"
+    - "Account Manager"
+    - "Customer Success"
+    - "Solutions Consultant"
+    - "Solutions Consulting"
+    - "GTM"
+    - "Talent Pool"
+    - "Business Development"
+    - "Head of"
+    - "Growth"
+    - "Paid Social"
+    - "SEO"
+    - "Content"
+    - "Partnerships"
+    - "Business Intelligence"
+    - "General Ledger"
+    - "Accountant"
+    - "Kitchen"
+    - "Shift Lead"
+    - "Maintenance"
+    - "Supply Chain"
+    - "Supervisor"
+    - "Mechanical Engineer"
+    - "Systems Engineer"
+    - "Safety"
+    - "Frontend"
+    - "Backend Engineer"
+    # CODE RED 2026-08-05 — full-time ONLY. Auto-discard all part-time/student roles.
+    - "Werkstudent"
+    - "Working Student"
+    - "Praktikum"
+    - "Internship"
+    - "Intern "
+    - "Thesis"
+    - "Bachelor"
+    - "Master Thesis"
+    - "Working Student"
+    - "Hiwi"
+    - "Student Assistant"
+    - "Student Employee"
+    - "Part-time"
+    - "Part Time"
+    - "20h"
+    - "15h"
+    - "Seasonal"
+    - "Apprentice"
+    - "Azubi"
+  seniority_boost:
+    # CODE RED — boost junior/mid (Sanket open to & prefers junior). No penalty for senior.
+    - "Junior"
+    - "Mid"
+    - "Entry"
+    - "Graduate"
+    - "Senior"
+    - "Lead"
+    - "Staff"
+
+# -- Location filter --
+# Filters out jobs outside your target regions to save pipeline space.
+# Uses case-insensitive substring matching on the 'location' string from APIs.
+location_filter:
+  positive:
+    - Remote
+    - Germany
+    - Deutschland
+    - Berlin
+    - Munich
+    - München
+    - Regional
+    - Leipzig
+    - Brandenburg
+    - Dresden
+    - Stuttgart
+    - Bavaria
+    - Bayern
+    - Dusseldorf
+    - Cologne
+    - Hamburg
+    - Hanover
+    - Nuremberg
+    - Essen
+    - Frankfurt
+    - Mainz
+    - Karlsruhe
+    - Freiburg
+    - Heidelberg
+    - Aachen
+    - Bochum
+    - Dortmund
+    - Magdeburg
+    - Jena
+    - Erlangen
+    - Ulm
+    - Europe
+    - EU
+    - Belgium
+    - Poland
+    - Netherlands
+    - Seoul
+    - South Korea
+    - Japan
+  negative:
+    - United States
+    - US
+    - USA
+    - Canada
+    - Spain
+    - France
+    - Italy
+    - Australia
+    - Philippines
+    - Brazil
+    - Chile
+    - India
+    - UAE
+    - Dubai
+    - Singapore
+
+# -- Search queries --
+# Each query triggers a WebSearch. Use site: to filter by portal.
+# The scanner extracts title, URL, and company from results.
+# Customized for Sanket Gadge: CV/ML Engineer, full-time only, Germany-wide (CODE RED 2026-08-05).
+
+search_queries:
+
+  # ============================================
+  # TIER 1: BERLIN + NEARBY (PRIMARY)
+  # ============================================
+
+  # -- LinkedIn Berlin/Nearby — Werkstudent (HIGHEST PRIORITY) --
+  - name: LinkedIn — Full-time AI/ML Berlin (CODE RED)
+    query: 'site:linkedin.com/jobs "AI" OR "ML" OR "Machine Learning" OR "Computer Vision" "full-time" Berlin junior OR associate'
+    enabled: true
+
+  - name: LinkedIn — Full-time Computer Vision Berlin (CODE RED)
+    query: 'site:linkedin.com/jobs "Computer Vision" OR "Machine Learning Engineer" "full-time" Berlin 2026'
+    enabled: true
+
+  - name: LinkedIn — ML CV near Berlin (CODE RED)
+    query: 'site:linkedin.com/jobs "AI" OR "ML" OR "ML Engineer" "full-time" Leipzig OR Brandenburg OR Potsdam OR Dresden senior OR junior'
+    enabled: true
+
+  # -- LinkedIn Berlin — Full-time/Part-time AI/ML --
+  - name: LinkedIn — ML Engineer Berlin (PRIORITY)
+    query: 'site:linkedin.com/jobs "ML Engineer" OR "Machine Learning Engineer" OR "AI Engineer" Berlin'
+    enabled: true
+
+  - name: LinkedIn — Computer Vision Berlin (PRIORITY)
+    query: 'site:linkedin.com/jobs "Computer Vision" OR "CV Engineer" OR "Perception" OR "Object Detection" Berlin'
+    enabled: true
+
+  - name: LinkedIn — Python AI Developer Berlin (PRIORITY)
+    query: 'site:linkedin.com/jobs "Python" "AI" OR "ML" "Developer" OR "Engineer" Berlin'
+    enabled: true
+
+  - name: LinkedIn — Robotics ML Berlin (PRIORITY)
+    query: 'site:linkedin.com/jobs "Robotics" "ML" OR "Machine Learning" OR "Computer Vision" OR "ROS" Berlin'
+    enabled: true
+
+  # -- XING Berlin/Nearby (major German job board) --
+  - name: XING — Full-time ML Berlin (CODE RED)
+    query: 'site:xing.com/jobs "Machine Learning" OR "ML Engineer" OR "AI Engineer" "Vollzeit" OR "full-time" Berlin'
+    enabled: true
+
+  - name: XING — ML/AI Engineer Berlin (PRIORITY)
+    query: 'site:xing.com/jobs "Machine Learning" OR "ML Engineer" OR "AI Engineer" "Berlin"'
+    enabled: true
+
+  - name: XING — Computer Vision Berlin (PRIORITY)
+    query: 'site:xing.com/jobs "Computer Vision" OR "Bildverarbeitung" OR "Object Detection" "Berlin"'
+    enabled: true
+
+  - name: XING — Full-time ML nearby (CODE RED)
+    query: 'site:xing.com/jobs "Machine Learning" OR "KI" OR "AI" "Vollzeit" OR "full-time" Leipzig OR Dresden OR Munich'
+    enabled: true
+
+  # -- StepStone Berlin (Germany's largest job board) --
+  - name: StepStone — Full-time KI/ML Berlin (CODE RED)
+    query: 'site:stepstone.de "KI" OR "AI" OR "ML" OR "Machine Learning" OR "Computer Vision" "Vollzeit" OR "full-time" Berlin'
+    enabled: true
+
+  - name: StepStone — ML Engineer Berlin (PRIORITY)
+    query: 'site:stepstone.de "AI Engineer" OR "ML Engineer" OR "Machine Learning" "Berlin"'
+    enabled: true
+
+  # -- Arbeitnow (English-friendly German jobs) --
+  - name: Arbeitnow — AI/ML Berlin (PRIORITY)
+    query: 'site:arbeitnow.com "AI" OR "ML" OR "Machine Learning" OR "Computer Vision" Berlin'
+    enabled: true
+
+  # -- Welcome to the Jungle (strong in DACH) --
+  - name: Welcome to the Jungle — AI/ML Berlin (PRIORITY)
+    query: 'site:welcometothejungle.com Berlin "AI Engineer" OR "ML Engineer" OR "Computer Vision" OR "Werkstudent" OR "Working Student"'
+    enabled: true
+
+  # -- JOIN Berlin AI/ML (job aggregator, all companies) --
+  - name: JOIN — AI/ML Berlin (PRIORITY)
+    query: 'site:join.com "machine-learning" OR "computer-vision" OR "AI engineer" OR "data scientist" Berlin'
+    enabled: true
+
+  - name: JOIN — Robotics/ML Berlin (PRIORITY)
+    query: 'site:join.com "robotics" OR "ROS" OR "autonomous" OR "perception" Berlin'
+    enabled: true
+
+  - name: JOIN — Full-time AI/ML Germany (CODE RED)
+    query: 'site:join.com "machine-learning" OR "AI" OR "python" OR "computer vision" Germany "full-time"'
+    enabled: true
+
+  # -- Berlin Startup Jobs (startup aggregator) --
+  - name: Berlin Startup Jobs — AI/ML Engineering (PRIORITY)
+    query: 'site:berlinstartupjobs.com "machine-learning" OR "computer-vision" OR "deep-learning" OR "AI"'
+    enabled: true
+
+  - name: Berlin Startup Jobs — Python/Data Engineering (PRIORITY)
+    query: 'site:berlinstartupjobs.com "python" OR "data-engineer" OR "data-scientist" OR "backend"'
+    enabled: true
+
+  - name: Berlin Startup Jobs — Robotics/Autonomous (PRIORITY)
+    query: 'site:berlinstartupjobs.com "robotics" OR "autonomous" OR "ROS" OR "perception"'
+    enabled: true
+
+  # -- PRIORITY: Trax Retail (computer vision for retail — PERFECT MATCH) --
+  - name: Trax Retail — AI/ML Engineer (PRIORITY)
+    query: 'site:info.traxretail.com "machine learning" OR "computer vision" OR "AI engineer" OR "data scientist"'
+    enabled: true
+
+  - name: Trax Retail — CV/ML Berlin Europe (PRIORITY)
+    query: '"Trax Retail" OR "traxretail" "computer vision" OR "machine learning" "Berlin" OR "Europe" OR "Germany" job careers 2026'
+    enabled: true
+
+  # -- PRIORITY: Colgate Palmolive (India project connection) --
+  - name: Colgate — AI/ML Engineer Europe (PRIORITY)
+    query: 'site:jobs.colgate.com "AI" OR "machine learning" OR "data scientist" Europe Germany UK 2026'
+    enabled: true
+
+  - name: Colgate — Computer Vision / Retail AI (PRIORITY)
+    query: '"Colgate" "computer vision" OR "AI engineer" OR "machine learning" Europe careers 2026'
+    enabled: true
+
+  # -- PRIORITY: ARX Robotics (Munich defense robotics — growing fast) --
+  - name: ARX Robotics — ML/AI Engineer Munich (PRIORITY)
+    query: '"ARX Robotics" "machine learning" OR "AI" OR "robotics" OR "autonomous" Munich careers jobs 2026'
+    enabled: true
+
+  - name: ARX Robotics — Full-time Robo/AI Germany (CODE RED)
+    query: '"ARX Robotics" "machine learning" OR "AI" OR "robotics" OR "autonomous" OR "software engineer" Munich "full-time" careers jobs 2026'
+    enabled: true
+
+  # -- Arbeitnow — Robotics cluster Germany (found many relevant roles) --
+  - name: Arbeitnow — Robotics/AI Munich (PRIORITY)
+    query: 'site:arbeitnow.com "robotics" OR "ROS" OR "autonomous" OR "AI engineer" Munich Germany 2026'
+    enabled: true
+
+  - name: Arbeitnow — Full-time AI/ML Germany (CODE RED)
+    query: 'site:arbeitnow.com "machine learning" OR "AI" OR "Python" "full-time" Germany 2026'
+    enabled: true
+
+  - name: Arbeitnow — Computer Vision Germany (PRIORITY)
+    query: 'site:arbeitnow.com "computer vision" OR "perception" OR "object detection" Germany 2026'
+    enabled: true
+
+  # ============================================
+  # TIER 2: GERMANY-WIDE (RELOCATE)
+  # ============================================
+
+  # -- LinkedIn Germany-wide --
+  - name: LinkedIn DE — ML Engineer Germany
+    query: 'site:linkedin.com/jobs "ML Engineer" OR "Machine Learning Engineer" OR "AI Engineer" Germany'
+    enabled: true
+
+  - name: LinkedIn DE — Full-time Applied ML Germany (CODE RED)
+    query: 'site:linkedin.com/jobs "ML Engineer" OR "Machine Learning Engineer" OR "AI Engineer" "full-time" Germany Munich OR Stuttgart OR Bavaria OR Berlin'
+    enabled: true
+
+  - name: LinkedIn DE — Computer Vision Germany
+    query: 'site:linkedin.com/jobs "Computer Vision" OR "Perception Engineer" OR "Object Detection" Germany'
+    enabled: true
+
+  - name: LinkedIn DE — Robotics ML Germany
+    query: 'site:linkedin.com/jobs "Robotics" "ML" OR "Machine Learning" OR "Computer Vision" OR "ROS" Germany Munich Bavaria'
+    enabled: true
+
+  # -- XING Germany-wide --
+  - name: XING — ML/AI Engineer Germany
+    query: 'site:xing.com/jobs "Machine Learning" OR "ML Engineer" OR "AI Engineer" OR "KI Engineer" Germany'
+    enabled: true
+
+  - name: XING — Full-time KI/ML Germany (CODE RED)
+    query: 'site:xing.com/jobs "KI" OR "AI" OR "ML" OR "Machine Learning" OR "Python" "Vollzeit" OR "full-time" Germany Munich OR Berlin OR Stuttgart'
+    enabled: true
+
+  - name: XING — Computer Vision Germany
+    query: 'site:xing.com/jobs "Computer Vision" OR "Bildverarbeitung" OR "Object Detection" Germany'
+    enabled: true
+
+  # -- StepStone Germany-wide --
+  - name: StepStone — AI/ML Engineer Germany
+    query: 'site:stepstone.de "AI Engineer" OR "ML Engineer" OR "Machine Learning" OR "KI Engineer" Munich OR Stuttgart OR Dusseldorf'
+    enabled: true
+
+  - name: StepStone — Full-time KI/ML Germany (CODE RED)
+    query: 'site:stepstone.de "KI" OR "AI" OR "ML" OR "Machine Learning" OR "Computer Vision" "Vollzeit" OR "full-time" Munich OR Berlin OR Stuttgart'
+    enabled: true
+
+  # ============================================
+  # TIER 2: GERMANY AI COMPANIES (RELOCATE)
+  # ============================================
+
+  # -- Ashby Germany --
+  - name: Ashby — ML/AI Engineer Germany
+    query: 'site:jobs.ashbyhq.com "ML Engineer" OR "AI Engineer" OR "Computer Vision" Germany Munich Berlin'
+    enabled: true
+
+  - name: Ashby — Robotics ML Germany
+    query: 'site:jobs.ashbyhq.com "Robotics" OR "Autonomous" OR "Perception" "ML" OR "Engineer" Germany Munich'
+    enabled: true
+
+  - name: Ashby — Full-time ML Germany (CODE RED)
+    query: 'site:jobs.ashbyhq.com "ML Engineer" OR "AI Engineer" OR "Computer Vision" OR "Data Scientist" Germany Munich Berlin'
+    enabled: true
+
+  # -- Greenhouse Germany --
+  - name: Greenhouse — ML/AI Engineer Germany
+    query: 'site:boards.greenhouse.io OR site:job-boards.greenhouse.io "ML Engineer" OR "AI Engineer" OR "Computer Vision" Germany Berlin Munich'
+    enabled: true
+
+  - name: Greenhouse — Python AI Germany
+    query: 'site:boards.greenhouse.io OR site:job-boards.greenhouse.io "Python" "AI" OR "ML" OR "Deep Learning" Germany'
+    enabled: true
+
+  - name: Greenhouse — Full-time AI/ML Germany (CODE RED)
+    query: 'site:boards.greenhouse.io OR site:job-boards.greenhouse.io "Machine Learning Engineer" OR "Computer Vision" OR "AI Engineer" Germany'
+    enabled: true
+
+  # -- Lever Germany --
+  - name: Lever — ML/AI Roles Germany
+    query: 'site:jobs.lever.co "ML Engineer" OR "AI Engineer" OR "Computer Vision" OR "Robotics" Germany Munich Berlin'
+    enabled: true
+
+  # -- Workable Germany --
+  - name: Workable — AI/ML Germany
+    query: 'site:apply.workable.com "AI Engineer" OR "ML Engineer" OR "Computer Vision" OR "Deep Learning" Germany'
+    enabled: true
+
+  # ============================================
+  # TIER 2: SPECIALIZED — CV / Robotics / Edge ML (Germany)
+  # ============================================
+
+  - name: Robotics Jobs — Germany
+    query: '"Robotics ML Engineer" OR "Robotics Engineer" OR "Perception Engineer" "Python" OR "PyTorch" OR "ROS" Germany Berlin Munich'
+    enabled: true
+
+  - name: Computer Vision — Germany
+    query: '"Computer Vision Engineer" OR "CV Engineer" OR "Perception" "PyTorch" OR "YOLO" OR "Detection" Germany Berlin Munich'
+    enabled: true
+
+  - name: Edge ML — Germany
+    query: '"Edge ML" OR "Edge AI" OR "ONNX" OR "TensorRT" "Engineer" OR "Developer" Germany'
+    enabled: true
+
+  # ============================================
+  # TIER 3: REMOTE / EU (Good fit = apply anyway)
+  # ============================================
+
+  - name: RemoteFront — AI/ML Europe
+    query: 'site:remotefront.com "AI Engineer" OR "ML Engineer" OR "Computer Vision" OR "Deep Learning" remote Europe'
+    enabled: true
+
+  - name: Remotive — ML/AI Europe
+    query: 'site:remotive.com "AI Engineer" OR "ML Engineer" OR "Computer Vision" OR "Robotics" Europe'
+    enabled: true
+
+  - name: ai-jobs.net — ML/AI/CV Europe
+    query: 'site:ai-jobs.net "ML Engineer" OR "Computer Vision" OR "AI Engineer" OR "Robotics" remote Europe Germany'
+    enabled: true
+
+  - name: ai-jobs.net — Applied AI
+    query: 'site:ai-jobs.net "Applied AI" OR "Perception" OR "Deep Learning" remote Europe'
+    enabled: true
+
+  - name: YC Jobs — ML/AI Europe
+    query: 'site:workatastartup.com "ML Engineer" OR "AI Engineer" OR "Computer Vision" remote Europe Germany'
+    enabled: true
+
+  - name: EU Data Jobs — AI/ML Europe
+    query: 'site:eudatajobs.com "AI" OR "ML" OR "Computer Vision" "Engineer" remote Europe Germany'
+    enabled: true
+
+  - name: HN Who's Hiring — ML/AI
+    query: 'site:news.ycombinator.com "ML Engineer" OR "AI Engineer" OR "Computer Vision" OR "Robotics" remote Germany'
+    enabled: true
+
+# -- Tracked companies --
+# Companies whose career pages are checked directly.
+# scan_method: playwright (default), websearch, greenhouse_api
+# For Greenhouse companies, add api: field for faster structured JSON access.
+# priority: tier1 (Berlin/nearby), tier2 (Germany relocatable), tier3 (EU/Remote)
+
+tracked_companies:
+
+  # =============================================
+  # TIER 1: BERLIN-BASED COMPANIES (HIGHEST)
+  # =============================================
+
+  - name: Parloa
+    careers_url: https://job-boards.eu.greenhouse.io/parloa
+    api: https://boards-api.greenhouse.io/v1/boards/parloa/jobs
+    notes: "Berlin HQ. Voice AI enterprise. FDE/AI Agent roles."
+    priority: tier1
+    enabled: true
+
+  - name: Contentful
+    careers_url: https://job-boards.greenhouse.io/contentful
+    api: https://boards-api.greenhouse.io/v1/boards/contentful/jobs
+    notes: "Berlin / Denver. Headless CMS, AI content workflows."
+    priority: tier1
+    enabled: true
+
+  - name: GetYourGuide
+    careers_url: https://job-boards.greenhouse.io/getyourguide
+    api: https://boards-api.greenhouse.io/v1/boards/getyourguide/jobs
+    notes: "Berlin. Travel marketplace, ML & data platform roles."
+    priority: tier1
+    enabled: true
+
+  - name: HelloFresh
+    careers_url: https://job-boards.greenhouse.io/hellofresh
+    api: https://boards-api.greenhouse.io/v1/boards/hellofresh/jobs
+    notes: "Berlin. Meal kit unicorn, large data/ML org."
+    priority: tier1
+    enabled: true
+
+  - name: N26
+    careers_url: https://job-boards.greenhouse.io/n26
+    api: https://boards-api.greenhouse.io/v1/boards/n26/jobs
+    notes: "Berlin / Barcelona. Mobile bank, ML & risk roles."
+    priority: tier1
+    enabled: true
+
+  - name: Trade Republic
+    careers_url: https://job-boards.greenhouse.io/traderepublicbank
+    api: https://boards-api.greenhouse.io/v1/boards/traderepublicbank/jobs
+    notes: "Berlin / London / Paris. Neobroker, platform & data roles."
+    priority: tier1
+    enabled: true
+
+  - name: SumUp
+    careers_url: https://job-boards.greenhouse.io/sumup
+    api: https://boards-api.greenhouse.io/v1/boards/sumup/jobs
+    notes: "Berlin / London. Payments fintech, EU + LATAM hiring."
+    priority: tier1
+    enabled: true
+
+  - name: Langfuse
+    careers_url: https://langfuse.com/careers
+    scan_method: websearch
+    scan_query: '"langfuse" careers OR jobs "engineer" OR "solutions"'
+    notes: "Berlin. LLMOps / observability."
+    priority: tier1
+    enabled: true
+
+  - name: n8n
+    careers_url: https://jobs.ashbyhq.com/n8n
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/n8n'
+    notes: "Berlin + remote EU/US. Workflow automation."
+    priority: tier1
+    enabled: true
+
+  - name: Forto
+    careers_url: https://jobs.lever.co/forto
+    notes: "Berlin DE. Digital freight forwarder, product & data roles."
+    priority: tier1
+    enabled: true
+
+  - name: Helsing
+    careers_url: https://job-boards.greenhouse.io/helsing
+    api: https://boards-api.greenhouse.io/v1/boards/helsing/jobs
+    notes: "Munich / Berlin / London / Paris. Defence AI unicorn. ML & FDE roles."
+    priority: tier1
+    enabled: true
+
+  - name: Aleph Alpha
+    careers_url: https://jobs.ashbyhq.com/AlephAlpha
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/AlephAlpha'
+    notes: "Heidelberg DE. Sovereign European LLM provider."
+    priority: tier1
+    enabled: true
+
+  - name: Cognigy
+    careers_url: https://careers.cognigy.com
+    scan_method: websearch
+    scan_query: '"cognigy" careers "AI" OR "Solutions" OR "Engineer"'
+    notes: "Dusseldorf / Berlin EMEA. Conversational AI enterprise."
+    priority: tier1
+    enabled: true
+
+  - name: Vinted
+    careers_url: https://jobs.lever.co/vinted
+    notes: "Vilnius LT / Berlin. C2C marketplace, data science & ML roles."
+    priority: tier1
+    enabled: true
+
+  - name: Celonis
+    careers_url: https://job-boards.greenhouse.io/celonis
+    api: https://boards-api.greenhouse.io/v1/boards/celonis/jobs
+    notes: "Munich / Berlin. Process intelligence, Applied AI Engineer roles."
+    priority: tier1
+    enabled: true
+
+  - name: Qonto
+    careers_url: https://jobs.lever.co/qonto
+    notes: "Paris / Berlin / Barcelona / Milan. SMB neobank, MLOps for AI Product roles."
+    priority: tier1
+    enabled: true
+
+  - name: Black Forest Labs
+    careers_url: https://job-boards.greenhouse.io/blackforestlabs
+    api: https://boards-api.greenhouse.io/v1/boards/blackforestlabs/jobs
+    notes: "Freiburg DE / SF. FLUX image models, ex-Stable Diffusion team."
+    priority: tier1
+    enabled: true
+
+  # =============================================
+  # TIER 2: GERMAN RELOCATABLE COMPANIES
+  # =============================================
+
+  - name: DeepL
+    careers_url: https://jobs.ashbyhq.com/DeepL
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/DeepL'
+    notes: "Cologne DE. Translation & language AI. EU/DACH heavy."
+    priority: tier2
+    enabled: true
+
+  - name: Anthropic
+    careers_url: https://job-boards.greenhouse.io/anthropic
+    api: https://boards-api.greenhouse.io/v1/boards/anthropic/jobs
+    notes: "US-based but remote-friendly."
+    priority: tier2
+    enabled: true
+
+  - name: OpenAI
+    careers_url: https://openai.com/careers
+    scan_method: websearch
+    scan_query: 'site:openai.com/careers "Solutions" OR "Forward Deployed" OR "AI Engineer"'
+    notes: "US-based but remote options possible."
+    priority: tier2
+    enabled: true
+
+  - name: Cohere
+    careers_url: https://jobs.ashbyhq.com/cohere
+    notes: "Toronto + remote. AI/LLM provider."
+    priority: tier2
+    enabled: true
+
+  - name: LangChain
+    careers_url: https://jobs.ashbyhq.com/langchain
+    notes: "LangChain/LangSmith framework."
+    priority: tier2
+    enabled: true
+
+  - name: Pinecone
+    careers_url: https://jobs.ashbyhq.com/pinecone
+    notes: "Vector database. Remote-first."
+    priority: tier2
+    enabled: true
+
+  - name: Arize AI
+    careers_url: https://job-boards.greenhouse.io/arizeai
+    api: https://boards-api.greenhouse.io/v1/boards/arizeai/jobs
+    notes: "LLMOps / AI observability. EMEA hiring."
+    priority: tier2
+    enabled: true
+
+  - name: RunPod
+    careers_url: https://job-boards.greenhouse.io/runpod
+    api: https://boards-api.greenhouse.io/v1/boards/runpod/jobs
+    notes: "GPU cloud for AI. Remote roles."
+    priority: tier2
+    enabled: true
+
+  - name: Glean
+    careers_url: https://job-boards.greenhouse.io/gleanwork
+    api: https://boards-api.greenhouse.io/v1/boards/gleanwork/jobs
+    notes: "Enterprise AI search. Remote-friendly."
+    priority: tier2
+    enabled: true
+
+  - name: Temporal
+    careers_url: https://job-boards.greenhouse.io/temporal
+    api: https://boards-api.greenhouse.io/v1/boards/temporal/jobs
+    notes: "Workflow orchestration. Remote-first."
+    priority: tier2
+    enabled: true
+
+  - name: Retool
+    careers_url: https://retool.com/careers
+    scan_method: websearch
+    scan_query: 'site:retool.com/careers "Deployed" OR "AI" OR "Solutions"'
+    notes: "London. Remote EU possible."
+    priority: tier2
+    enabled: true
+
+  # =============================================
+  # TIER 2: VOICE AI / CONVERSATIONAL AI
+  # =============================================
+
+  - name: PolyAI
+    careers_url: https://job-boards.eu.greenhouse.io/polyai
+    api: https://boards-api.greenhouse.io/v1/boards/polyai/jobs
+    notes: "UK (London). Voice AI for enterprise contact centers."
+    priority: tier2
+    enabled: true
+
+  - name: Intercom
+    careers_url: https://job-boards.greenhouse.io/intercom
+    api: https://boards-api.greenhouse.io/v1/boards/intercom/jobs
+    notes: "Dublin EMEA. Fin AI agent."
+    priority: tier2
+    enabled: true
+
+  - name: Hume AI
+    careers_url: https://job-boards.greenhouse.io/humeai
+    api: https://boards-api.greenhouse.io/v1/boards/humeai/jobs
+    notes: "NYC. Empathic voice AI."
+    priority: tier2
+    enabled: true
+
+  - name: ElevenLabs
+    careers_url: https://jobs.ashbyhq.com/elevenlabs
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/elevenlabs'
+    notes: "Voice AI TTS leader. Remote-friendly."
+    priority: tier2
+    enabled: true
+
+  - name: Deepgram
+    careers_url: https://jobs.ashbyhq.com/deepgram
+    scan_method: websearch
+    scan_query: 'site:deepgram.com/careers OR "deepgram" "Solutions" OR "AI Engineer" site:jobs.ashbyhq.com'
+    notes: "STT/TTS APIs. Remote-first."
+    priority: tier2
+    enabled: true
+
+  - name: Vapi
+    careers_url: https://jobs.ashbyhq.com/vapi
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/vapi'
+    notes: "Voice AI infrastructure. Remote."
+    priority: tier2
+    enabled: true
+
+  - name: Bland AI
+    careers_url: https://jobs.ashbyhq.com/bland
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/bland'
+    notes: "Voice phone agents. Remote."
+    priority: tier2
+    enabled: true
+
+  - name: Sierra
+    careers_url: https://jobs.ashbyhq.com/sierra
+    scan_method: websearch
+    scan_query: '"sierra.ai" "AI" "Forward Deployed" OR "Applied" OR "Solutions" site:jobs.ashbyhq.com'
+    notes: "SF. AI customer agents. Remote possible."
+    priority: tier2
+    enabled: true
+
+  - name: Decagon
+    careers_url: https://jobs.ashbyhq.com/decagon
+    scan_method: websearch
+    scan_query: '"decagon" "AI" "Forward Deployed" OR "Solutions" site:jobs.ashbyhq.com'
+    notes: "AI customer support agents. Remote."
+    priority: tier2
+    enabled: true
+
+  # =============================================
+  # TIER 3: EU / REMOTE (Good fit = apply)
+  # =============================================
+
+  - name: Airtable
+    careers_url: https://job-boards.greenhouse.io/airtable
+    api: https://boards-api.greenhouse.io/v1/boards/airtable/jobs
+    notes: "US-based. Remote possible."
+    priority: tier3
+    enabled: true
+
+  - name: Vercel
+    careers_url: https://job-boards.greenhouse.io/vercel
+    api: https://boards-api.greenhouse.io/v1/boards/vercel/jobs
+    notes: "AI SDK, v0.dev. Remote-first."
+    priority: tier3
+    enabled: true
+
+  - name: Zapier
+    careers_url: https://jobs.ashbyhq.com/zapier
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/zapier'
+    notes: "Remote-first. Automation platform."
+    priority: tier3
+    enabled: true
+
+  - name: Mistral AI
+    careers_url: https://jobs.lever.co/mistral
+    notes: "Paris. European AI lab."
+    priority: tier3
+    enabled: true
+
+  - name: Weights & Biases
+    careers_url: https://jobs.lever.co/wandb
+    notes: "MLOps platform. Remote-friendly."
+    priority: tier3
+    enabled: true
+
+  - name: Palantir
+    careers_url: https://jobs.lever.co/palantir
+    notes: "FDE roles. US/London."
+    priority: tier3
+    enabled: true
+
+  - name: Wayve
+    careers_url: https://job-boards.greenhouse.io/wayve
+    api: https://boards-api.greenhouse.io/v1/boards/wayve/jobs
+    notes: "London UK. Embodied AI for self-driving."
+    priority: tier3
+    enabled: true
+
+  - name: Isomorphic Labs
+    careers_url: https://job-boards.greenhouse.io/isomorphiclabs
+    api: https://boards-api.greenhouse.io/v1/boards/isomorphiclabs/jobs
+    notes: "London / Lausanne. DeepMind spin-out."
+    priority: tier3
+    enabled: true
+
+  - name: Stability AI
+    careers_url: https://job-boards.greenhouse.io/stabilityai
+    api: https://boards-api.greenhouse.io/v1/boards/stabilityai/jobs
+    notes: "London / SF. Generative AI."
+    priority: tier3
+    enabled: true
+
+  - name: Synthesia
+    careers_url: https://jobs.ashbyhq.com/synthesia
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/synthesia OR site:job-boards.greenhouse.io/synthesia'
+    notes: "London UK. AI video generation."
+    priority: tier3
+    enabled: true
+
+  - name: Hugging Face
+    careers_url: https://apply.workable.com/huggingface/
+    scan_method: websearch
+    scan_query: 'site:apply.workable.com/huggingface'
+    notes: "Paris / Remote. ML hub."
+    priority: tier3
+    enabled: true
+
+  - name: Lakera
+    careers_url: https://jobs.ashbyhq.com/lakera.ai
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/lakera.ai'
+    notes: "Zurich / Remote. AI security."
+    priority: tier3
+    enabled: true
+
+  - name: Scandit
+    careers_url: https://job-boards.greenhouse.io/scandit
+    api: https://boards-api.greenhouse.io/v1/boards/scandit/jobs
+    notes: "Zurich CH. Computer vision."
+    priority: tier3
+    enabled: true
+
+  - name: Runway
+    careers_url: https://job-boards.greenhouse.io/runwayml
+    api: https://boards-api.greenhouse.io/v1/boards/runwayml/jobs
+    notes: "Generative AI video."
+    priority: tier3
+    enabled: true
+
+  - name: Hightouch
+    careers_url: https://job-boards.greenhouse.io/hightouch
+    api: https://boards-api.greenhouse.io/v1/boards/hightouch/jobs
+    notes: "Data activation. Remote-friendly."
+    priority: tier3
+    enabled: true
+
+  - name: Supabase
+    careers_url: https://jobs.ashbyhq.com/supabase
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/supabase'
+    notes: "Remote-first. Open-source Firebase."
+    priority: tier3
+    enabled: true
+
+  - name: Attio
+    careers_url: https://jobs.ashbyhq.com/attio
+    scan_method: websearch
+    scan_query: 'site:attio.com/careers OR site:jobs.ashbyhq.com/attio'
+    notes: "Remote EU. AI-native CRM."
+    priority: tier3
+    enabled: true
+
+  - name: Perplexity
+    careers_url: https://jobs.ashbyhq.com/perplexity
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/perplexity "AI" OR "Applied AI" OR "Forward Deployed" OR "Engineer"'
+    notes: "AI-native search. Remote."
+    priority: tier3
+    enabled: true
+
+  - name: Faculty
+    careers_url: https://jobs.ashbyhq.com/faculty
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/faculty'
+    notes: "London UK. Applied AI consultancy."
+    priority: tier3
+    enabled: true
+
+  - name: Photoroom
+    careers_url: https://jobs.ashbyhq.com/photoroom
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/photoroom'
+    notes: "Paris FR. AI photo editor, CV/ML roles."
+    priority: tier3
+    enabled: true
+
+  - name: Speechmatics
+    careers_url: https://job-boards.greenhouse.io/speechmatics
+    api: https://boards-api.greenhouse.io/v1/boards/speechmatics/jobs
+    notes: "Cambridge UK. Speech recognition."
+    priority: tier3
+    enabled: true
+
+  - name: Talkdesk
+    careers_url: https://www.talkdesk.com/careers
+    scan_method: websearch
+    scan_query: 'site:talkdesk.com/careers "AI" OR "Solutions Architect" OR "AI Engineer"'
+    notes: "Lisbon. Contact center AI."
+    priority: tier3
+    enabled: true
+
+  - name: Lindy
+    careers_url: https://jobs.ashbyhq.com/lindy
+    scan_method: websearch
+    scan_query: '"lindy.ai" "AI" "Forward Deployed" OR "Solutions" site:jobs.ashbyhq.com'
+    notes: "AI agent platform. Remote."
+    priority: tier3
+    enabled: true
+
+  # =============================================
+  # TIER 3: OTHER AI COMPANIES
+  # =============================================
+
+  - name: Ada
+    careers_url: https://job-boards.greenhouse.io/ada
+    scan_method: websearch
+    scan_query: '"ada.cx" OR "ada" "AI" "Solutions" OR "Engineer" site:jobs.ashbyhq.com OR site:job-boards.greenhouse.io'
+    notes: "Toronto + remote. AI customer service."
+    priority: tier3
+    enabled: true
+
+  - name: LivePerson
+    careers_url: https://liveperson.com/company/careers
+    scan_method: websearch
+    scan_query: 'site:liveperson.com/careers OR "liveperson" "Solutions" OR "AI" site:job-boards.greenhouse.io'
+    notes: "Remote EMEA. Conversational AI enterprise."
+    priority: tier3
+    enabled: true
+
+  - name: Twilio
+    careers_url: https://www.twilio.com/en-us/company/jobs
+    scan_method: websearch
+    scan_query: 'site:twilio.com/company/jobs "AI" OR "Voice" "Solutions" OR "Architect"'
+    notes: "Voice/messaging infrastructure."
+    priority: tier3
+    enabled: true
+
+  - name: Dialpad
+    careers_url: https://www.dialpad.com/careers
+    scan_method: websearch
+    scan_query: '"dialpad" "AI" "Solutions" OR "Engineer" site:job-boards.greenhouse.io OR site:jobs.ashbyhq.com'
+    notes: "Voice AI for business comms."
+    priority: tier3
+    enabled: true
+
+  - name: Gong
+    careers_url: https://www.gong.io/careers
+    scan_method: websearch
+    scan_query: 'site:gong.io/careers "AI" OR "Solutions" OR "Architect"'
+    notes: "Revenue intelligence with voice AI."
+    priority: tier3
+    enabled: true
+
+  - name: Genesys
+    careers_url: https://www.genesys.com/careers
+    scan_method: websearch
+    scan_query: 'site:genesys.com/careers "AI" "Solutions Architect" OR "AI Engineer"'
+    notes: "Contact center cloud + AI."
+    priority: tier3
+    enabled: true
+
+  - name: Salesforce
+    careers_url: https://careers.salesforce.com
+    scan_method: websearch
+    scan_query: 'site:careers.salesforce.com "Forward Deployed" OR "AI Engineer" OR "Agentforce"'
+    notes: "Agentforce = AI agents platform."
+    priority: tier3
+    enabled: true
+
+  - name: Tinybird
+    careers_url: https://jobs.ashbyhq.com/tinybird
+    scan_method: websearch
+    scan_query: 'site:tinybird.co/careers OR site:jobs.ashbyhq.com/tinybird'
+    notes: "Remote. Real-time data platform."
+    priority: tier3
+    enabled: true
+
+  - name: Clarity AI
+    careers_url: https://jobs.lever.co/clarity-ai
+    scan_method: websearch
+    scan_query: 'site:clarity.ai/careers OR site:jobs.lever.co/clarity-ai'
+    notes: "Madrid/Remote. Sustainability analytics with AI."
+    priority: tier3
+    enabled: true
+
+  - name: Travelperk
+    careers_url: https://jobs.ashbyhq.com/travelperk
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/travelperk'
+    notes: "Barcelona. Business travel unicorn."
+    priority: tier3
+    enabled: true
+
+  - name: PhysicsX
+    careers_url: https://job-boards.greenhouse.io/physicsx
+    api: https://boards-api.greenhouse.io/v1/boards/physicsx/jobs
+    notes: "London UK. Physics-informed ML for engineering."
+    priority: tier3
+    enabled: true
+
+  - name: Causaly
+    careers_url: https://jobs.ashbyhq.com/causaly
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/causaly'
+    notes: "London / Athens. Biomedical knowledge graph + AI."
+    priority: tier3
+    enabled: true
+
+  - name: Pigment
+    careers_url: https://jobs.lever.co/pigment
+    notes: "Paris / NYC / London. AI-powered FP&A planning platform."
+    priority: tier3
+    enabled: true
+
+  - name: Lovable
+    careers_url: https://jobs.ashbyhq.com/lovable
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/lovable'
+    notes: "Stockholm SE. AI app builder (text-to-app)."
+    priority: tier3
+    enabled: true
+
+  - name: Legora
+    careers_url: https://jobs.ashbyhq.com/legora
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/legora'
+    notes: "Stockholm SE / NYC / London. AI-native legal workspace."
+    priority: tier3
+    enabled: true
+
+  - name: Amplemarket
+    careers_url: https://job-boards.greenhouse.io/amplemarket
+    api: https://boards-api.greenhouse.io/v1/boards/amplemarket/jobs
+    notes: "Lisbon PT / Remote. AI-native sales platform."
+    priority: tier3
+    enabled: true
+
+  - name: Clay Labs
+    careers_url: https://jobs.ashbyhq.com/claylabs
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/claylabs "AI" OR "Developer Experience" OR "Growth" OR "Engineer"'
+    notes: "AI-native GTM and workflow automation platform."
+    priority: tier3
+    enabled: true
+
+  - name: WorkOS
+    careers_url: https://jobs.ashbyhq.com/workos
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/workos "Solutions Engineer" OR "Developer Success" OR "Engineer"'
+    notes: "Developer tools and enterprise-ready auth/platform APIs."
+    priority: tier3
+    enabled: true
+
+  - name: Resend
+    careers_url: https://jobs.ashbyhq.com/resend
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/resend'
+    notes: "Email API for developers. Remote-first."
+    priority: tier3
+    enabled: true
+
+  - name: Clerk
+    careers_url: https://jobs.ashbyhq.com/clerk
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/clerk'
+    notes: "Auth & user management for developers."
+    priority: tier3
+    enabled: true
+
+  - name: Inngest
+    careers_url: https://jobs.ashbyhq.com/inngest
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/inngest'
+    notes: "Durable workflow engine for serverless."
+    priority: tier3
+    enabled: true
+
+  - name: PlanetScale
+    careers_url: https://job-boards.greenhouse.io/planetscale
+    api: https://boards-api.greenhouse.io/v1/boards/planetscale/jobs
+    notes: "Serverless MySQL platform."
+    priority: tier3
+    enabled: true
+
+  - name: Cradle
+    careers_url: https://jobs.ashbyhq.com/cradlebio
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/cradlebio'
+    notes: "Zurich CH / Amsterdam. AI-guided protein design."
+    priority: tier3
+    enabled: true
+
+  - name: Pinecone
+    careers_url: https://jobs.ashbyhq.com/pinecone
+    notes: "Vector database. Remote-first."
+    priority: tier3
+    enabled: true
+
+  - name: Make.com (Celonis)
+    careers_url: https://www.make.com/en/careers
+    scan_method: websearch
+    scan_query: 'site:make.com/en/careers OR "make.com" "engineer" OR "solutions" site:jobs.ashbyhq.com'
+    notes: "Berlin HQ. Celonis parent company. Automation platform."
+    priority: tier2
+    enabled: true
+
+  - name: Factorial
+    careers_url: https://job-boards.greenhouse.io/factorial
+    scan_method: websearch
+    scan_query: 'site:jobs.greenhouse.io/factorial'
+    notes: "Barcelona. HR SaaS unicorn."
+    priority: tier3
+    enabled: true
+
+  - name: Spotify
+    careers_url: https://jobs.lever.co/spotify
+    notes: "Stockholm SE / NYC / London. Audio platform, large ML org."
+    priority: tier3
+    enabled: true
+
+  - name: LivePerson
+    careers_url: https://liveperson.com/company/careers
+    scan_method: websearch
+    scan_query: 'site:liveperson.com/careers OR "liveperson" "Solutions" OR "AI" site:job-boards.greenhouse.io'
+    notes: "Remote EMEA. Conversational AI enterprise."
+    enabled: true
+
+  - name: Sierra
+    careers_url: https://jobs.ashbyhq.com/sierra
+    scan_method: websearch
+    scan_query: '"sierra.ai" "AI" "Forward Deployed" OR "Applied" OR "Solutions" site:jobs.ashbyhq.com'
+    notes: "Bret Taylor (ex-CEO Salesforce). AI customer agents."
+    enabled: true
+
+  - name: Decagon
+    careers_url: https://jobs.ashbyhq.com/decagon
+    scan_method: websearch
+    scan_query: '"decagon" "AI" "Forward Deployed" OR "Solutions" site:jobs.ashbyhq.com'
+    notes: "AI customer support agents."
+    enabled: true
+
+  # -- Enterprise comms & contact center --
+
+  - name: Talkdesk
+    careers_url: https://www.talkdesk.com/careers
+    scan_method: websearch
+    scan_query: 'site:talkdesk.com/careers "AI" OR "Solutions Architect" OR "AI Engineer"'
+    notes: "Lisbon. Contact center AI. EMEA friendly."
+    enabled: true
+
+  - name: Twilio
+    careers_url: https://www.twilio.com/en-us/company/jobs
+    scan_method: websearch
+    scan_query: 'site:twilio.com/company/jobs "AI" OR "Voice" "Solutions" OR "Architect"'
+    notes: "Voice/messaging infrastructure."
+    enabled: true
+
+  - name: Dialpad
+    careers_url: https://www.dialpad.com/careers
+    scan_method: websearch
+    scan_query: '"dialpad" "AI" "Solutions" OR "Engineer" site:job-boards.greenhouse.io OR site:jobs.ashbyhq.com'
+    notes: "Voice AI for business comms."
+    enabled: true
+
+  - name: Gong
+    careers_url: https://www.gong.io/careers
+    scan_method: websearch
+    scan_query: 'site:gong.io/careers "AI" OR "Solutions" OR "Architect"'
+    notes: "Revenue intelligence with voice AI."
+    enabled: true
+
+  - name: Genesys
+    careers_url: https://www.genesys.com/careers
+    scan_method: websearch
+    scan_query: 'site:genesys.com/careers "AI" "Solutions Architect" OR "AI Engineer"'
+    notes: "Contact center cloud + AI."
+    enabled: true
+
+  - name: Salesforce
+    careers_url: https://careers.salesforce.com
+    scan_method: websearch
+    scan_query: 'site:careers.salesforce.com "Forward Deployed" OR "AI Engineer" OR "Agentforce"'
+    notes: "Agentforce = AI agents platform."
+    enabled: true
+
+  # -- AI infra & LLMOps --
+
+  - name: Langfuse
+    careers_url: https://langfuse.com/careers
+    scan_method: websearch
+    scan_query: '"langfuse" careers OR jobs "engineer" OR "solutions"'
+    notes: "Berlin. LLMOps / observability."
+    enabled: true
+
+  - name: Lindy
+    careers_url: https://jobs.ashbyhq.com/lindy
+    scan_method: websearch
+    scan_query: '"lindy.ai" "AI" "Forward Deployed" OR "Solutions" site:jobs.ashbyhq.com'
+    notes: "AI agent management platform."
+    enabled: true
+
+  - name: Cognigy
+    careers_url: https://careers.cognigy.com
+    scan_method: websearch
+    scan_query: '"cognigy" careers "AI" OR "Solutions" OR "Engineer"'
+    notes: "Dusseldorf EMEA. Conversational AI enterprise."
+    enabled: true
+
+  - name: Speechmatics
+    careers_url: https://job-boards.greenhouse.io/speechmatics
+    api: https://boards-api.greenhouse.io/v1/boards/speechmatics/jobs
+    notes: "Cambridge UK. Speech recognition platform."
+    enabled: true
+
+  # -- No-Code/Low-Code & Automation --
+
+  - name: n8n
+    careers_url: https://jobs.ashbyhq.com/n8n
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/n8n'
+    notes: "Berlin + remote EU/US. Workflow automation."
+    enabled: true
+
+  - name: Zapier
+    careers_url: https://jobs.ashbyhq.com/zapier
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/zapier'
+    notes: "Remote-first. Automation platform leader."
+    enabled: true
+
+  - name: Make.com (Celonis)
+    careers_url: https://www.make.com/en/careers
+    scan_method: websearch
+    scan_query: 'site:make.com/en/careers OR "make.com" "engineer" OR "solutions" site:jobs.ashbyhq.com'
+    notes: "Celonis parent company. Automation platform."
+    enabled: true
+
+  # -- Ashby-based (Playwright direct) --
+
+  - name: Cohere
+    careers_url: https://jobs.ashbyhq.com/cohere
+    notes: "AI/LLM provider. Toronto + remote."
+    enabled: true
+
+  - name: LangChain
+    careers_url: https://jobs.ashbyhq.com/langchain
+    notes: "LangChain/LangSmith framework."
+    enabled: true
+
+  - name: Pinecone
+    careers_url: https://jobs.ashbyhq.com/pinecone
+    notes: "Vector database."
+    enabled: true
+
+  # -- Lever-based (Playwright direct) --
+
+  - name: Mistral AI
+    careers_url: https://jobs.lever.co/mistral
+    notes: "Paris. European AI lab."
+    enabled: true
+
+  - name: Weights & Biases
+    careers_url: https://jobs.lever.co/wandb
+    notes: "MLOps platform."
+    enabled: true
+
+  - name: Palantir
+    careers_url: https://jobs.lever.co/palantir
+    notes: "FDE roles. Mostly US/London."
+    enabled: true
+
+  # -- European tech (EMEA-friendly) --
+
+  - name: Factorial
+    careers_url: https://job-boards.greenhouse.io/factorial
+    scan_method: websearch
+    scan_query: 'site:jobs.greenhouse.io/factorial'
+    notes: "Barcelona. HR SaaS unicorn."
+    enabled: true
+
+  - name: Attio
+    careers_url: https://jobs.ashbyhq.com/attio
+    scan_method: websearch
+    scan_query: 'site:attio.com/careers OR site:jobs.ashbyhq.com/attio'
+    notes: "Remote EU. AI-native CRM. Series B $52M."
+    enabled: true
+
+  - name: Tinybird
+    careers_url: https://jobs.ashbyhq.com/tinybird
+    scan_method: websearch
+    scan_query: 'site:tinybird.co/careers OR site:jobs.ashbyhq.com/tinybird'
+    notes: "Remote. Real-time data platform."
+    enabled: true
+
+  - name: Clarity AI
+    careers_url: https://jobs.lever.co/clarity-ai
+    scan_method: websearch
+    scan_query: 'site:clarity.ai/careers OR site:jobs.lever.co/clarity-ai'
+    notes: "Madrid/Remote. Sustainability analytics with AI."
+    enabled: true
+
+  - name: Travelperk
+    careers_url: https://jobs.ashbyhq.com/travelperk
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/travelperk'
+    notes: "Barcelona. Business travel unicorn."
+    enabled: true
+
+  # -- DACH & European AI ecosystem --
+  # All entries below have been verified against the Greenhouse / Ashby /
+  # Lever / Workable APIs or live job boards. Greenhouse boards expose a
+  # JSON API at https://boards-api.greenhouse.io/v1/boards/{slug}/jobs which
+  # the scanner can hit directly via the api: field.
+
+  # -- DACH AI labs & frontier model providers --
+
+  - name: Aleph Alpha
+    careers_url: https://jobs.ashbyhq.com/AlephAlpha
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/AlephAlpha'
+    notes: "Heidelberg DE. Sovereign European LLM provider, enterprise & government focus."
+    enabled: true
+
+  - name: DeepL
+    careers_url: https://jobs.ashbyhq.com/DeepL
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/DeepL'
+    notes: "Cologne DE. Translation & language AI. 60+ open roles, EU/DACH heavy."
+    enabled: true
+
+  - name: Black Forest Labs
+    careers_url: https://job-boards.greenhouse.io/blackforestlabs
+    api: https://boards-api.greenhouse.io/v1/boards/blackforestlabs/jobs
+    notes: "Freiburg DE / SF. FLUX image models, ex-Stable Diffusion team."
+    enabled: true
+
+  - name: Helsing
+    careers_url: https://job-boards.greenhouse.io/helsing
+    api: https://boards-api.greenhouse.io/v1/boards/helsing/jobs
+    notes: "Munich / Berlin / London / Paris. Defence AI unicorn. 100+ roles, ML & FDE."
+    enabled: true
+
+  # -- DACH enterprise & SaaS (AI-heavy) --
+
+  - name: Celonis
+    careers_url: https://job-boards.greenhouse.io/celonis
+    api: https://boards-api.greenhouse.io/v1/boards/celonis/jobs
+    notes: "Munich / NYC. Process intelligence, Applied AI Engineer roles, Field CTOs."
+    enabled: true
+
+  - name: Contentful
+    careers_url: https://job-boards.greenhouse.io/contentful
+    api: https://boards-api.greenhouse.io/v1/boards/contentful/jobs
+    notes: "Berlin / Denver. Headless CMS, AI content workflows."
+    enabled: true
+
+  - name: GetYourGuide
+    careers_url: https://job-boards.greenhouse.io/getyourguide
+    api: https://boards-api.greenhouse.io/v1/boards/getyourguide/jobs
+    notes: "Berlin. Travel marketplace, ML & data platform roles."
+    enabled: true
+
+  - name: HelloFresh
+    careers_url: https://job-boards.greenhouse.io/hellofresh
+    api: https://boards-api.greenhouse.io/v1/boards/hellofresh/jobs
+    notes: "Berlin. Meal kit unicorn, large data/ML org."
+    enabled: true
+
+  # -- DACH fintech --
+
+  - name: N26
+    careers_url: https://job-boards.greenhouse.io/n26
+    api: https://boards-api.greenhouse.io/v1/boards/n26/jobs
+    notes: "Berlin / Barcelona. Mobile bank, ~50 roles, ML & risk."
+    enabled: true
+
+  - name: Trade Republic
+    careers_url: https://job-boards.greenhouse.io/traderepublicbank
+    api: https://boards-api.greenhouse.io/v1/boards/traderepublicbank/jobs
+    notes: "Berlin / London / Paris. Neobroker, ~50 roles, platform & data."
+    enabled: true
+
+  - name: SumUp
+    careers_url: https://job-boards.greenhouse.io/sumup
+    api: https://boards-api.greenhouse.io/v1/boards/sumup/jobs
+    notes: "Berlin / London. Payments fintech, EU + LATAM hiring."
+    enabled: true
+
+  - name: Qonto
+    careers_url: https://jobs.lever.co/qonto
+    notes: "Paris / Berlin / Barcelona / Milan. SMB neobank, MLOps for AI Product roles."
+    enabled: true
+
+  # -- DACH logistics / mobility --
+
+  - name: Forto
+    careers_url: https://jobs.lever.co/forto
+    notes: "Berlin DE. Digital freight forwarder, product & data roles, German + English."
+    enabled: true
+
+  # -- Switzerland / Austria AI --
+
+  - name: Lakera
+    careers_url: https://jobs.ashbyhq.com/lakera.ai
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/lakera.ai'
+    notes: "Zurich CH / SF. AI security & guardrails. Has Forward Deployed Engineer roles."
+    enabled: true
+
+  - name: Scandit
+    careers_url: https://job-boards.greenhouse.io/scandit
+    api: https://boards-api.greenhouse.io/v1/boards/scandit/jobs
+    notes: "Zurich CH. Computer vision / smart data capture, ML roles."
+    enabled: true
+
+  - name: Cradle
+    careers_url: https://jobs.ashbyhq.com/cradlebio
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/cradlebio'
+    notes: "Zurich CH / Amsterdam. AI-guided protein design, ML researcher roles."
+    enabled: true
+
+  # -- France AI ecosystem --
+
+  - name: Hugging Face
+    careers_url: https://apply.workable.com/huggingface/
+    scan_method: websearch
+    scan_query: 'site:apply.workable.com/huggingface'
+    notes: "Paris / NYC / Remote. ML hub & open-source models."
+    enabled: true
+
+  - name: Photoroom
+    careers_url: https://jobs.ashbyhq.com/photoroom
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/photoroom'
+    notes: "Paris FR. AI photo editor, Head of CV / Head of ML roles."
+    enabled: true
+
+  - name: Pigment
+    careers_url: https://jobs.lever.co/pigment
+    notes: "Paris FR / NYC / London. AI-powered FP&A planning platform."
+    enabled: true
+
+  # -- UK & Ireland AI (EU-friendly hiring) --
+
+  - name: Wayve
+    careers_url: https://job-boards.greenhouse.io/wayve
+    api: https://boards-api.greenhouse.io/v1/boards/wayve/jobs
+    notes: "London UK. Embodied AI for self-driving, ML & robotics roles."
+    enabled: true
+
+  - name: Isomorphic Labs
+    careers_url: https://job-boards.greenhouse.io/isomorphiclabs
+    api: https://boards-api.greenhouse.io/v1/boards/isomorphiclabs/jobs
+    notes: "London / Lausanne / Cambridge MA. DeepMind spin-out for drug discovery AI."
+    enabled: true
+
+  - name: PhysicsX
+    careers_url: https://job-boards.greenhouse.io/physicsx
+    api: https://boards-api.greenhouse.io/v1/boards/physicsx/jobs
+    notes: "London UK. Physics-informed ML for engineering, ~40 roles."
+    enabled: true
+
+  - name: Stability AI
+    careers_url: https://job-boards.greenhouse.io/stabilityai
+    api: https://boards-api.greenhouse.io/v1/boards/stabilityai/jobs
+    notes: "London / SF. Generative AI image/video research lab."
+    enabled: true
+
+  - name: Synthesia
+    careers_url: https://jobs.ashbyhq.com/synthesia
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/synthesia OR site:job-boards.greenhouse.io/synthesia'
+    notes: "London UK. AI video generation for enterprise, $4B valuation."
+    enabled: true
+
+  - name: Faculty
+    careers_url: https://jobs.ashbyhq.com/faculty
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/faculty'
+    notes: "London UK. Applied AI consultancy. 80+ roles, AI Safety / MLE / Delivery."
+    enabled: true
+
+  - name: Causaly
+    careers_url: https://jobs.ashbyhq.com/causaly
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/causaly'
+    notes: "London / Athens. Biomedical knowledge graph + AI."
+    enabled: true
+
+  # -- Nordics AI --
+
+  - name: Lovable
+    careers_url: https://jobs.ashbyhq.com/lovable
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/lovable'
+    notes: "Stockholm SE. AI app builder (text-to-app), 80+ open roles."
+    enabled: true
+
+  - name: Legora
+    careers_url: https://jobs.ashbyhq.com/legora
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/legora'
+    notes: "Stockholm SE / NYC / London. AI-native legal workspace."
+    enabled: true
+
+  - name: Spotify
+    careers_url: https://jobs.lever.co/spotify
+    notes: "Stockholm SE / NYC / London. Audio platform, large ML/personalization org."
+    enabled: true
+
+  - name: Vinted
+    careers_url: https://jobs.lever.co/vinted
+    notes: "Vilnius LT / Berlin. C2C marketplace unicorn, data science & ML roles."
+    enabled: true
+
+  # -- Iberia AI --
+
+  - name: Amplemarket
+    careers_url: https://job-boards.greenhouse.io/amplemarket
+    api: https://boards-api.greenhouse.io/v1/boards/amplemarket/jobs
+    notes: "Lisbon PT / Remote. AI-native sales platform."
+    enabled: true
+
+  # -- AI / Developer Tools --
+
+  - name: Perplexity
+    careers_url: https://jobs.ashbyhq.com/perplexity
+    scan_method: websearch
+    scan_query: ‘site:jobs.ashbyhq.com/perplexity "AI" OR "Applied AI" OR "Forward Deployed" OR "Engineer"’
+    notes: "AI-native search and enterprise AI platform."
+    enabled: true
+
+  - name: Clay Labs
+    careers_url: https://jobs.ashbyhq.com/claylabs
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/claylabs "AI" OR "Developer Experience" OR "Growth" OR "Engineer"'
+    notes: "AI-native GTM and workflow automation platform."
+    enabled: true
+
+  - name: Runway
+    careers_url: https://job-boards.greenhouse.io/runwayml
+    api: https://boards-api.greenhouse.io/v1/boards/runwayml/jobs
+    notes: "Generative AI video and creative tooling platform."
+    enabled: true
+
+  - name: Hightouch
+    careers_url: https://job-boards.greenhouse.io/hightouch
+    api: https://boards-api.greenhouse.io/v1/boards/hightouch/jobs
+    notes: "Data activation platform with AI agents and solutions engineering roles."
+    enabled: true
+
+  - name: WorkOS
+    careers_url: https://jobs.ashbyhq.com/workos
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/workos "Solutions Engineer" OR "Developer Success" OR "Engineer"'
+    notes: "Developer tools and enterprise-ready auth/platform APIs."
+    enabled: true
+
+  # -- Dev Tools / AI Infra (DevRel, SA, FDE focus) --
+
+  - name: Supabase
+    careers_url: https://jobs.ashbyhq.com/supabase
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/supabase'
+    notes: "Open-source Firebase alternative. Remote-first. Postgres + Auth + Storage. Strong DevRel/DX hiring."
+    enabled: true
+
+  - name: Resend
+    careers_url: https://jobs.ashbyhq.com/resend
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/resend'
+    notes: "Email API for developers. Remote-first. DX/DevRel focused."
+    enabled: true
+
+  - name: Clerk
+    careers_url: https://jobs.ashbyhq.com/clerk
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/clerk'
+    notes: "Auth & user management for developers. SE / TAM / PM roles."
+    enabled: true
+
+  - name: Inngest
+    careers_url: https://jobs.ashbyhq.com/inngest
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/inngest'
+    notes: "Durable workflow engine for serverless. DX/DevRel/Engineering hiring."
+    enabled: true
+
+  - name: PlanetScale
+    careers_url: https://job-boards.greenhouse.io/planetscale
+    api: https://boards-api.greenhouse.io/v1/boards/planetscale/jobs
+    notes: "Serverless MySQL platform. Customer Engineering, Engineering, Sales."
+    enabled: true
+
+  - name: Zep AI
+    careers_url: https://www.getzep.com/careers
+    scan_method: websearch
+    scan_query: '"Zep" "Forward Deployed" OR "Developer Relations" OR "Founding" site:workatastartup.com OR site:getzep.com'
+    notes: "Context engineering platform for AI agents. YC W24. Lead FDE + DevRel Lead roles. US-only currently."
+    enabled: true
+
+  - name: Maxim AI
+    careers_url: https://www.getmaxim.ai/careers
+    scan_method: websearch
+    scan_query: '"Maxim AI" OR "getmaxim" careers "engineer" OR "product"'
+    notes: "AI evaluation and observability platform. Bangalore-based, mostly on-site."
+    enabled: true
+
+  # =============================================
+  # NEWLY DISCOVERED — From 2026-04-14 Scan
+  # =============================================
+
+  - name: RobCo
+    careers_url: https://arbeitnow.com/jobs/companies/robco
+    scan_method: websearch
+    scan_query: '"RobCo" robotics "working student" OR "Werkstudent" OR "intern" Munich 2026'
+    notes: "Munich. Industrial robotics, VLA, RL, ROS2, PyTorch/JAX. Sequoia/Lightspeed backed. PERFECT robotics match. Active hiring."
+    priority: tier1
+    enabled: true
+
+  - name: Agentur Philipp
+    careers_url: https://agentur-philipp-gmbh.de/karriere
+    scan_method: websearch
+    scan_query: '"Agentur Philipp" OR "agentur-philipp" robotics AI careers jobs 2026'
+    notes: "Dingolfing (near Munich). Applied AI + Robotics: LLMs, VLMs, Speech, CV, ROS. Embodied AI. Multimodal systems. German startup."
+    priority: tier1
+    enabled: true
+
+  - name: Delicious Data
+    careers_url: https://www.deliciousdata.io/careers
+    scan_method: websearch
+    scan_query: '"Delicious Data" careers "working student" OR "Werkstudent" Munich ML engineer 2026'
+    notes: "Munich. Time series forecasting for bakeries. Working Student ML Engineer at €20-25/hr. Python, Pandas, PyTorch."
+    priority: tier1
+    enabled: true
+
+  # =============================================
+  # PRIORITY TARGETS — Sanket's Dream Companies
+  # =============================================
+
+  - name: Trax Retail
+    careers_url: https://info.traxretail.com/company/careers
+    scan_method: websearch
+    scan_query: 'site:info.traxretail.com OR site:traxretail.com "careers" OR "jobs" "machine-learning" OR "computer-vision" OR "AI engineer"'
+    notes: "Berlin/NYC/Singapore. CV for retail execution. Perfect match: computer vision, production ML. 55+ patents. Uses Ashby."
+    priority: tier1
+    enabled: true
+
+  - name: Colgate-Palmolive
+    careers_url: https://jobs.colgate.com
+    scan_method: websearch
+    scan_query: 'site:jobs.colgate.com "machine-learning" OR "AI engineer" OR "data scientist" OR "computer vision"'
+    notes: "India project experience a plus. Global consumer products with AI Center of Excellence. Roles in US mostly but EU possible."
+    priority: tier2
+    enabled: true
+
+  - name: ARX Robotics
+    careers_url: https://www.arx-robotics.com/careers
+    scan_method: websearch
+    scan_query: '"ARX Robotics" careers OR jobs OR karriere "Munich" 2026'
+    notes: "Munich. Defense UGV. Rapidly scaling (201-500 employees). Software-defined autonomous ground systems. Perfect robotics match."
+    priority: tier1
+    enabled: true
+
+  # =============================================
+  # ROBOTICS CLUSTER — Berlin/Nearby (Tier 1)
+  # =============================================
+
+  - name: Unchained Robotics
+    careers_url: https://unchainedrobotics.de/en/team
+    scan_method: websearch
+    scan_query: '"Unchained Robotics" careers jobs "Werkstudent" OR "intern" OR "working student" Berlin 2026'
+    notes: "Berlin. Automation robotics. 10+ nationalities. International team. Student-friendly."
+    priority: tier1
+    enabled: true
+
+  - name: N Robotics
+    careers_url: https://nrobotics.com/career
+    scan_method: websearch
+    scan_query: '"N Robotics" careers jobs "working student" OR "intern" Berlin legged robotics 2026'
+    notes: "Berlin. Legged robotics startup. ROS, Python. International team. Hands-on student environment."
+    priority: tier1
+    enabled: true
+
+  - name: Olive Robotics
+    careers_url: https://olive-robotics.com/career/
+    scan_method: websearch
+    scan_query: '"Olive Robotics" careers jobs "Werkstudent" OR "intern" "sensor fusion" OR "ROS" Ottobrunn Munich 2026'
+    notes: "Ottobrunn/Munich. ROS-native robotics. Sensor fusion, edge computing. Fluent English required."
+    priority: tier1
+    enabled: true
+
+  - name: Magazino (Jungheinrich)
+    careers_url: https://magazino.jobs.personio.de/?language=en
+    scan_method: websearch
+    scan_query: '"Magazino" careers jobs "working student" OR "intern" "robotics" OR "embedded" Munich 2026'
+    notes: "Munich. Autonomous mobile robots for logistics. Jungheinrich subsidiary. 30+ nationalities. ROS, C++."
+    priority: tier1
+    enabled: true
+
+  # =============================================
+  # ROBOTICS CLUSTER — Munich (Tier 1)
+  # =============================================
+
+  - name: Franka Robotics
+    careers_url: https://franka.de/careers?hsLang=en
+    scan_method: websearch
+    scan_query: '"Franka Robotics" OR "franka.de" careers jobs "student" OR "Werkstudent" OR "intern" Munich 2026'
+    notes: "Munich. Panda robot arm. Research-oriented. English-friendly. Diverse backgrounds."
+    priority: tier1
+    enabled: true
+
+  - name: Agile Robots
+    careers_url: https://www.agile-robots.com/careers
+    scan_method: websearch
+    scan_query: '"Agile Robots" careers jobs "Werkstudent" OR "intern" OR "working student" Munich 2026'
+    notes: "Munich. Physical AI for robotics. Founded by DLR researchers. Audio signal processing WS found."
+    priority: tier1
+    enabled: true
+
+  - name: SEAL Robotics
+    careers_url: https://seal-robotics.com/
+    scan_method: websearch
+    scan_query: '"SEAL Robotics" careers jobs Munich "student" OR "thesis" OR "intern" robotics 2026'
+    notes: "Munich. Container logistics robotics startup near TUM. Student collaborations. English."
+    priority: tier1
+    enabled: true
+
+  - name: asklio
+    careers_url: https://asklio.io/careers
+    scan_method: websearch
+    scan_query: '"asklio" careers jobs "AI engineer" OR "robotics" Munich 2026'
+    notes: "Munich. Robotics & AI for physical environments. Production AI systems. ROS, autonomous."
+    priority: tier1
+    enabled: true
+
+  - name: Batch Robotics
+    careers_url: https://batch-robotics.com
+    scan_method: websearch
+    scan_query: '"Batch Robotics" careers jobs Munich "AI" OR "robotics" founding engineer 2026'
+    notes: "Munich. Industrial robotics. Founding Engineer AI-Robotics role posted on arbeitnow."
+    priority: tier1
+    enabled: true
+
+  - name: alago
+    careers_url: https://alago.ai/careers
+    scan_method: websearch
+    scan_query: '"alago" careers jobs Munich "working student" OR "Software Engineer" AI 2026'
+    notes: "Munich. Construction tech. Working Student in Software Engineering & AI found on arbeitnow."
+    priority: tier1
+    enabled: true
+
+  - name: Pixel Robotics
+    careers_url: https://pixel-robotics.de
+    scan_method: websearch
+    scan_query: '"Pixel Robotics" careers jobs Munich "working student" robotics software 2026'
+    notes: "Munich. Robotics software. Working student role found on arbeitnow."
+    priority: tier1
+    enabled: true
+
+  - name: 4am Robotics
+    careers_url: https://4am-robotics.com
+    scan_method: websearch
+    scan_query: '"4am Robotics" careers jobs Karlsruhe "intern" OR "student" cobots collaborative robotics 2026'
+    notes: "Karlsruhe. Collaborative robotics (cobots). Startup. Open to foreign students."
+    priority: tier1
+    enabled: true
+
+  # =============================================
+  # ROBOTICS CLUSTER — Dresden/Leipzig (Tier 1)
+  # =============================================
+
+  - name: Mana Robotics
+    careers_url: https://mana-robotics.com
+    scan_method: websearch
+    scan_query: '"Mana Robotics" careers jobs Dresden "robot learning" OR "autonomous" cooking robots 2026'
+    notes: "Dresden. Autonomous cooking robots. Robot Learning Engineers. Relocate to Dresden."
+    priority: tier1
+    enabled: true
+
+  - name: HandsOn Robotics
+    careers_url: https://handson-robotics.de
+    scan_method: websearch
+    scan_query: '"HandsOn Robotics" careers jobs Dresden "Werkstudent" technical marketing 2026'
+    notes: "Dresden. Deep-tech robotics startup. Werkstudent in technical + marketing. German helpful."
+    priority: tier1
+    enabled: true
+
+  - name: Smarobix
+    careers_url: https://smarobix.com
+    scan_method: websearch
+    scan_query: '"Smarobix" careers jobs Dresden robotics engineer student 2026'
+    notes: "Dresden. Robotics engineering. 5 employees. TU Dresden connections."
+    priority: tier1
+    enabled: true
+
+  - name: TURAG e.V.
+    careers_url: https://turag.de
+    scan_method: websearch
+    scan_query: '"TURAG" careers OR team robotics "student" Dresden TU 2026'
+    notes: "Dresden. Student robotics group at TU Dresden. Eurobot projects. Open to internationals."
+    priority: tier1
+    enabled: true
+
+  - name: Falk Defence
+    careers_url: https://join.com/companies/falkdefencecom
+    scan_method: websearch
+    scan_query: '"Falk Defence" OR "Falk Defencecom" careers jobs Leipzig "intern" mechanical robotics defense 2026'
+    notes: "Leipzig. Defense robotics (missiles/launchers). Mechanical Engineer Intern. EU/NATO citizenship req."
+    priority: tier1
+    enabled: true
+
+  - name: Security Robotics
+    careers_url: https://security-robotics.de
+    scan_method: websearch
+    scan_query: '"Security Robotics" careers jobs Leipzig AI software development student intern 2026'
+    notes: "Leipzig. AI and robotics software. Open to students and foreigners."
+    priority: tier1
+    enabled: true
+
+  - name: TEDIRO Healthcare Robotics
+    careers_url: https://tediro.com
+    scan_method: websearch
+    scan_query: '"TEDIRO" careers jobs Leipzig "intern" OR "student" healthcare robotics AI therapy 2026'
+    notes: "Leipzig. Healthcare robotics. AI therapy platforms. Student interns. Medical device background a plus."
+    priority: tier1
+    enabled: true
+
+  - name: ekvip automation
+    careers_url: https://ekvip.com
+    scan_method: websearch
+    scan_query: '"ekvip automation" careers jobs Leipzig "intern" OR "student" PLC robotics software 2026'
+    notes: "Leipzig. Automation software, PLC. Student positions. English/German."
+    priority: tier1
+    enabled: true
+
+  - name: RoboCreators HTWK Leipzig
+    careers_url: https://robocreators.htwk-leipzig.de/en/startseite
+    scan_method: websearch
+    scan_query: '"RoboCreators" HTWK Leipzig "student" robotics workshops MINT projects 2026'
+    notes: "Leipzig. Student robotics team at HTWK. Educational robotics. Free workshops. International students welcome."
+    priority: tier1
+    enabled: true
+
+  - name: HTWK Nao Team
+    careers_url: https://robots.htwk-leipzig.de/team/mitmachen
+    scan_method: websearch
+    scan_query: '"HTWK Nao Team" Leipzig student robotics team robot soccer international 2026'
+    notes: "Leipzig. Student robotics team at HTWK. Robot soccer. International students welcome."
+    priority: tier1
+    enabled: true
+
+  # =============================================
+  # ROBOTICS CLUSTER — Germany-Wide (Tier 2)
+  # =============================================
+
+  - name: BEC Robotics
+    careers_url: https://www.bec-robotics.com/en/robotics/careers/students
+    scan_method: websearch
+    scan_query: '"BEC Robotics" careers jobs Reutlingen "intern" OR "Werkstudent" OR "thesis" robotics 2026'
+    notes: "Reutlingen. Industrial robotics. Internships, working student, theses. Open to internationals."
+    priority: tier2
+    enabled: true
+
+  - name: Gauss Robotics
+    careers_url: https://gauss-robotics.de
+    scan_method: websearch
+    scan_query: '"Gauss Robotics" careers jobs Braunschweig "junior" OR "student" robotics software industrial 2026'
+    notes: "Braunschweig. Industrial robotics software. English speaking. Research-oriented. Visa sponsorship possible."
+    priority: tier2
+    enabled: true
+
+  - name: Energy Robotics
+    careers_url: https://careers.energy-robotics.com
+    scan_method: websearch
+    scan_query: '"Energy Robotics" careers jobs Darmstadt "working student" OR "intern" robotics autonomous 2026'
+    notes: "Darmstadt. Energy/robotics. 20+ nationalities. Unsolicited applications welcome. English."
+    priority: tier2
+    enabled: true
+
+  - name: voraus robotik
+    careers_url: https://voraus.jobs.personio.de/job/1375257?language=en
+    scan_method: websearch
+    scan_query: '"voraus robotik" careers jobs Hannover "working student" OR "Werkstudent" automation AI 2026'
+    notes: "Hannover. Automation & AI. Bachelor/master thesis + working student. English (very good)."
+    priority: tier2
+    enabled: true
+
+  - name: WAKU Robotics
+    careers_url: https://www.waku-robotics.com/en/company/jobs
+    scan_method: websearch
+    scan_query: '"WAKU Robotics" careers jobs Dresden "working student" video robotics content 2026'
+    notes: "Dresden. Logistics robotics. Remote-first. International startup. Working Student in video content."
+    priority: tier2
+    enabled: true
+
+  - name: TNG Technology Consulting
+    careers_url: https://tngtech.jobs.personio.de/job/1640429?language=en
+    scan_method: websearch
+    scan_query: '"TNG Technology Consulting" careers jobs Karlsruhe "intern" robotics AI ROS2 Python 2026'
+    notes: "Karlsruhe. Tech consulting. Internship in robotics & AI with ROS2. Python experience. English."
+    priority: tier2
+    enabled: true
+
+  - name: NEURA Robotics
+    careers_url: https://jobs.neura-robotics.com
+    scan_method: websearch
+    scan_query: '"NEURA Robotics" careers jobs Metzingen "student" hardware software AI robots 2026'
+    notes: "Metzingen. Multi-purpose robots. Student positions in hardware, software, AI. International team."
+    priority: tier2
+    enabled: true
+
+  - name: FUSE-AI
+    careers_url: https://www.lifesciencenord.de/de/karriere/jobboerse/detail/working-student-intern-robotics-and-autonomous-systems-robotics-and-ai-m-w-d.html
+    scan_method: websearch
+    scan_query: '"FUSE-AI" careers jobs Hamburg "working student" OR "intern" robotics autonomous systems Linux 2026'
+    notes: "Hamburg. Robotics & autonomous systems. Linux-based systems. English & German required."
+    priority: tier2
+    enabled: true
+
+  - name: KUKA
+    careers_url: https://www.kuka.com/en-de/company/careers/students/working-students
+    scan_method: websearch
+    scan_query: 'site:kuka.com "working student" OR "Werkstudent" robotics engineering Augsburg Bavaria 2026'
+    notes: "Augsburg/Bavaria. Industrial robots. KUKA is a major player. Working students in engineering."
+    priority: tier2
+    enabled: true
+
+  - name: RoboTUM
+    careers_url: https://www.linkedin.com/company/therobotum
+    scan_method: websearch
+    scan_query: '"RoboTUM" careers jobs Munich student engineering TUM robotics 2026'
+    notes: "Munich. Student-led robotics initiative at TUM. Recruiting globally. English. Largest student robotics initiative."
+    priority: tier2
+    enabled: true
+
+  - name: Uncountable
+    careers_url: https://uncountable.ai/careers
+    scan_method: websearch
+    scan_query: '"Uncountable" careers jobs Munich "working student" software engineer Python Flask React 2026'
+    notes: "Munich. Scientific R&D platform. Working Student Software Engineer. Python Flask, React. 15-20hr/week."
+    priority: tier2
+    enabled: true

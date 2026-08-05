@@ -1,6 +1,5 @@
 import sys
 import os
-import json
 import time
 from playwright.sync_api import sync_playwright
 
@@ -25,21 +24,34 @@ def open_jobs(urls):
             except Exception as e:
                 print(f"Could not open {url}: {e}")
 
+        if not pages:
+            print("\nNone of the URLs could be opened.")
+            context.close()
+            return
+
         print("\nAll jobs opened in separate tabs. Please proceed with applications.")
         print("Keeping browser open. Close the browser window to finish.")
-        
+
         while True:
             # Check if all pages are closed
             if all(p.is_closed() for p in pages) and pages:
                 break
             time.sleep(5)
-            
+
         context.close()
 
 if __name__ == "__main__":
-    job_urls = [
-        "https://www.linkedin.com/jobs/view/4398358538/",
-        "https://www.linkedin.com/jobs/view/4402867473/",
-        "https://www.linkedin.com/jobs/view/4379860816/"
-    ]
+    # Accept URLs as command-line arguments and/or from stdin (one URL per line)
+    job_urls = list(sys.argv[1:])
+
+    if not job_urls and not sys.stdin.isatty():
+        job_urls = [line.strip() for line in sys.stdin if line.strip()]
+
+    if not job_urls:
+        print("Usage: python3 scripts/open_all_jobs.py <url1> <url2> ...")
+        print("   or: echo '<url>' | python3 scripts/open_all_jobs.py")
+        print("   or: python3 scripts/open_all_jobs.py < urls.txt")
+        print("Each URL is opened in its own Chrome tab.")
+        sys.exit(1)
+
     open_jobs(job_urls)

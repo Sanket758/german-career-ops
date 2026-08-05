@@ -20,6 +20,16 @@ Interactive mode for when the candidate is filling out an application form in Ch
 8. PRESENT   → Formatted answers ready to copy-paste
 ```
 
+## Step 0 — Open the Apply Link in Chrome
+
+Before reading the form, open the job's apply URL(s) in Chrome so they are ready to fill out:
+
+1. Get the apply URL(s) of the ranked/selected job(s) from the evaluation report or tracker.
+2. Open them in Chrome, each in its own tab:
+   - **With Playwright (visible mode):** `python3 scripts/open_all_jobs.py <url1> <url2> ...`
+   - **Or with the system browser:** `xdg-open <url>` (repeat per URL)
+3. Confirm the tab(s) loaded and the application form is visible before proceeding.
+
 ## Step 1 — Detect the Job
 
 **With Playwright:** Take snapshot of the active page. Read title, URL, and visible content.
