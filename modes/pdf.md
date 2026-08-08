@@ -11,23 +11,27 @@
    - Rest of world → `a4`
 6. Detect role archetype → adapt framing.
 7. Rewrite Professional Summary injecting JD keywords + exit narrative bridge.
-8. **German Market Check:** If location is Germany:
+8. **Rule 5 Style Gate:** Read `templates/writing-style-guide.md` as a system instruction BEFORE generating content (RULE 2/4 banned phrases, RULE 5 pre-output gate). After generating the HTML, run the executable gate on the written file and ensure it exits 0 before finalizing:
+   - Command: `node scripts/lint-style-guide.mjs /tmp/cv-{candidate}-{company}.html --cv=cv.md --cv-html`
+   - Must pass: no banned phrases, all numerals trace verbatim to `cv.md`/`config/profile.yml`, language matches the JD.
+   - Ensure the `<!-- style_guide_version: 2026-08-08-v1 -->` tag is present in the HTML.
+9. **German Market Check:** If location is Germany:
    - Enforce mandatory personal data (Address, DOB, POB, Nationality, Visa).
    - Enforce professional photo (unless opted out).
    - Set section order: [BERUFSERFAHRUNG, AUSBILDUNG] for experienced, [AUSBILDUNG, BERUFSERFAHRUNG] for students.
-9. Select top 2-3 academic projects most relevant to the offer.
-10. Include ALL professional roles from `cv.md` (prune bullets if needed, but don't skip roles).
-11. Reorder experience bullets by JD relevance.
-12. **German Bullet Style:** Remove bold labels (American style). Use plain-text factual descriptions.
-13. **Bullet Limits:** Max 3-4 per role (current), 2-3 (previous).
-14. Build competency grid from JD requirements (6-8 keyword phrases).
-15. Inject keywords naturally into existing achievements (NEVER invent).
-16. **Language Consistency:** If JD is German, translate all content to German. If JD is English, keep content English but use German headings if company is German.
-17. Generate complete HTML from template + personalized content.
-18. Read `name` from `config/profile.yml` → normalize to kebab-case lowercase → `{candidate}`
-19. Write HTML to `/tmp/cv-{candidate}-{company}.html`
-20. Execute: `node generate-pdf.mjs /tmp/cv-{candidate}-{company}.html output/cv-{candidate}-{company}-{YYYY-MM-DD}.pdf --format={letter|a4} --type=cv --max-pages={1-or-2}`
-21. Report: PDF path, page count, % keyword coverage.
+10. Select top 2-3 academic projects most relevant to the offer.
+11. Include ALL professional roles from `cv.md` (prune bullets if needed, but don't skip roles).
+12. Reorder experience bullets by JD relevance.
+13. **German Bullet Style:** Remove bold labels (American style). Use plain-text factual descriptions.
+14. **Bullet Limits:** Max 3-4 per role (current), 2-3 (previous).
+15. Build competency grid from JD requirements (6-8 keyword phrases).
+16. Inject keywords naturally into existing achievements (NEVER invent).
+17. **Language Consistency:** If JD is German, translate all content to German. If JD is English, keep content English but use German headings if company is German.
+18. Generate complete HTML from template + personalized content.
+19. Read `name` from `config/profile.yml` → normalize to kebab-case lowercase → `{candidate}`
+20. Write HTML to `/tmp/cv-{candidate}-{company}.html`
+21. Execute: `node generate-pdf.mjs /tmp/cv-{candidate}-{company}.html output/cv-{candidate}-{company}-{YYYY-MM-DD}.pdf --format={letter|a4} --type=cv --max-pages={1-or-2}` (the script re-runs the style gate on the HTML before rendering — fix any violations it reports)
+22. Report: PDF path, page count, % keyword coverage.
 
 ## German Market (Lebenslauf) Standards
 
@@ -83,6 +87,7 @@ Must include:
 - Hard limit: 1 A4 page for Germany.
 - Structure: recipient/date metadata + 3-4 concise paragraphs + short closing. Avoid long bullet lists unless the portal explicitly asks for a structured motivation answer.
 - Generate PDF with `node generate-cover-letter-pdf.mjs output/cover-letter-{company}.md`.
+- The script runs the Rule 5 style gate (`scripts/lint-style-guide.mjs`) on the letter before rendering and stamps `style_guide_version` — fix any violations it reports before the PDF is produced.
 - If page validation fails, shorten the body. Do not reduce font sizes below the script's compression pass manually.
 
 ## ATS Rules (clean parsing)

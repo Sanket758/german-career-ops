@@ -269,7 +269,7 @@ function initSession(force = false) {
       location: profile.candidate?.location || 'Berlin',
       visa: profile.visa?.type || '§16b student residence permit',
       hours_per_week: parseInt(profile.visa?.hours_per_week) || 20,
-      german_level: profile.languages?.german || 'A2.1',
+      german_level: profile.languages?.german || 'B1',
       german_target: profile.languages?.german_target || 'B1',
       target_roles: profile.target_roles?.primary || [
         'Machine Learning Engineer (Werkstudent)',

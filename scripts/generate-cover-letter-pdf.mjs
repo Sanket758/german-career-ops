@@ -25,8 +25,9 @@ import { fileURLToPath } from 'url';
 import { existsSync } from 'fs';
 import { load as loadYaml } from 'js-yaml';
 import { execFileSync } from 'child_process';
+import { STYLE_GUIDE_VERSION } from './lint-style-guide.mjs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // ---------------------------------------------------------------------------
 // Config: Read candidate contact info from profile.yml
@@ -288,6 +289,50 @@ function normalizeTextForATS(html) {
 }
 
 // ---------------------------------------------------------------------------
+// Rule 5 style gate (Wiring Instructions §3 — same place as PDF generation)
+// ---------------------------------------------------------------------------
+
+/**
+ * Run the executable style gate (lint-style-guide.mjs) on a cover letter.
+ *
+ * Aborts the conversion (throws) when the gate exits non-zero, so a letter
+ * that violates RULE 2 / RULE 4, uses untraceable numbers, or carries a stale
+ * header date never reaches the PDF.
+ *
+ * @param {string} mdPath - Absolute path to the cover letter .md file.
+ */
+function runStyleGate(mdPath) {
+  const lintPath = resolve(__dirname, 'scripts/lint-style-guide.mjs');
+  const cvPath = resolve(__dirname, 'cv.md');
+  try {
+    execFileSync(
+      process.execPath,
+      [lintPath, mdPath, `--cv=${cvPath}`],
+      { stdio: 'inherit' }
+    );
+  } catch {
+    throw new Error(
+      `❌  STYLE GATE FAILED: ${basename(mdPath)} — fix the violations above before generating the PDF.`
+    );
+  }
+}
+
+/**
+ * Stamp the letter with the style-guide version it was validated against.
+ *
+ * Appends an HTML-comment metadata tag when absent (idempotent). The gate
+ * recognizes this tag and excludes it from numeral scanning.
+ *
+ * @param {string} mdPath - Absolute path to the cover letter .md file.
+ */
+async function ensureStyleTag(mdPath) {
+  const raw = await readFile(mdPath, 'utf-8');
+  if (/style_guide_version\s*:\s*\S+/i.test(raw)) return;
+  const tagged = `${raw.trimEnd()}\n\n<!-- style_guide_version: ${STYLE_GUIDE_VERSION} -->\n`;
+  await writeFile(mdPath, tagged);
+}
+
+// ---------------------------------------------------------------------------
 // Core: Convert a single .md file → .pdf
 // ---------------------------------------------------------------------------
 
@@ -310,11 +355,25 @@ async function convertOne(inputPath, outputPath, format = 'a4') {
 
   // Read markdown
   const md = await readFile(inputPath, 'utf-8');
+
+  // Rule 5 style gate (Wiring Instructions §3 — same place as PDF generation):
+  // abort before rendering if the letter violates the style guide, then stamp
+  // the style-guide version it was validated against.
+  runStyleGate(inputPath);
+  await ensureStyleTag(inputPath);
+
   const lines = md.split('\n');
 
   // Parse header metadata and body
   const { meta, bodyStartIdx } = parseMetaHeader(lines);
-  const bodyMd = lines.slice(bodyStartIdx).join('\n');
+  let bodyMd = lines.slice(bodyStartIdx).join('\n');
+  // Strip a trailing signature block that duplicates the template's own closing
+  // (salutation + name line). The template renders CLOSING_LINE + NAME as the
+  // single signature, so the body must end at the last content paragraph.
+  bodyMd = bodyMd.replace(
+    /\n*(?:Best regards|Mit freundlichen Grüßen|Kind regards,)[^\n]*\n+(?:[A-Z][a-z]+ ){1,3}[A-Z][a-z]+\s*$/,
+    ''
+  );
   const bodyHtml = markdownToHtml(bodyMd);
 
   // Build meta rows HTML
@@ -352,13 +411,22 @@ async function convertOne(inputPath, outputPath, format = 'a4') {
   html = html.replace(/\{\{GITHUB\}\}/g, profile.github);
   html = html.replace(/\{\{LANG\}\}/g, 'en');
   html = html.replace('{{META_ROWS}}', metaRowsHtml);
-  html = html.replace('{{BODY}}', bodyHtml);
+  html = html.replace(/\{\{BODY\}\}/g, () => bodyHtml);
   html = html.replace('{{SIGNATURE}}', ''); // Signature is already in body text
 
   // Add SIGNATURE placeholders for the template footer if needed
   const today = new Date().toLocaleDateString('de-DE');
   html = html.replace(/\{\{SIGNATURE_DATE\}\}/g, today);
   html = html.replace(/\{\{SIGNATURE_LOCATION\}\}/g, profile.city || 'Berlin');
+
+  // Fill letter-specific placeholders (company block, subject, salutation, closing, enclosures)
+  html = html.replace(/\{\{COMPANY_NAME\}\}/g, meta.Company || '');
+  html = html.replace(/\{\{CONTACT_PERSON\}\}/g, meta['Contact Person'] || '');
+  html = html.replace(/\{\{COMPANY_ADDRESS\}\}/g, meta['Company Address'] || '');
+  html = html.replace(/\{\{SUBJECT\}\}/g, meta.Subject || '');
+  html = html.replace(/\{\{SALUTATION\}\}/g, 'Dear Hiring Manager,');
+  html = html.replace(/\{\{CLOSING_LINE\}\}/g, 'Best regards,');
+  html = html.replace(/\{\{ANLAGEN\}\}/g, 'Lebenslauf');
 
 
   // Resolve font paths to absolute file:// URLs
@@ -453,17 +521,18 @@ function countPdfPages(outputPath, pdfBuffer) {
 function injectOnePageCoverLetterCSS(html) {
   const css = `
 <style>
-  body { font-size: 10.2px !important; line-height: 1.45 !important; }
-  .header { margin-bottom: 10px !important; }
-  .header h1 { font-size: 20px !important; margin-bottom: 4px !important; }
-  .header-gradient { margin-bottom: 6px !important; }
-  .contact-row { font-size: 9px !important; line-height: 1.25 !important; gap: 4px 8px !important; }
-  .meta { margin-bottom: 8px !important; font-size: 9.5px !important; line-height: 1.35 !important; }
-  .letter-body { font-size: 10.2px !important; line-height: 1.45 !important; }
-  .letter-body p { margin-bottom: 8px !important; text-align: left !important; }
-  .letter-body ul, .letter-body ol { margin-bottom: 8px !important; padding-left: 16px !important; }
-  .letter-body li { font-size: 9.8px !important; line-height: 1.35 !important; margin-bottom: 2px !important; }
-  .signature { margin-top: 10px !important; }
+  body { font-size: 10.2px !important; line-height: 1.5 !important; }
+  .sender-block { margin-bottom: 10mm !important; }
+  .sender-name { font-size: 13px !important; margin-bottom: 3px !important; }
+  .sender-details { font-size: 9px !important; line-height: 1.4 !important; }
+  .date-line { margin-bottom: 8mm !important; }
+  .recipient-block { margin-bottom: 7mm !important; }
+  .subject-line { font-size: 11px !important; margin-bottom: 6mm !important; }
+  .salutation { margin-bottom: 4mm !important; }
+  .body-text p { font-size: 10.2px !important; line-height: 1.5 !important; margin-bottom: 3.5mm !important; }
+  .closing { margin-top: 5mm !important; }
+  .signature-space { height: 9mm !important; }
+  .anlagen { margin-top: 6mm !important; padding-top: 4mm !important; }
 </style>`;
 
   if (html.includes('</head>')) {

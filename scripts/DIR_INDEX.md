@@ -8,6 +8,7 @@ This directory contains all project scripts for scanning, evaluation, PDF genera
 | `init-session.mjs` | Initializes the compact session state for AI agents. |
 | `generate-pdf.mjs` | Converts HTML CVs/CLs to PDF. |
 | `generate-cover-letter-pdf.mjs` | Specialized PDF generator for cover letters. |
+| `lint-style-guide.mjs` | Automated Rule 5 gate: banned phrases, number traceability to cv.md, header date, language match. |
 | `doctor.mjs` | System diagnostics and health checks. |
 | `verify-pipeline.mjs` | Verifies data integrity of the pipeline and tracker. |
 | `merge-tracker.mjs` | Merges batch-evaluated reports into `applications.md`. |
