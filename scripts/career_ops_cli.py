@@ -307,7 +307,7 @@ def build_eval_system_prompt() -> str:
     ## Candidate Profile
     - Location: Berlin, Germany
     - Visa: §16b student permit (20h/week Werkstudent or full-time internship)
-    - German: A2.1 (basic), English: C1
+    - German: B1 (conversational), English: C1
     - Graduating: August 2026 (MSc in AI)
 
     ## CV Summary (abbreviated)

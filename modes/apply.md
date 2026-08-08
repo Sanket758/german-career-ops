@@ -26,9 +26,24 @@ Before reading the form, open the job's apply URL(s) in Chrome so they are ready
 
 1. Get the apply URL(s) of the ranked/selected job(s) from the evaluation report or tracker.
 2. Open them in Chrome, each in its own tab:
-   - **With Playwright (visible mode):** `python3 scripts/open_all_jobs.py <url1> <url2> ...`
-   - **Or with the system browser:** `xdg-open <url>` (repeat per URL)
+
+   **Option A (preferred) — Real Chrome via CDP:**
+   ```
+   python3 scripts/open_all_jobs.py --cdp <url1> <url2> ...
+   ```
+   Attaches to your running Chrome over the DevTools protocol (`--cdp-port`, default `9222`) and opens each URL as a new tab in **your real browser** — so all logins, cookies, and sessions are preserved. This fixes the old problem where a sandboxed Playwright browser lost your logins and you had to re-login on every job site. Requires Chrome to be launched from the desktop icon, which now carries `--remote-debugging-port=9222`. If the attach fails, the script prints guidance.
+
+   **Option B (fallback) — System browser:**
+   ```
+   xdg-open <url>
+   ```
+   Repeat per URL. Works without CDP, but afterwards no form automation is possible on those tabs.
+
+   > **Once setup:** after the desktop icon change, restart Chrome **one time** so the debug port takes effect. Every launch afterwards has CDP enabled automatically.
+
 3. Confirm the tab(s) loaded and the application form is visible before proceeding.
+
+> Steps 1+ (form reading and answers) work best when **Option A** was used: the agent can then attach to the real tabs and read/generate answers directly on the page.
 
 ## Step 1 — Detect the Job
 

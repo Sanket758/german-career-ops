@@ -29,7 +29,7 @@ import fs from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
 import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -136,7 +136,7 @@ function injectPhoto(html, photoPath) {
 
 function countPages(pdfPath) {
   try {
-    const info = execSync(`pdfinfo "${pdfPath}"`, { encoding: 'utf-8' });
+    const info = execFileSync('pdfinfo', [pdfPath], { encoding: 'utf-8' });
     const match = info.match(/^Pages:\s+(\d+)/m);
     return match ? parseInt(match[1], 10) : -1;
   } catch {
@@ -159,7 +159,7 @@ const PLACEHOLDER_MARKERS = ['Bewerbungsfoto', 'Professionelles Bewerbungsfoto',
  */
 function assertNoPlaceholder(pdfPath) {
   try {
-    const text = execSync(`pdftotext "${pdfPath}" -`, { encoding: 'utf-8' });
+    const text = execFileSync('pdftotext', [pdfPath, '-'], { encoding: 'utf-8' });
     const hits = PLACEHOLDER_MARKERS.filter((m) => text.includes(m));
     if (hits.length) {
       console.error(`❌  PLACEHOLDER GATE FAILED: ${path.basename(pdfPath)} still contains: ${hits.join(', ')}`);
@@ -173,6 +173,37 @@ function assertNoPlaceholder(pdfPath) {
     console.warn(`    ⚠️  pdftotext unavailable — placeholder gate skipped.`);
   }
   return [];
+}
+
+// ─── Rule 5 style gate (Wiring Instructions §3 — same place as PDF generation) ──
+
+const LINT_STYLE_GUIDE_PATH = path.resolve(__dirname, 'lint-style-guide.mjs');
+const CV_TRUTH_PATH = path.resolve(__dirname, '../cv.md');
+
+/**
+ * Run the executable Rule 5 style gate (lint-style-guide.mjs) on a generated
+ * CV HTML before it renders. Aborts the build (throws) when the gate exits
+ * non-zero, so a CV with banned phrases, untraceable numbers, or a language
+ * mismatch never ships as a PDF.
+ *
+ * Runs in --cv-html mode: German date tokens (10.2021 / 09.2024) are excluded
+ * from numeral extraction, config/profile.yml is added as secondary truth for
+ * legal/visa figures, and DE/EN number separator formats are interchangeable.
+ *
+ * @param {string} htmlPath - Absolute path to the generated CV .html file.
+ */
+function runStyleGate(htmlPath) {
+  try {
+    execFileSync(
+      process.execPath,
+      [LINT_STYLE_GUIDE_PATH, htmlPath, `--cv=${CV_TRUTH_PATH}`, '--cv-html'],
+      { stdio: 'inherit' }
+    );
+  } catch {
+    throw new Error(
+      `❌  STYLE GATE FAILED: ${path.basename(htmlPath)} — fix the violations above before rendering the PDF.`
+    );
+  }
 }
 
 // ─── Auto-compress CSS ────────────────────────────────────────────────────────
@@ -272,6 +303,11 @@ async function main() {
   fs.mkdirSync(path.dirname(absOutput), { recursive: true });
 
   let htmlContent = fs.readFileSync(absInput, 'utf-8');
+
+  // ── Rule 5 style gate: verify the generated CV HTML before rendering ──────
+  // Hard stop, not a warning — a CV that fails the style guide must never
+  // reach a PDF. Runs once here, covering all downstream render paths.
+  runStyleGate(absInput);
 
   // ── Photo injection (policy-aware; default OFF for tech CVs) ─────────────
   const photo = resolvePhotoPath(photoPath);

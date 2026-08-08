@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 import os
 import sys
+import argparse
 import datetime
 import warnings
 import csv
 import re
+import base64
+import email
+import html
+import quopri
 import email.utils
 
 try:
@@ -45,6 +50,7 @@ def get_gmail_service():
             creds = flow.run_local_server(port=0)
         with open(TOKEN_PATH, "w") as token:
             token.write(creds.to_json())
+        os.chmod(TOKEN_PATH, 0o600)
     return build("gmail", "v1", credentials=creds)
 
 
@@ -72,41 +78,189 @@ def parse_tracker():
     return apps, lines
 
 
-def analyze_message_for_status(snippet):
-    snippet_lower = snippet.lower()
-    # German and English rejection keywords
-    if (
-        "not moving forward" in snippet_lower
-        or "decided to proceed with other" in snippet_lower
-        or "regret" in snippet_lower
-        or "unfortunately" in snippet_lower
-        or "leider" in snippet_lower
-        or "absage" in snippet_lower
-        or "bedauern" in snippet_lower
-        or "nicht berücksichtigen" in snippet_lower
-        or "anderen bewerbern" in snippet_lower
-        or "anderen bewerberinnen" in snippet_lower
-        or "anderweitig entschieden" in snippet_lower
-    ):
-        return "REJECTED"
-    # German and English interview keywords
-    elif (
-        "interview" in snippet_lower
-        or "invitation" in snippet_lower
-        or "availability" in snippet_lower
-        or "einladung" in snippet_lower
-        or "kennenlernen" in snippet_lower
-        or "vorstellungsgespräch" in snippet_lower
-    ):
-        return "INTERVIEW"
-    # German and English offer keywords
-    elif (
-        ("offer" in snippet_lower and "congratulations" in snippet_lower)
-        or "vertragsangebot" in snippet_lower
-        or "arbeitsvertrag" in snippet_lower
-    ):
-        return "OFFER"
-    return None
+def extract_message_body(payload, max_chars=4000, _depth=0):
+    """Recursively walk a Gmail payload and return the richest plain-text body.
+
+    Prefers a text/plain part; falls back to text/html (tags stripped).
+    Caps the returned text at max_chars, and bounds recursion depth to
+    defend against arbitrarily deep MIME nesting (crafted emails).
+    """
+    if _depth > 20:
+        return ""
+    data = payload.get("body", {}).get("data")
+    mime = payload.get("mimeType", "")
+    text = ""
+    if data:
+        try:
+            raw = base64.urlsafe_b64decode(data.encode("ascii"))
+        except Exception:
+            raw = data.encode("utf-8", "replace")
+        if mime == "text/html":
+            text = re.sub(r"<[^>]+>", " ", raw.decode("utf-8", "replace"))
+            text = html.unescape(text)
+            text = re.sub(r"\s+", " ", text).strip()
+        elif mime == "text/plain":
+            text = raw.decode("utf-8", "replace").strip()
+        if text:
+            return text[:max_chars]
+
+    parts = payload.get("parts") or []
+    for part in parts:
+        candidate = extract_message_body(part, max_chars=max_chars, _depth=_depth + 1)
+        if candidate:
+            return candidate
+
+    return ""
+
+
+# Phrases that only signal a decision when they appear alongside application
+# context. "unfortunately"/"leider" alone is NOT a rejection ("unfortunately we
+# are experiencing delays..."). We require an explicit application token nearby.
+_APPLICATION_CONTEXT_TOKENS = [
+    "application",
+    "bewerbung",
+    "your role",
+    "ihre bewerbung",
+    "interview",
+    "position",
+    "stelle",
+    "recruiting",
+    "hiring",
+    "candidate",
+    "vacancy",
+]
+
+_DELAY_MARKERS = [
+    "experiencing delays",
+    "processing delays",
+    "delay in our",
+    "delay in our review",
+    "will update you",
+    "keep you informed",
+    "as soon as possible",
+    "we are still reviewing",
+    "still under review",
+    "we will get back to you",
+    "verzögerung",
+    "verzögert sich",
+    "werden wir uns melden",
+    "sind weiterhin am prüfen",
+    "informieren wir sie bald",
+    "unterbrechung",
+    "zu einem späteren zeitpunkt",
+]
+
+# (status, keyword list, requires_app_context)
+_STATUS_RULES = (
+    (
+        "REJECTED",
+        [
+            "we have decided to move forward with other",
+            "we have decided to move forward with another",
+            "decision to proceed with other candidates",
+            "decided to proceed with other",
+            "will not be moving forward",
+            "we will not be moving forward",
+            "not moving forward",
+            "no longer under consideration",
+            "pursue other candidates",
+            "pursue other applicants",
+            "won't be moving forward",
+            "will not be moving forward",
+            "your application has been rejected",
+            "application has been rejected",
+            "not to move forward",
+            "cannot offer you the position",
+            "unable to offer you the position",
+            "due to the large number of qualified candidates",
+            "unsere absage",
+            "unsere absage",
+            "eine absage",
+            "leider müssen wir ihnen mitteilen",
+            "mitteilen, dass wir",
+            "ihre bewerbung wurde abgelehnt",
+            "bewerbung wurde abgelehnt",
+            "nachteilig entschieden",
+            "anderweitig entschieden",
+            "anderen bewerber",
+            "anderen kandidaten",
+            "konnten wir uns nicht für sie entscheiden",
+            "können wir ihre bewerbung nicht berücksichtigen",
+            "nicht berücksichtigen",
+            "bedauern",
+            "absage",
+            "abgelehnt",
+        ],
+        False,
+    ),
+    (
+        "REJECTED",
+        [
+            "unfortunately",
+            "leider",
+            "regret",
+            "regret to inform you",
+            "to inform you that we",
+        ],
+        True,
+    ),
+    (
+        "INTERVIEW",
+        [
+            "we would like to invite you to an interview",
+            "invited to an interview",
+            "interview invitation",
+            "next step in the process",
+            "we would like to get to know you",
+            "telefonisches interview",
+            "telefoninterview",
+            "virtual interview",
+            "video call",
+            "first interview",
+            "we have scheduled",
+            "interview",
+            "invitation",
+            "einladung",
+            "kennenlernen",
+            "vorstellungsgespräch",
+        ],
+        False,
+    ),
+    (
+        "OFFER",
+        [
+            "congratulations ... offer",
+            "we are pleased to offer you",
+            "we would like to offer you",
+            "extend you an offer",
+            "herzlichen glückwunsch",
+            "wir freuen uns, ihnen",
+            "vertragsangebot",
+            "arbeitsvertrag",
+            "salary offer",
+            "job offer",
+            "formal offer",
+        ],
+        False,
+    ),
+)
+
+
+def analyze_message_for_status(subject, snippet, body):
+    """Return (status, reason_keyword, matched_keyword) or (None, None, None)."""
+    text = " ".join([subject, snippet, body]).lower()
+    for status, keywords, requires_context in _STATUS_RULES:
+        for kw in keywords:
+            if kw in text:
+                if requires_context:
+                    if not any(tok in text for tok in _APPLICATION_CONTEXT_TOKENS):
+                        continue
+                    if status == "REJECTED" and any(
+                        d in text for d in _DELAY_MARKERS
+                    ):
+                        continue
+                return status, kw, kw
+    return None, None, None
 
 def extract_company_and_role(sender, subject):
     company = "Unknown Company"
@@ -171,8 +325,10 @@ def check_emails():
         print(f"Failed to connect to Gmail: {e}")
         return
 
-    # Basic query for potential updates in the last 14 days, plus any emails explicitly labeled as rejected
-    date_n_days_ago = (datetime.date.today() - datetime.timedelta(days=14)).strftime(
+    lookback_days = int(
+        os.environ.get("GMAIL_LOOKBACK_DAYS", "30")
+    )
+    date_n_days_ago = (datetime.date.today() - datetime.timedelta(days=lookback_days)).strftime(
         "%Y/%m/%d"
     )
     query = f"((subject:application OR subject:interview OR subject:update OR subject:rejected OR subject:offer OR subject:status) after:{date_n_days_ago}) OR label:jobs-jobs-rejected"
@@ -230,11 +386,12 @@ def check_emails():
         sender = next((h["value"] for h in headers if h["name"].lower() == "from"), "")
         date_str = next((h["value"] for h in headers if h["name"].lower() == "date"), "")
         snippet = msg.get("snippet", "")
+        body = extract_message_body(msg["payload"])
         
         parsed_date = email.utils.parsedate_to_datetime(date_str) if date_str else datetime.datetime.now()
         date_ymd = parsed_date.strftime("%Y-%m-%d")
 
-        status_heuristic = analyze_message_for_status(subject + " " + snippet)
+        status_heuristic, reason, matched_kw = analyze_message_for_status(subject, snippet, body)
 
         # Override heuristic if the message explicitly has the rejected label
         if rejected_label_id and rejected_label_id in msg.get("labelIds", []):
@@ -243,7 +400,7 @@ def check_emails():
         if status_heuristic:
             comp, role = extract_company_and_role(sender, subject)
             company_updates.append(
-                {"sender": sender, "subject": subject, "status": status_heuristic, "extracted_company": comp, "extracted_role": role, "date": date_ymd}
+                {"sender": sender, "subject": subject, "status": status_heuristic, "extracted_company": comp, "extracted_role": role, "date": date_ymd, "reason": reason}
             )
 
     apps, lines = parse_tracker()
@@ -288,7 +445,7 @@ def check_emails():
                     "HIRED",
                 ]:
                     print(
-                        f"Update for {app['company']}: {current_status} -> {new_status} (via '{update['subject']}')"
+                        f"[{new_status} via '{update.get('reason')}'] {app['company']}: {current_status} -> {new_status} (via '{update['subject']}')"
                     )
                     parts = app["line"].split("|")
                     parts[6] = f" {new_status} "
@@ -344,11 +501,17 @@ def check_emails():
     with open(apps_csv, "w", newline='') as f_apps, open(rejections_csv, "w", newline='') as f_rej:
         w_apps = csv.writer(f_apps)
         w_rej = csv.writer(f_rej)
-        
+
+        def _csv_safe(value):
+            s = str(value) if value is not None else ""
+            if s.startswith(("=", "+", "-", "@")):
+                return "'" + s
+            return s
+
         headers = ["Date", "Role", "Company", "Location", "Source", "Status", "Notes"]
         w_apps.writerow(headers)
         w_rej.writerow(headers)
-        
+
         for line in lines:
             if line.strip().startswith("|") and "Company" not in line and "---" not in line:
                 parts = [p.strip() for p in line.split("|")]
@@ -361,8 +524,8 @@ def check_emails():
                     score = parts[5]
                     status = parts[6]
                     notes = parts[9] if len(parts) > 9 else ""
-                    
-                    row_data = [date, role, comp, "Germany", "Gmail", status, notes]
+
+                    row_data = [_csv_safe(x) for x in [date, role, comp, "Germany", "Gmail", status, notes]]
                     w_apps.writerow(row_data)
                     if "REJECTED" in status.upper():
                         w_rej.writerow(row_data)
@@ -371,4 +534,9 @@ def check_emails():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Sync Gmail application status into the tracker.")
+    parser.add_argument("--days", type=int, default=None, help="Override lookback window in days (default: GMAIL_LOOKBACK_DAYS env or 30).")
+    args = parser.parse_args()
+    if args.days is not None:
+        os.environ["GMAIL_LOOKBACK_DAYS"] = str(args.days)
     check_emails()
