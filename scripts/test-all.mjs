@@ -13,11 +13,15 @@
 
 import { execSync } from 'child_process';
 import { readFileSync, existsSync, readdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = __dirname;
+// This script lives in scripts/, so the repo root is one level up.
+// SCRIPTS_DIR is where all .mjs scripts and liveness-core.mjs actually live;
+// ROOT is where the data contract files (CLAUDE.md, modes/, templates/, ...) live.
+const SCRIPTS_DIR = __dirname;
+const ROOT = resolve(__dirname, '..');
 const QUICK = process.argv.includes('--quick');
 
 let passed = 0;
@@ -30,7 +34,7 @@ function warn(msg) { console.log(`  ⚠️  ${msg}`); warnings++; }
 
 function run(cmd, opts = {}) {
   try {
-    return execSync(cmd, { cwd: ROOT, encoding: 'utf-8', timeout: 30000, ...opts }).trim();
+    return execSync(cmd, { cwd: SCRIPTS_DIR, encoding: 'utf-8', timeout: 30000, ...opts }).trim();
   } catch (e) {
     return null;
   }
@@ -45,7 +49,7 @@ console.log('\n🧪 career-ops test suite\n');
 
 console.log('1. Syntax checks');
 
-const mjsFiles = readdirSync(ROOT).filter(f => f.endsWith('.mjs'));
+const mjsFiles = readdirSync(SCRIPTS_DIR).filter(f => f.endsWith('.mjs'));
 for (const f of mjsFiles) {
   const result = run(`node --check ${f}`);
   if (result !== null) {
@@ -84,7 +88,7 @@ for (const { name, allowFail } of scripts) {
 console.log('\n3. Liveness classification');
 
 try {
-  const { classifyLiveness } = await import(pathToFileURL(join(ROOT, 'liveness-core.mjs')).href);
+  const { classifyLiveness } = await import(pathToFileURL(join(SCRIPTS_DIR, 'liveness-core.mjs')).href);
 
   const expiredChromeApply = classifyLiveness({
     finalUrl: 'https://example.com/jobs/closed-role',
@@ -119,7 +123,7 @@ try {
 
 if (!QUICK) {
   console.log('\n4. Dashboard build');
-  const goBuild = run('cd dashboard && go build -o /tmp/career-dashboard-test . 2>&1');
+  const goBuild = run('go build -o /tmp/career-dashboard-test . 2>&1', { cwd: join(ROOT, 'dashboard') });
   if (goBuild !== null) {
     pass('Dashboard compiles');
   } else {
@@ -135,7 +139,7 @@ console.log('\n5. Data contract validation');
 
 // Check system files exist
 const systemFiles = [
-  'CLAUDE.md', 'VERSION', 'DATA_CONTRACT.md',
+  'CLAUDE.md', 'VERSION', 'docs/DATA_CONTRACT.md',
   'modes/_shared.md', 'modes/_profile.template.md',
   'modes/oferta.md', 'modes/pdf.md', 'modes/scan.md',
   'templates/states.yml', 'templates/cv-template.html',

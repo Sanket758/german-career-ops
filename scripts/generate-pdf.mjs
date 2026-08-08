@@ -2,7 +2,7 @@
  * generate-pdf.mjs — German-compliant PDF generator with consistent page output.
  *
  * Usage:
- *   node scripts/generate-pdf.mjs <input-html> <output-pdf> [--max-pages=1] [--type=cv|cover-letter]
+ *   node scripts/generate-pdf.mjs <input-html> <output-pdf> [--max-pages=1] [--type=cv|cover-letter] [--photo=PATH|none|default]
  *
  * Key fixes over previous version:
  *   1. Passes baseURL to page.setContent() so fonts load from ./fonts/ paths correctly.
@@ -12,6 +12,17 @@
  *      rendered in the correct typeface before pagination is calculated.
  *   3. Injects @page { size: A4; margin: 0; } override CSS to guarantee page dimensions
  *      even if the template's @page rule is overridden by browser defaults.
+ *
+ * Photo policy (vault decision 2026-08-06, active):
+ *   - DEFAULT = photo OFF. Tech CV targets (SAP, carbonmaker/carbmee, eternal.ag,
+ *     quantum.systems) are generated WITHOUT a photo. No photo is injected unless
+ *     explicitly opted in.
+ *   - Opt in with --photo=PATH (or --photo=default for data/Bewerbungsfoto.jpg) when
+ *     generating for Mittelstand / financial targets that expect a photo. The photo
+ *     asset data/Bewerbungsfoto.jpg is retained for that use.
+ *   - --photo=none explicitly forces photo OFF (same as default).
+ *   - A rendered PDF that still contains a photo placeholder string ("Bewerbungsfoto",
+ *     "35 × 45", etc.) FAILS the build via the placeholder gate — it must never ship.
  */
 
 import fs from 'fs';
@@ -23,25 +34,32 @@ import { execSync } from 'child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const DEFAULT_PHOTO = path.resolve(__dirname, '../data/Bewerbungsfoto.jpg');
+
 // ─── CLI argument parser ─────────────────────────────────────────────────────
 
 function parseArgs(argv) {
   const positional = [];
   let maxPages = null;
   let type = 'cv';
+  let photo = 'none'; // policy default: photo OFF for tech CVs
 
   for (const arg of argv) {
     if (arg.startsWith('--max-pages=')) {
       maxPages = parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--type=')) {
       type = arg.split('=')[1];
+    } else if (arg.startsWith('--photo=')) {
+      photo = arg.split('=')[1];
     } else {
       positional.push(arg);
     }
   }
 
   if (positional.length < 2) {
-    console.error('Usage: node generate-pdf.mjs <input-html> <output-pdf> [--max-pages=1] [--type=cv|cover-letter]');
+    console.error('Usage: generate-pdf.mjs <input-html> <output-pdf> [--max-pages=1] [--type=cv|cover-letter] [--photo=PATH|none|default]');
+    console.error('  Photo policy (2026-08-06): OFF by default for tech CVs. Opt in with --photo=PATH');
+    console.error('  or --photo=default (uses data/Bewerbungsfoto.jpg) for Mittelstand/financial targets.');
     process.exit(1);
   }
 
@@ -49,7 +67,69 @@ function parseArgs(argv) {
     maxPages = type === 'cover-letter' ? 1 : 1; // German standard: always 1 page
   }
 
-  return { inputPath: positional[0], outputPath: positional[1], maxPages, type };
+  return { inputPath: positional[0], outputPath: positional[1], photoPath: photo, maxPages, type };
+}
+
+// ─── Photo injection ─────────────────────────────────────────────────────────
+
+/**
+ * Resolve the --photo= flag to an absolute path, or null when photo is OFF.
+ * 'none' or omitted → null (photo OFF). 'default' → data/Bewerbungsfoto.jpg.
+ */
+function resolvePhotoPath(photoPathArg) {
+  if (!photoPathArg || photoPathArg === 'none') return null;
+  if (photoPathArg === 'default') return DEFAULT_PHOTO;
+  return path.isAbsolute(photoPathArg) ? photoPathArg : path.resolve(process.cwd(), photoPathArg);
+}
+
+/**
+ * Replace the .photo-placeholder div (if any) with a base64-embedded photo <img>.
+ *
+ * Returns { html, warnings }. When photoPath is null (policy OFF) the HTML is
+ * returned unchanged — if it still contains a placeholder, the downstream
+ * placeholder gate will fail the build rather than ship a leaked placeholder.
+ * Never throws on a missing photo — it logs a warning and returns the HTML
+ * unchanged so the placeholder (or empty photo box) is surfaced to the caller.
+ */
+function injectPhoto(html, photoPath) {
+  const warnings = [];
+  const hasPlaceholder = /class="photo-placeholder"/.test(html);
+
+  if (!photoPath) {
+    if (hasPlaceholder) {
+      warnings.push('photo policy OFF — .photo-placeholder remains in HTML (gate will fail if it renders)');
+    }
+    return { html, warnings };
+  }
+
+  if (!fs.existsSync(photoPath)) {
+    warnings.push(`photo not found: ${photoPath}${hasPlaceholder ? ' (placeholder will remain)' : ''}`);
+    console.warn(`⚠   Photo not found at ${photoPath}${hasPlaceholder ? ' — placeholder will show' : ''}`);
+    return { html, warnings };
+  }
+
+  const ext = path.extname(photoPath).slice(1).toLowerCase();
+  const mime = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }[ext] || 'image/jpeg';
+  const data = fs.readFileSync(photoPath).toString('base64');
+  const imgTag = `<img src="data:${mime};base64,${data}" alt="Bewerbungsfoto">`;
+
+  if (hasPlaceholder) {
+    const newHtml = html.replace(/<div class="photo-placeholder">[\s\S]*?<\/div>/g, imgTag);
+    console.log(`📷  Injected photo: ${path.basename(photoPath)} (replaced placeholder)`);
+    return { html: newHtml, warnings };
+  }
+
+  // No placeholder marker in the markup — inject the <img into the first .photo-box if one exists.
+  if (/<div class="photo-box">/.test(html)) {
+    const newHtml = html.replace(/<div class="photo-box">/, `<div class="photo-box">${imgTag}`);
+    warnings.push('no .photo-placeholder marker found — injected <img> into first .photo-box');
+    console.log(`📷  Injected photo: ${path.basename(photoPath)} (no placeholder marker — fell back to .photo-box)`);
+    return { html: newHtml, warnings };
+  }
+
+  // No photo-box and no placeholder — nothing to attach to.
+  warnings.push('no .photo-box or .photo-placeholder found in HTML — photo not injected');
+  return { html, warnings };
 }
 
 // ─── Page counter (poppler-utils) ─────────────────────────────────────────────
@@ -63,6 +143,36 @@ function countPages(pdfPath) {
     // poppler-utils not installed — skip validation
     return -1;
   }
+}
+
+// ─── Placeholder verification (poppler-utils) ────────────────────────────────
+
+const PLACEHOLDER_MARKERS = ['Bewerbungsfoto', 'Professionelles Bewerbungsfoto', '[Foto]', '35 × 45', '35mm'];
+
+/**
+ * Placeholder gate: extract the rendered PDF text and FAIL the build (non-zero
+ * exit) if any photo-placeholder string survived into the final PDF. The gate
+ * is a hard stop, not a warning — a CV with "Bewerbungsfoto" or "35 × 45"
+ * placeholder text must never ship.
+ *
+ * Returns the list of offending markers (empty = clean). Exits(1) on hits.
+ */
+function assertNoPlaceholder(pdfPath) {
+  try {
+    const text = execSync(`pdftotext "${pdfPath}" -`, { encoding: 'utf-8' });
+    const hits = PLACEHOLDER_MARKERS.filter((m) => text.includes(m));
+    if (hits.length) {
+      console.error(`❌  PLACEHOLDER GATE FAILED: ${path.basename(pdfPath)} still contains: ${hits.join(', ')}`);
+      console.error(`    A photo placeholder leaked into the rendered PDF. Fix the HTML, or`);
+      console.error(`    opt in deliberately with --photo=PATH (or --photo=default) if a photo is intended.`);
+      return hits;
+    }
+    console.log(`    ✅  No photo placeholder text leaked into the PDF.`);
+  } catch {
+    // pdftotext unavailable — skip the gate
+    console.warn(`    ⚠️  pdftotext unavailable — placeholder gate skipped.`);
+  }
+  return [];
 }
 
 // ─── Auto-compress CSS ────────────────────────────────────────────────────────
@@ -147,7 +257,7 @@ async function renderPDF(htmlContent, outputPath, inputDir) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const { inputPath, outputPath, maxPages, type } = parseArgs(process.argv.slice(2));
+  const { inputPath, outputPath, photoPath, maxPages, type } = parseArgs(process.argv.slice(2));
 
   const absInput  = path.isAbsolute(inputPath)  ? inputPath  : path.join(process.cwd(), inputPath);
   const absOutput = path.isAbsolute(outputPath) ? outputPath : path.join(process.cwd(), outputPath);
@@ -161,7 +271,12 @@ async function main() {
   // Ensure output directory exists
   fs.mkdirSync(path.dirname(absOutput), { recursive: true });
 
-  const htmlContent = fs.readFileSync(absInput, 'utf-8');
+  let htmlContent = fs.readFileSync(absInput, 'utf-8');
+
+  // ── Photo injection (policy-aware; default OFF for tech CVs) ─────────────
+  const photo = resolvePhotoPath(photoPath);
+  const { html: htmlWithPhoto, warnings: photoWarnings } = injectPhoto(htmlContent, photo);
+  htmlContent = htmlWithPhoto;
 
   // ── Pass 1: Normal render ─────────────────────────────────────────────────
   console.log(`📄  Generating ${type} PDF: ${path.basename(absOutput)}`);
@@ -172,6 +287,9 @@ async function main() {
   if (pages === -1) {
     console.log(`✅  PDF generated (install poppler-utils for page validation)`);
     console.log(`    Output: ${absOutput}`);
+    if (photoWarnings.length) console.warn(`    ⚠  ${photoWarnings.join(' | ')}`);
+    // Gate still runs when poppler is present (pdfinfo may fail for other reasons).
+    if (assertNoPlaceholder(absOutput).length) process.exit(1);
     return;
   }
 
@@ -179,6 +297,8 @@ async function main() {
 
   if (pages <= maxPages) {
     console.log(`✅  PDF generated: ${pages} page(s) — ${path.basename(absOutput)}`);
+    if (photoWarnings.length) console.warn(`⚠️  ${photoWarnings.join(' | ')}`);
+    if (assertNoPlaceholder(absOutput).length) process.exit(1);
     return;
   }
 
@@ -193,6 +313,8 @@ async function main() {
 
   if (retryPages <= maxPages) {
     console.log(`✅  PDF generated (auto-compressed): ${retryPages} page(s)`);
+    if (photoWarnings.length) console.warn(`⚠️  ${photoWarnings.join(' | ')}`);
+    if (assertNoPlaceholder(absOutput).length) process.exit(1);
     return;
   }
 

@@ -15,19 +15,20 @@
  */
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-const CAREER_OPS = dirname(fileURLToPath(import.meta.url));
+// Script lives in scripts/, so the repo root is one level up.
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // Support both layouts: data/applications.md (boilerplate) and applications.md (original)
-const APPS_FILE = existsSync(join(CAREER_OPS, 'data/applications.md'))
-  ? join(CAREER_OPS, 'data/applications.md')
-  : join(CAREER_OPS, 'applications.md');
-const ADDITIONS_DIR = join(CAREER_OPS, 'batch/tracker-additions');
-const REPORTS_DIR = join(CAREER_OPS, 'reports');
-const STATES_FILE = existsSync(join(CAREER_OPS, 'templates/states.yml'))
-  ? join(CAREER_OPS, 'templates/states.yml')
-  : join(CAREER_OPS, 'states.yml');
+const APPS_FILE = existsSync(join(REPO_ROOT, 'data/applications.md'))
+  ? join(REPO_ROOT, 'data/applications.md')
+  : join(REPO_ROOT, 'applications.md');
+const ADDITIONS_DIR = join(REPO_ROOT, 'batch/tracker-additions');
+const REPORTS_DIR = join(REPO_ROOT, 'reports');
+const STATES_FILE = existsSync(join(REPO_ROOT, 'templates/states.yml'))
+  ? join(REPO_ROOT, 'templates/states.yml')
+  : join(REPO_ROOT, 'states.yml');
 
 const CANONICAL_STATUSES = [
   'evaluated', 'applied', 'responded', 'interview',
@@ -125,7 +126,7 @@ let brokenReports = 0;
 for (const e of entries) {
   const match = e.report.match(/\]\(([^)]+)\)/);
   if (!match) continue;
-  const reportPath = join(CAREER_OPS, match[1]);
+  const reportPath = join(REPO_ROOT, match[1]);
   if (!existsSync(reportPath)) {
     error(`#${e.num}: Report not found: ${match[1]}`);
     brokenReports++;

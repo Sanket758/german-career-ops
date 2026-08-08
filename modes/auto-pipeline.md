@@ -67,6 +67,14 @@ If the final score is >= 4.5, generate draft answers for the application form:
 
 ## Step 5 — Update Tracker
 
-Register in `data/applications.md` with all columns including Report and PDF as ✅.
+**Never write directly into `data/applications.md`.** The data contract (`docs/DATA_CONTRACT.md` + `modes/_shared.md` rule 9) requires routing additions through the TSV merge path:
 
-**If any step fails**, continue with the following and mark the failed step as pending in the tracker.
+1. **Write the addition as a TSV row** in `batch/tracker-additions/{###}-{company-slug}-{YYYY-MM-DD}.tsv`.
+2. **TSV column order** (9 cols, tab-separated): `num \t date \t company \t role \t status \t score \t pdf \t report \t notes`.
+   - `num` = next `#` from the tracker, `date` = today (`YYYY-MM-DD`), `company` = company name, `role` = role title.
+   - `status` = one canonical value: `Evaluated`, `Applied`, `Responded`, `Interview`, `Offer`, `Rejected`, `Discarded`, `SKIP`. No markdown bold, no dates inside the status — dates go in the `date` column.
+   - `score` = `X.XX/5` (or `N/A` / `DUP`), `pdf` = link to the generated PDF, `report` = link to the saved report `.md`.
+3. **Merge:** run `node scripts/merge-tracker.mjs` (add `--verify` to also validate the merged result). The script dedups (company + fuzzy role + report number), updates in place when a duplicate has a higher score, and archives merged TSVs into `batch/tracker-additions/merged/`.
+4. **Sanity checks:** `node scripts/dedup-tracker.mjs`, `node scripts/normalize-statuses.mjs`, then `node scripts/verify-pipeline.mjs` to confirm a clean pipeline (all statuses canonical, no duplicates, valid report links).
+
+**If any step fails**, continue with the following and mark the failed step as pending in the tracker (TSV row with `status=Evaluated` and the missing artifact left empty or `pending` in its column).
