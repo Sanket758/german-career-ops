@@ -7,15 +7,16 @@ import { WeeklyTrendChart, StatusBarChart, ResponseDonut } from './components/Ch
 import { PipelineView } from './components/PipelineView';
 import { ApplicationTable } from './components/ApplicationTable';
 import { ApplicationDetail } from './components/ApplicationDetail';
+import { NewApplicationModal } from './components/NewApplicationModal';
 import { ProfileCard } from './components/ProfileCard';
 import { ActionBar } from './components/ActionBar';
 import { BurnListView } from './components/BurnListView';
 import { GenerateTab } from './components/panels/GenerateTab';
+import { SettingsPanel } from './components/panels/SettingsPanel';
 import {
   fetchApplications,
   fetchBurnList,
   fetchSession,
-  fetchStats,
   checkApiHealth,
 } from './data/api';
 import {
@@ -100,6 +101,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showNewApplication, setShowNewApplication] = useState(false);
   const [config, setConfig] = useState<SidebarConfig>({
     showRejected: true,
     showDiscarded: true,
@@ -118,6 +120,19 @@ export default function App() {
   const [burnList, setBurnList] = useState<BurnListEntry[]>([]);
   const [profile, setProfile] = useState<ProfileSummary | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
+
+  // Auto-collapse the sidebar on small screens — the expanded 288px rail
+  // squeezes the header nav to zero width on mobile. Desktop keeps the
+  // user's manual collapsed/expanded choice.
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const apply = () => {
+      if (mq.matches) setSidebarCollapsed(true);
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
 
   // Check API health and load data
   const loadData = useCallback(async () => {
@@ -232,7 +247,16 @@ export default function App() {
   }, [applications, dataLoaded]);
 
   const handleNewApplication = () => {
-    alert('To add applications, evaluate a job using `/career-ops oferta [URL]` or add via the API.');
+    setShowNewApplication(true);
+  };
+
+  const handleCreated = () => {
+    setShowNewApplication(false);
+    loadData();
+  };
+
+  const handleStatusChange = (id: string, status: Application['status']) => {
+    setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
   };
 
   return (
@@ -243,9 +267,9 @@ export default function App() {
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-cyan/5 rounded-full blur-[100px] mix-blend-screen transform -translate-x-1/3 translate-y-1/3" />
       </div>
 
-      {/* API connection banner */}
+      {/* API connection banner — below header chrome so it never covers the CODE RED strip */}
       {dataLoaded && !apiConnected && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-warn-bg border-b border-warn-border px-4 py-2 flex items-center justify-center gap-2 text-xs text-warn">
+        <div className="fixed top-16 left-0 right-0 z-50 bg-warn-bg border-b border-warn-border px-4 py-2 flex items-center justify-center gap-2 text-xs text-warn">
           <WifiOff className="w-3.5 h-3.5" />
           <span>API server offline — showing demo data. Start with: <code className="font-mono bg-bg-primary px-1.5 py-0.5 rounded">node dashboard/server/api.mjs</code></span>
         </div>
@@ -257,6 +281,8 @@ export default function App() {
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         config={config}
         onConfigChange={setConfig}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
 
       {/* Header */}
@@ -276,7 +302,7 @@ export default function App() {
         className={cn(
           'transition-all duration-300 min-h-screen relative z-10',
           sidebarCollapsed ? 'ml-16' : 'ml-72',
-          dataLoaded && !apiConnected ? 'pt-24' : 'pt-16'
+          dataLoaded && !apiConnected ? 'pt-[6.5rem]' : 'pt-16'
         )}
       >
         <div className="p-6">
@@ -398,8 +424,8 @@ export default function App() {
                 {/* Right: Profile + Actions + Activity */}
                 <div className="space-y-4">
                   <ProfileCard profile={profile} />
-                  <ActionBar onDataRefresh={loadData} apiConnected={apiConnected} />
-                  <ActivityFeed activities={activityFeed} />
+                  <ActionBar onDataRefresh={loadData} apiConnected={apiConnected} preferredCompany={profile?.name} />
+                  <ActivityFeed activities={activityFeed} showUnread={config.notifications} />
                 </div>
               </div>
 
@@ -468,6 +494,11 @@ export default function App() {
           {activeTab === 'generate' && (
             <GenerateTab />
           )}
+
+          {/* SETTINGS TAB */}
+          {activeTab === 'settings' && (
+            <SettingsPanel config={config} onConfigChange={setConfig} />
+          )}
         </div>
       </main>
 
@@ -476,6 +507,15 @@ export default function App() {
         <ApplicationDetail
           application={selectedApp}
           onClose={() => setSelectedApp(null)}
+          onStatusChange={handleStatusChange}
+        />
+      )}
+
+      {/* New Application Modal */}
+      {showNewApplication && (
+        <NewApplicationModal
+          onClose={() => setShowNewApplication(false)}
+          onCreated={handleCreated}
         />
       )}
     </div>

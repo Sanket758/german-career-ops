@@ -1,55 +1,105 @@
 import { cn } from '../utils/cn';
 import type { ApplicationStatus, Priority } from '../types';
 
-// Career-Ops Germany canonical status colors
-const statusStyles: Record<ApplicationStatus, { bg: string; text: string; dot: string }> = {
-  Evaluated: { bg: 'bg-info-bg border-info-border', text: 'text-info', dot: 'bg-info' },
-  Applied: { bg: 'bg-accent-bg border-accent-border', text: 'text-accent', dot: 'bg-accent' },
-  Responded: { bg: 'bg-cyan-bg border-cyan/20', text: 'text-cyan', dot: 'bg-cyan' },
-  Interview: { bg: 'bg-warn-bg border-warn-border', text: 'text-warn', dot: 'bg-warn' },
-  Offer: { bg: 'bg-gain-bg border-gain-border', text: 'text-gain', dot: 'bg-gain' },
-  Rejected: { bg: 'bg-loss-bg border-loss-border', text: 'text-loss', dot: 'bg-loss' },
-  Discarded: { bg: 'bg-bg-secondary border-border-primary', text: 'text-text-dim', dot: 'bg-text-dim' },
-  SKIP: { bg: 'bg-bg-secondary border-border-primary', text: 'text-text-muted', dot: 'bg-text-muted' },
+/**
+ * 8 canonical statuses — exact labels from templates/states.yml.
+ * Each status carries its own token family (status-*) so badge,
+ * pipeline columns and table row accents stay in lockstep.
+ */
+const STATUS_META: Record<
+  ApplicationStatus,
+  { text: string; bg: string; border: string; dot: string; extra?: string }
+> = {
+  Evaluated: {
+    text: 'text-status-evaluated',
+    bg: 'bg-status-evaluated-bg',
+    border: 'border-status-evaluated-border',
+    dot: 'bg-status-evaluated',
+  },
+  Applied: {
+    text: 'text-status-applied',
+    bg: 'bg-status-applied-bg',
+    border: 'border-status-applied-border',
+    dot: 'bg-status-applied',
+  },
+  Responded: {
+    text: 'text-status-responded',
+    bg: 'bg-status-responded-bg',
+    border: 'border-status-responded-border',
+    dot: 'bg-status-responded',
+  },
+  Interview: {
+    text: 'text-status-interview',
+    bg: 'bg-status-interview-bg',
+    border: 'border-status-interview-border',
+    dot: 'bg-status-interview',
+  },
+  Offer: {
+    text: 'text-status-offer',
+    bg: 'bg-status-offer-bg',
+    border: 'border-status-offer-border',
+    dot: 'bg-status-offer',
+  },
+  Rejected: {
+    text: 'text-status-rejected',
+    bg: 'bg-status-rejected-bg',
+    border: 'border-status-rejected-border',
+    dot: 'bg-status-rejected',
+  },
+  // Candidate-driven end state — de-emphasized, struck through
+  Discarded: {
+    text: 'text-status-discarded',
+    bg: 'bg-status-discarded-bg',
+    border: 'border-status-discarded-border',
+    dot: 'bg-status-discarded',
+    extra: 'line-through decoration-status-discarded/50',
+  },
+  // "Don't apply" — dashed border reads as suspended/blocked
+  SKIP: {
+    text: 'text-status-skip',
+    bg: 'bg-status-skip-bg',
+    border: 'border-status-skip-border',
+    dot: 'bg-status-skip',
+    extra: 'border-dashed',
+  },
 };
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
-  const style = statusStyles[status] || statusStyles.Evaluated;
+  const meta = STATUS_META[status] ?? STATUS_META.Evaluated;
 
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border',
-        style.bg,
-        style.text
+        'inline-flex items-center gap-1.5 pl-1.5 pr-2 py-0.5 rounded-md border text-[10px] font-mono font-semibold tracking-wide',
+        meta.bg,
+        meta.text,
+        meta.border,
+        meta.extra
       )}
     >
-      <span className={cn('w-1.5 h-1.5 rounded-full', style.dot)} />
+      <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', meta.dot)} />
       {status}
     </span>
   );
 }
 
-const priorityStyles: Record<Priority, { bg: string; text: string }> = {
-  high: { bg: 'bg-loss-bg border-loss-border', text: 'text-loss' },
-  medium: { bg: 'bg-warn-bg border-warn-border', text: 'text-warn' },
-  low: { bg: 'bg-bg-secondary border-border-primary', text: 'text-text-dim' },
+const PRIORITY_META: Record<Priority, { text: string; dot: string }> = {
+  high: { text: 'text-status-rejected', dot: 'bg-status-rejected' },
+  medium: { text: 'text-status-skip', dot: 'bg-status-skip' },
+  low: { text: 'text-text-dim', dot: 'bg-text-dim' },
 };
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
-  const style = priorityStyles[priority];
+  const meta = PRIORITY_META[priority];
 
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border',
-        style.bg,
-        style.text
+        'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border-primary/70 bg-bg-secondary/60 text-[9px] font-mono font-bold uppercase tracking-wider',
+        meta.text
       )}
     >
-      {priority === 'high' && '🔥'}
-      {priority === 'medium' && '⚡'}
-      {priority === 'low' && '•'}
+      <span className={cn('w-1 h-1 rounded-full', meta.dot)} />
       {priority}
     </span>
   );
@@ -67,7 +117,7 @@ export function ScoreBadge({ score }: { score: string }) {
           : 'text-loss';
 
   return (
-    <span className={cn('font-mono text-xs font-bold', color)}>
+    <span className={cn('font-mono text-xs font-bold tabular-nums tracking-tight', color)}>
       {score}
     </span>
   );

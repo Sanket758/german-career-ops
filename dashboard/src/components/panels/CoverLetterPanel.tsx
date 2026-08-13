@@ -1,24 +1,43 @@
 import { useState } from 'react';
 import {
-  FilePenLine,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-  Download,
-  Link as LinkIcon,
   Building2,
+  CheckCircle2,
+  Download,
+  FilePenLine,
+  Link as LinkIcon,
+  Loader2,
+  MessageSquareText,
   Search,
 } from 'lucide-react';
 import { generateCoverLetter, researchCompany } from '../../data/api';
 import { cn } from '../../utils/cn';
+import {
+  ActionButton,
+  ErrorBar,
+  Field,
+  Panel,
+  PanelHeader,
+  Segmented,
+  TextArea,
+  TextInput,
+} from './ui';
 
+type LetterLang = 'de' | 'en';
+
+/**
+ * Cover letter generator — German-first (Motivationsschreiben) with an
+ * optional company-research pass that feeds scraped facts into the prompt.
+ */
 export function CoverLetterPanel() {
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
   const [jobUrl, setJobUrl] = useState('');
   const [motivation, setMotivation] = useState('');
+  const [lang, setLang] = useState<LetterLang>('de');
+
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [generatedMd, setGeneratedMd] = useState<string>('');
   const [generatedPdf, setGeneratedPdf] = useState<string | null>(null);
   const [generatedFilename, setGeneratedFilename] = useState<string | null>(null);
 
@@ -27,7 +46,7 @@ export function CoverLetterPanel() {
   const [researchFacts, setResearchFacts] = useState<string[] | null>(null);
 
   const handleResearch = async () => {
-    if (!jobUrl.trim()) return;
+    if (!jobUrl.trim() || researching) return;
 
     setResearching(true);
     setResearchFacts(null);
@@ -40,11 +59,10 @@ export function CoverLetterPanel() {
         return;
       }
 
-      // Parse the research text into facts (split by bullet-like patterns)
       const lines = result.text
         .split('\n')
-        .map(l => l.replace(/^[-*•]\s*/, '').trim())
-        .filter(l => l.length > 0)
+        .map((l) => l.replace(/^[-*•]\s*/, '').trim())
+        .filter((l) => l.length > 0)
         .slice(0, 5);
 
       setResearchFacts(lines);
@@ -56,10 +74,11 @@ export function CoverLetterPanel() {
   };
 
   const handleGenerate = async () => {
-    if (!company.trim()) return;
+    if (!company.trim() || status === 'loading') return;
 
     setStatus('loading');
     setErrorMsg(null);
+    setGeneratedMd('');
     setGeneratedPdf(null);
 
     try {
@@ -69,6 +88,7 @@ export function CoverLetterPanel() {
         jobUrl: jobUrl.trim() || undefined,
         companySnippet: researchFacts?.join('\n'),
         motivation: motivation.trim() || undefined,
+        lang,
       });
 
       if (!response.success || response.error) {
@@ -77,6 +97,7 @@ export function CoverLetterPanel() {
         return;
       }
 
+      setGeneratedMd(response.md);
       setGeneratedPdf(response.pdf);
       setGeneratedFilename(response.filename ?? null);
       setStatus('success');
@@ -87,209 +108,170 @@ export function CoverLetterPanel() {
   };
 
   const isGenerating = status === 'loading';
-  const hasSuccess = status === 'success';
-  const hasError = status === 'error';
+  const hasSuccess = status === 'success' && generatedMd.length > 0;
+
+  const pdfHref =
+    generatedPdf && (generatedPdf.startsWith('http') ? generatedPdf : `http://localhost:3001${generatedPdf}`);
 
   return (
-    <div className="bg-bg-card/40 backdrop-blur-xl border border-border-primary/50 rounded-xl overflow-hidden shadow-xl shadow-black/10 flex flex-col h-full">
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-border-primary/30 flex items-center justify-between bg-bg-card/20 shrink-0">
-        <div>
-          <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-            <FilePenLine className="w-4 h-4 text-cyan" />
-            Cover Letter
-          </h3>
-          <p className="text-[10px] text-text-dim font-mono tracking-wider mt-0.5">
-            MOTIVATIONSSCHREIBEN
-          </p>
-        </div>
-        {hasSuccess && (
-          <CheckCircle className="w-4 h-4 text-gain animate-slide-in" />
-        )}
-        {hasError && (
-          <AlertCircle className="w-4 h-4 text-loss" />
-        )}
-      </div>
+    <Panel className="h-full">
+      <PanelHeader
+        icon={<FilePenLine className="h-3.5 w-3.5" />}
+        title="Cover Letter"
+        eyebrow="Motivationsschreiben"
+        tone="cyan"
+        right={
+          isGenerating ? (
+            <Loader2 className="h-4 w-4 animate-spin text-cyan" />
+          ) : hasSuccess ? (
+            <CheckCircle2 className="h-4 w-4 text-gain animate-slide-in" />
+          ) : status === 'error' ? (
+            <span className="h-4 w-4 rounded-full border border-loss-border bg-loss-bg" aria-label="Error" />
+          ) : undefined
+        }
+      />
 
-      {/* Form */}
-      <div className="p-5 space-y-4 flex-1 overflow-y-auto">
-        {/* Company */}
-        <div>
-          <label className="block text-[10px] font-semibold text-text-dim uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-            <Building2 className="w-3 h-3" />
-            Company Name
-          </label>
-          <input
-            type="text"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            placeholder="e.g. Bosch, Zalando"
-            disabled={isGenerating}
-            className={cn(
-              'w-full px-3 py-2.5 rounded-lg bg-bg-input/50 border text-xs text-text-primary placeholder:text-text-dim focus:outline-none focus:ring-1 transition-all shadow-inner shadow-black/20',
-              isGenerating
-                ? 'border-border-primary/30 cursor-wait opacity-60'
-                : 'border-border-primary/50 focus:border-cyan/50 focus:ring-cyan/50'
-            )}
-          />
-        </div>
-
-        {/* Role */}
-        <div>
-          <label className="block text-[10px] font-semibold text-text-dim uppercase tracking-widest mb-1.5">
-            Role / Title
-          </label>
-          <input
-            type="text"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            placeholder="e.g. Senior Backend Engineer"
-            disabled={isGenerating}
-            className={cn(
-              'w-full px-3 py-2.5 rounded-lg bg-bg-input/50 border text-xs text-text-primary placeholder:text-text-dim focus:outline-none focus:ring-1 transition-all shadow-inner shadow-black/20',
-              isGenerating
-                ? 'border-border-primary/30 cursor-wait opacity-60'
-                : 'border-border-primary/50 focus:border-cyan/50 focus:ring-cyan/50'
-            )}
-          />
-        </div>
-
-        {/* Job URL + Research */}
-        <div>
-          <label className="block text-[10px] font-semibold text-text-dim uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-            <LinkIcon className="w-3 h-3" />
-            Job Posting URL
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={jobUrl}
-              onChange={(e) => setJobUrl(e.target.value)}
-              placeholder="https://..."
+      <div className="flex-1 p-5">
+        <div className="space-y-4">
+          {/* Company */}
+          <Field label="Company" icon={<Building2 className="h-3 w-3" />}>
+            <TextInput
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="e.g. Bosch, Zalando"
               disabled={isGenerating}
-              className={cn(
-                'flex-1 px-3 py-2.5 rounded-lg bg-bg-input/50 border text-xs text-text-primary placeholder:text-text-dim focus:outline-none focus:ring-1 transition-all shadow-inner shadow-black/20',
-                isGenerating
-                  ? 'border-border-primary/30 cursor-wait opacity-60'
-                  : 'border-border-primary/50 focus:border-cyan/50 focus:ring-cyan/50'
-              )}
             />
-            <button
-              onClick={handleResearch}
-              disabled={researching || !jobUrl.trim()}
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all shrink-0',
-                researching || !jobUrl.trim()
-                  ? 'bg-bg-secondary/50 text-text-dim cursor-wait border border-border-primary/30'
-                  : 'bg-cyan/10 text-cyan hover:bg-cyan/20 border border-cyan/20'
-              )}
-            >
-              {researching ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Search className="w-3.5 h-3.5" />
-              )}
-              Research
-            </button>
-          </div>
+          </Field>
+
+          {/* Role */}
+          <Field label="Role / Title">
+            <TextInput
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="e.g. Junior Backend Engineer"
+              disabled={isGenerating}
+            />
+          </Field>
+
+          {/* Job URL + research */}
+          <Field label="Job Posting URL" icon={<LinkIcon className="h-3 w-3" />}>
+            <div className="flex gap-2">
+              <TextInput
+                value={jobUrl}
+                onChange={(e) => setJobUrl(e.target.value)}
+                placeholder="https://jobs.example.com/..."
+                disabled={isGenerating || researching}
+                className="flex-1"
+              />
+              <button
+                onClick={handleResearch}
+                disabled={researching || !jobUrl.trim() || isGenerating}
+                className={cn(
+                  'flex shrink-0 items-center gap-1.5 rounded-md border px-3 py-2',
+                  'font-mono text-[9px] font-semibold uppercase tracking-[0.14em] transition-all',
+                  researching || !jobUrl.trim() || isGenerating
+                    ? 'cursor-wait border-border-primary/40 text-text-dim opacity-60'
+                    : 'border-cyan-border bg-cyan-bg text-cyan hover:border-cyan/50 hover:bg-cyan/15'
+                )}
+              >
+                {researching ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Search className="h-3 w-3" />
+                )}
+                Research
+              </button>
+            </div>
+          </Field>
+
+          {/* Company intelligence */}
+          {researchFacts && (
+            <div className="rounded-md border-l-2 border-cyan/50 bg-cyan-bg/50 px-3 py-2.5 animate-slide-in">
+              <p className="mb-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan">
+                Company intelligence
+              </p>
+              <ul className="space-y-1">
+                {researchFacts.map((fact, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[11px] leading-relaxed text-text-secondary">
+                    <span className="mt-px shrink-0 font-mono text-cyan/70">→</span>
+                    <span className="min-w-0">{fact}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Language */}
+          <Field label="Letter language">
+            <Segmented
+              value={lang}
+              onChange={setLang}
+              disabled={isGenerating}
+              options={[
+                { value: 'de', label: 'DE' },
+                { value: 'en', label: 'EN' },
+              ]}
+            />
+          </Field>
+
+          {/* Motivation */}
+          <Field
+            label="Personal Motivation"
+            icon={<MessageSquareText className="h-3 w-3" />}
+            hint="Optional — adds a personal touch to the letter"
+          >
+            <TextArea
+              value={motivation}
+              onChange={(e) => setMotivation(e.target.value)}
+              placeholder="Brief note on why this role excites you…"
+              rows={3}
+              disabled={isGenerating}
+            />
+          </Field>
+
+          <ActionButton
+            onClick={handleGenerate}
+            disabled={!company.trim()}
+            loading={isGenerating}
+          >
+            {isGenerating ? 'Generating…' : 'Generate Letter'}
+          </ActionButton>
         </div>
 
-        {/* Research Results */}
-        {researchFacts && (
-          <div className="animate-slide-in px-3 py-3 rounded-lg bg-bg-secondary/40 border border-border-primary/30">
-            <p className="text-[10px] font-semibold text-text-dim uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <Building2 className="w-3 h-3" />
-              Company Intelligence
-            </p>
-            <ul className="space-y-1.5">
-              {researchFacts.map((fact, i) => (
-                <li key={i} className="flex items-start gap-2 text-[11px] text-text-secondary">
-                  <span className="text-cyan mt-0.5 shrink-0">→</span>
-                  <span>{fact}</span>
-                </li>
-              ))}
-            </ul>
+        {/* Feedback */}
+        {status === 'error' && errorMsg && (
+          <div className="mt-4 animate-slide-in">
+            <ErrorBar message={errorMsg} />
           </div>
         )}
-
-        {/* Motivation */}
-        <div>
-          <label className="block text-[10px] font-semibold text-text-dim uppercase tracking-widest mb-1.5">
-            Personal Motivation
-          </label>
-          <textarea
-            value={motivation}
-            onChange={(e) => setMotivation(e.target.value)}
-            placeholder="Brief snippet about why this role excites you..."
-            rows={3}
-            disabled={isGenerating}
-            className={cn(
-              'w-full px-3 py-2.5 rounded-lg bg-bg-input/50 border text-xs text-text-primary placeholder:text-text-dim focus:outline-none focus:ring-1 transition-all shadow-inner shadow-black/20 resize-none',
-              isGenerating
-                ? 'border-border-primary/30 cursor-wait opacity-60'
-                : 'border-border-primary/50 focus:border-cyan/50 focus:ring-cyan/50'
-            )}
-          />
-          <p className="text-[10px] text-text-dim mt-1">
-            Optional — adds a personal touch to the letter
-          </p>
-        </div>
       </div>
 
-      {/* Action */}
-      <div className="px-5 pb-5 shrink-0">
-        <button
-          onClick={handleGenerate}
-          disabled={isGenerating || !company.trim()}
-          className={cn(
-            'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all',
-            isGenerating || !company.trim()
-              ? 'bg-bg-secondary/50 text-text-dim cursor-wait border border-border-primary/30'
-              : 'bg-gradient-to-r from-cyan to-cyan/90 hover:from-cyan/90 hover:to-cyan text-white shadow-lg shadow-cyan/25 hover:shadow-cyan/40 hover:-translate-y-0.5 active:translate-y-0'
-          )}
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <FilePenLine className="w-4 h-4" />
-              Generate Cover Letter
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Results */}
-      {(hasSuccess || hasError) && (
-        <div className="px-5 pb-5 animate-slide-in shrink-0">
-          {hasError && errorMsg && (
-            <div className="px-3 py-2 rounded-lg text-[11px] bg-loss-bg text-loss border border-loss-border">
-              {errorMsg}
-            </div>
-          )}
-
-          {hasSuccess && generatedPdf && (
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gain-bg border border-gain-border">
-              <CheckCircle className="w-3.5 h-3.5 text-gain shrink-0" />
-              <span className="text-xs text-text-primary flex-1 truncate">
-                {generatedFilename ?? 'Cover letter'}
+      {/* Result — markdown preview + pdf */}
+      {hasSuccess && (
+        <div className="border-t border-border-primary/70 p-5 animate-slide-in">
+          <div className="overflow-hidden rounded-md border border-border-primary/70">
+            <div className="flex items-center justify-between gap-2 border-b border-border-primary/70 bg-bg-secondary/60 px-3 py-2">
+              <span className="truncate font-mono text-[9px] uppercase tracking-[0.2em] text-text-dim">
+                {generatedFilename ?? 'Cover letter'} · Markdown
               </span>
-              <a
-                href={generatedPdf.startsWith('http') ? generatedPdf : `http://localhost:3001${generatedPdf}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-2 py-1 rounded-md bg-accent/10 text-accent hover:bg-accent/20 transition-colors text-[10px] font-bold uppercase tracking-wider"
-              >
-                <Download className="w-3 h-3" />
-                Download
-              </a>
+              {pdfHref && (
+                <a
+                  href={pdfHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-cyan-border bg-cyan-bg px-2 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-cyan transition-colors hover:border-cyan/50 hover:bg-cyan/15"
+                >
+                  <Download className="h-3 w-3" />
+                  PDF
+                </a>
+              )}
             </div>
-          )}
+            <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap break-words bg-bg-primary/60 px-4 py-3 font-mono text-[11px] leading-relaxed text-text-secondary">
+              {generatedMd}
+            </pre>
+          </div>
         </div>
       )}
-    </div>
+    </Panel>
   );
 }

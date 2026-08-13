@@ -1,0 +1,128 @@
+{
+  "goal": "Complete redesign of the JobTrackr dashboard (career-ops) \u2014 correct job-application tracking integrated with the career-ops workflow (8 canonical statuses, live data via server/api.mjs), Mission Control dark aesthetic. All modules pass critic (visual QA) + verifier (tsc/build/functional) before terminal.",
+  "bar": {
+    "name": "Linear-grade mission-control dashboard (dark) + career-ops workflow completeness",
+    "reference_path": ".gauntlet/dashboard-redesign/bar/",
+    "criteria": [
+      "8 canonical statuses from templates/states.yml render distinctly (Evaluated/Applied/Responded/Interview/Offer/Rejected/Discarded/SKIP)",
+      "All data live from API (applications, pipeline, burn-list, session, profile, stats, output-files) with graceful mock fallback",
+      "tsc --noEmit clean; vite build succeeds",
+      "Header: CODE RED ribbon, LIVE/DEMO pill, search, tab nav, metric chips \u2014 visually exceptional (pilot)",
+      "Overview: 6 metric cards from /api/stats, charts render, profile card, activity feed (all 8 types), burn-list preview",
+      "Pipeline: kanban per status group, click opens detail",
+      "Applications: sortable/filterable table, status-colored rows, detail modal with status update (PUT persists)",
+      "Burn List + Generate tabs functional (POST /api/generate-cv, /api/generate-cover-letter, /api/output-files)",
+      "Responsive desktop + mobile, visual QA checklist all PASS per module"
+    ]
+  },
+  "pieces": [
+    {
+      "id": "data",
+      "status": "building",
+      "builder": "agent-B",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "shell",
+      "status": "building",
+      "builder": "agent-A",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "header",
+      "status": "building",
+      "builder": "agent-A",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "sidebar",
+      "status": "building",
+      "builder": "agent-A",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "overview",
+      "status": "pending",
+      "builder": "agent-C",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "pipeline",
+      "status": "pending",
+      "builder": "agent-D",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "applications",
+      "status": "pending",
+      "builder": "agent-D",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "burnlist",
+      "status": "pending",
+      "builder": "agent-E",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "generate",
+      "status": "pending",
+      "builder": "agent-E",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    },
+    {
+      "id": "integration-page",
+      "status": "pending",
+      "builder": "sisyphus",
+      "critic_verdict": "",
+      "biggest_gap": "",
+      "rounds": 0
+    }
+  ],
+  "artifacts": {
+    "data": "dashboard/src/data/api.ts + mockData.ts",
+    "shell": "dashboard/src/index.css + App.tsx",
+    "header": "dashboard/src/components/Header.tsx",
+    "sidebar": "dashboard/src/components/Sidebar.tsx",
+    "overview": "dashboard/src/components/{MetricCard,Charts,ProfileCard,ActionBar,ActivityFeed}.tsx",
+    "pipeline": "dashboard/src/components/PipelineView.tsx",
+    "applications": "dashboard/src/components/{ApplicationTable,ApplicationDetail,StatusBadge}.tsx",
+    "burnlist": "dashboard/src/components/BurnListView.tsx",
+    "generate": "dashboard/src/components/panels/*",
+    "integration-page": "dashboard/src/App.tsx"
+  },
+  "critic_findings": [],
+  "round": 0,
+  "terminal": false,
+  "user_requirements": [
+    {
+      "id": "apply-flow",
+      "source": "user 2026-08-13 22:39",
+      "requirement": "GUI version of /career-ops apply: in ApplicationDetail add (1) 'Apply Now' button -> window.open(app.jobUrl) in new tab; (2) 'Mark as Applied' button -> updateApplicationStatus(app.id,'Applied') optimistic UI + App.tsx state refresh via onStatusChange prop; (3) 'Generate Tailored CV' + 'Generate Cover Letter' buttons -> call generateCV/generateCoverLetter with app.company+app.role, inline result/loading/error (self-contained, no GenerateTab dependency).",
+      "files": [
+        "dashboard/src/components/ApplicationDetail.tsx",
+        "dashboard/src/App.tsx"
+      ],
+      "owner": "Agent D continuation (ApplicationDetail) + sisyphus (App.tsx wiring)",
+      "status": "queued"
+    }
+  ]
+}

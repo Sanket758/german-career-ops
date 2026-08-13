@@ -1,28 +1,37 @@
 import { useState } from 'react';
 import {
   Mail,
-  Scan,
+  Radar,
+  FileText,
   RefreshCw,
   CheckCircle,
   AlertCircle,
   Loader2,
-  Terminal,
 } from 'lucide-react';
-import { triggerGmailSync, triggerScan, initSession } from '../data/api';
+import { triggerGmailSync, triggerScan, generateCV } from '../data/api';
 import { cn } from '../utils/cn';
 
 interface ActionBarProps {
   onDataRefresh: () => void;
   apiConnected: boolean;
+  /** Company to use for the quick Generate CV action (falls back to a default). */
+  preferredCompany?: string;
 }
 
 type ActionStatus = 'idle' | 'loading' | 'success' | 'error';
 
-export function ActionBar({ onDataRefresh, apiConnected }: ActionBarProps) {
+export function ActionBar({ onDataRefresh, apiConnected, preferredCompany = 'Sanket' }: ActionBarProps) {
   const [gmailStatus, setGmailStatus] = useState<ActionStatus>('idle');
   const [scanStatus, setScanStatus] = useState<ActionStatus>('idle');
-  const [sessionStatus, setSessionStatus] = useState<ActionStatus>('idle');
+  const [cvStatus, setCvStatus] = useState<ActionStatus>('idle');
   const [message, setMessage] = useState<string | null>(null);
+
+  const settle = (setter: (s: ActionStatus) => void, status: ActionStatus) => {
+    setTimeout(() => {
+      setter(status);
+      setMessage(null);
+    }, 5000);
+  };
 
   const handleGmailSync = async () => {
     setGmailStatus('loading');
@@ -31,16 +40,15 @@ export function ActionBar({ onDataRefresh, apiConnected }: ActionBarProps) {
       const result = await triggerGmailSync();
       setGmailStatus('success');
       setMessage(result.message);
-      // Refresh data after sync
       setTimeout(() => {
         onDataRefresh();
         setGmailStatus('idle');
         setMessage(null);
       }, 3000);
-    } catch (err) {
+    } catch {
       setGmailStatus('error');
       setMessage('Gmail sync failed — check OAuth credentials');
-      setTimeout(() => { setGmailStatus('idle'); setMessage(null); }, 5000);
+      settle(setGmailStatus, 'idle');
     }
   };
 
@@ -56,85 +64,91 @@ export function ActionBar({ onDataRefresh, apiConnected }: ActionBarProps) {
         setScanStatus('idle');
         setMessage(null);
       }, 5000);
-    } catch (err) {
+    } catch {
       setScanStatus('error');
       setMessage('Scan failed');
-      setTimeout(() => { setScanStatus('idle'); setMessage(null); }, 5000);
+      settle(setScanStatus, 'idle');
     }
   };
 
-  const handleSessionInit = async () => {
-    setSessionStatus('loading');
+  const handleGenerateCV = async () => {
+    setCvStatus('loading');
+    setMessage(null);
     try {
-      await initSession();
-      setSessionStatus('success');
-      setMessage('Session state refreshed');
+      const result = await generateCV({ company: preferredCompany, lang: 'both' });
+      const okCount = result.results.filter((r) => !r.error).length;
+      const ok = result.success && okCount > 0;
+      setCvStatus(ok ? 'success' : 'error');
+      setMessage(ok
+        ? `CV generated — ${okCount} file${okCount > 1 ? 's' : ''} in output/`
+        : 'CV generation failed — check the API server');
       setTimeout(() => {
-        onDataRefresh();
-        setSessionStatus('idle');
+        setCvStatus('idle');
         setMessage(null);
-      }, 2000);
+      }, 6000);
     } catch {
-      setSessionStatus('error');
-      setMessage('Session init failed');
-      setTimeout(() => { setSessionStatus('idle'); setMessage(null); }, 5000);
+      setCvStatus('error');
+      setMessage('CV generation failed');
+      settle(setCvStatus, 'idle');
     }
   };
+
+  const hasError = gmailStatus === 'error' || scanStatus === 'error' || cvStatus === 'error';
 
   return (
-    <div className="bg-bg-card/40 backdrop-blur-xl border border-border-primary/50 rounded-xl overflow-hidden shadow-xl shadow-black/10 transition-all duration-300">
-      <div className="px-5 py-4 border-b border-border-primary/30 flex items-center justify-between bg-bg-card/20">
+    <div className="overflow-hidden rounded-panel border border-border-primary/60 bg-bg-card/60 shadow-card shadow-inset-top backdrop-blur-xl transition-all duration-300">
+      <div className="flex items-center justify-between border-b border-border-primary/50 bg-bg-card/20 px-4 py-3">
         <div>
-          <h3 className="text-sm font-semibold text-text-primary">Quick Actions</h3>
-          <p className="text-[10px] text-text-dim font-mono">
-            SYNC • SCAN • REFRESH
+          <h3 className="text-sm font-semibold tracking-tight text-text-primary">Mission Actions</h3>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-text-dim">
+            Sync · Scan · Generate
           </p>
         </div>
         <div className={cn(
-          'w-2 h-2 rounded-full',
-          apiConnected ? 'bg-gain animate-pulse-dot' : 'bg-loss'
+          'h-2 w-2 rounded-full',
+          apiConnected ? 'animate-pulse-dot bg-gain shadow-glow-cyan' : 'bg-loss shadow-glow-red'
         )} />
       </div>
 
-      <div className="p-3 space-y-2">
-        {/* Gmail Sync Button */}
+      <div className="space-y-2 p-3">
+        {/* Gmail Sync */}
         <ActionButton
-          icon={<Mail className="w-3.5 h-3.5" />}
-          label="Gmail Sync"
+          icon={<Mail className="h-3.5 w-3.5" />}
+          label="Sync Gmail"
           description="Check inbox for status updates"
           status={gmailStatus}
           onClick={handleGmailSync}
           accent="info"
         />
 
-        {/* Portal Scan Button */}
+        {/* Portal Scan */}
         <ActionButton
-          icon={<Scan className="w-3.5 h-3.5" />}
-          label="Portal Scan"
+          icon={<Radar className="h-3.5 w-3.5" />}
+          label="Scan Portals"
           description="Search German job portals"
           status={scanStatus}
           onClick={handleScan}
           accent="accent"
         />
 
-        {/* Refresh Session */}
+        {/* Generate CV */}
         <ActionButton
-          icon={<Terminal className="w-3.5 h-3.5" />}
-          label="Refresh Session"
-          description="Rebuild session state from files"
-          status={sessionStatus}
-          onClick={handleSessionInit}
+          icon={<FileText className="h-3.5 w-3.5" />}
+          label="Generate CV"
+          description="Tailored CV — German + English"
+          status={cvStatus}
+          onClick={handleGenerateCV}
           accent="cyan"
         />
 
-        {/* Refresh Data */}
+        {/* Reload data */}
         <div className="pt-2">
           <button
             onClick={onDataRefresh}
-            className="group flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-text-secondary hover:text-text-primary hover:bg-bg-secondary/50 transition-all duration-300"
+            className="group flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs text-text-secondary transition-all duration-300 hover:bg-bg-secondary/50 hover:text-text-primary"
           >
-            <RefreshCw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
-            <span>Reload Dashboard Data</span>
+            <RefreshCw className="h-3.5 w-3.5 transition-transform duration-500 group-hover:rotate-180" />
+            <span className="font-mono text-[10px] uppercase tracking-wider">Reload Dashboard Data</span>
           </button>
         </div>
       </div>
@@ -142,10 +156,10 @@ export function ActionBar({ onDataRefresh, apiConnected }: ActionBarProps) {
       {/* Status message */}
       {message && (
         <div className={cn(
-          'mx-3 mb-3 px-3 py-2 rounded-lg text-[11px] animate-slide-in',
-          gmailStatus === 'error' || scanStatus === 'error' || sessionStatus === 'error'
-            ? 'bg-loss-bg text-loss border border-loss-border'
-            : 'bg-gain-bg text-gain border border-gain-border'
+          'mx-3 mb-3 animate-slide-in rounded-lg border px-3 py-2 font-mono text-[11px]',
+          hasError
+            ? 'border-loss-border bg-loss-bg text-loss'
+            : 'border-gain-border bg-gain-bg text-gain'
         )}>
           {message}
         </div>
@@ -173,17 +187,17 @@ function ActionButton({
 
   const stylesMap = {
     info: {
-      button: 'hover:bg-info/5 hover:border-info/20 hover:shadow-info/5',
+      button: 'hover:border-info/20 hover:bg-info/5',
       iconBg: 'bg-info/10 ring-info/20',
       iconText: 'text-info'
     },
     accent: {
-      button: 'hover:bg-accent/5 hover:border-accent/20 hover:shadow-accent/5',
+      button: 'hover:border-accent/20 hover:bg-accent/5',
       iconBg: 'bg-accent/10 ring-accent/20',
       iconText: 'text-accent'
     },
     cyan: {
-      button: 'hover:bg-cyan/5 hover:border-cyan/20 hover:shadow-cyan/5',
+      button: 'hover:border-cyan/20 hover:bg-cyan/5',
       iconBg: 'bg-cyan/10 ring-cyan/20',
       iconText: 'text-cyan'
     }
@@ -195,29 +209,29 @@ function ActionButton({
       onClick={onClick}
       disabled={isLoading}
       className={cn(
-        'group flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-300 text-left relative overflow-hidden',
+        'group relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-all duration-300',
         isLoading
-          ? 'bg-bg-secondary/50 cursor-wait'
-          : `border border-transparent hover:shadow-lg ${styles.button}`
+          ? 'cursor-wait bg-bg-secondary/50'
+          : cn('border border-transparent hover:shadow-lg', styles.button)
       )}
     >
       <div className={cn(
-        'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 shadow-sm shadow-black/20',
-        `ring-1 ${styles.iconBg}`
+        'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-sm shadow-black/20 ring-1 transition-transform duration-300 group-hover:scale-110',
+        styles.iconBg
       )}>
         {isLoading ? (
-          <Loader2 className="w-3.5 h-3.5 text-text-muted animate-spin" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-text-muted" />
         ) : status === 'success' ? (
-          <CheckCircle className="w-3.5 h-3.5 text-gain" />
+          <CheckCircle className="h-3.5 w-3.5 text-gain" />
         ) : status === 'error' ? (
-          <AlertCircle className="w-3.5 h-3.5 text-loss" />
+          <AlertCircle className="h-3.5 w-3.5 text-loss" />
         ) : (
           <span className={styles.iconText}>{icon}</span>
         )}
       </div>
       <div className="min-w-0">
-        <span className="text-xs font-medium text-text-primary">{label}</span>
-        <p className="text-[10px] text-text-dim truncate">{description}</p>
+        <span className="block text-xs font-medium text-text-primary">{label}</span>
+        <p className="truncate font-mono text-[10px] text-text-dim">{description}</p>
       </div>
     </button>
   );

@@ -1,34 +1,62 @@
 import { useState } from 'react';
 import {
-  FileText,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
   Download,
-  Languages,
+  FileText,
   FolderGit,
+  Languages,
+  Loader2,
 } from 'lucide-react';
 import { generateCV } from '../../data/api';
 import type { CVGenerateResult } from '../../data/api';
 import { cn } from '../../utils/cn';
+import {
+  ActionButton,
+  ErrorBar,
+  Field,
+  Panel,
+  PanelHeader,
+  Segmented,
+  TextInput,
+  Toggle,
+} from './ui';
 
 type LangOption = 'de' | 'en' | 'both';
 
+const LANG_META: Record<string, { label: string; color: string }> = {
+  de: { label: 'DE', color: 'text-cyan' },
+  en: { label: 'EN', color: 'text-accent' },
+  both: { label: 'DE + EN', color: 'text-violet' },
+};
+
+/**
+ * Tailored CV generator — one payload, per-language results (de / en / both),
+ * each with an inline HTML preview toggle and a PDF download.
+ */
 export function GenerateCVPanel() {
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
   const [lang, setLang] = useState<LangOption>('both');
   const [includeProjects, setIncludeProjects] = useState(true);
+  const [maxBullets, setMaxBullets] = useState<string>('');
+
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [results, setResults] = useState<CVGenerateResult[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   const handleGenerate = async () => {
-    if (!company.trim()) return;
+    if (!company.trim() || status === 'loading') return;
 
     setStatus('loading');
     setErrorMsg(null);
     setResults([]);
+    setExpanded(null);
+
+    const bullets = maxBullets.trim() === '' ? undefined : Number(maxBullets);
+    const bulletsParsed = bullets !== undefined && !Number.isNaN(bullets) ? bullets : undefined;
 
     try {
       const response = await generateCV({
@@ -36,10 +64,11 @@ export function GenerateCVPanel() {
         role: role.trim() || undefined,
         lang,
         includeProjects,
+        maxBullets: bulletsParsed,
       });
 
       if (!response.success) {
-        const firstError = response.results.find(r => r.error)?.error ?? 'Generation failed';
+        const firstError = response.results.find((r) => r.error)?.error ?? 'Generation failed';
         setErrorMsg(firstError);
         setStatus('error');
         return;
@@ -55,181 +84,173 @@ export function GenerateCVPanel() {
 
   const isGenerating = status === 'loading';
   const hasSuccess = status === 'success' && results.length > 0;
-  const hasError = status === 'error';
 
   return (
-    <div className="bg-bg-card/40 backdrop-blur-xl border border-border-primary/50 rounded-xl overflow-hidden shadow-xl shadow-black/10 flex flex-col h-full">
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-border-primary/30 flex items-center justify-between bg-bg-card/20 shrink-0">
-        <div>
-          <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-            <FileText className="w-4 h-4 text-accent" />
-            Generate CV
-          </h3>
-          <p className="text-[10px] text-text-dim font-mono tracking-wider mt-0.5">
-            TAILORED PDF OUTPUT
-          </p>
-        </div>
-        {hasSuccess && (
-          <CheckCircle className="w-4 h-4 text-gain animate-slide-in" />
-        )}
-        {hasError && (
-          <AlertCircle className="w-4 h-4 text-loss" />
-        )}
-      </div>
+    <Panel className="h-full">
+      <PanelHeader
+        icon={<FileText className="h-3.5 w-3.5" />}
+        title="Generate CV"
+        eyebrow="Tailored · ATS-optimized"
+        tone="accent"
+        right={
+          isGenerating ? (
+            <Loader2 className="h-4 w-4 animate-spin text-accent" />
+          ) : hasSuccess ? (
+            <CheckCircle2 className="h-4 w-4 text-gain animate-slide-in" />
+          ) : status === 'error' ? (
+            <span className="h-4 w-4 rounded-full border border-loss-border bg-loss-bg" aria-label="Error" />
+          ) : undefined
+        }
+      />
 
-      {/* Form */}
-      <div className="p-5 space-y-4 flex-1">
-        {/* Company */}
-        <div>
-          <label className="block text-[10px] font-semibold text-text-dim uppercase tracking-widest mb-1.5">
-            Company Name
-          </label>
-          <input
-            type="text"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            placeholder="e.g. Siemens, SAP, BMW"
-            disabled={isGenerating}
-            className={cn(
-              'w-full px-3 py-2.5 rounded-lg bg-bg-input/50 border text-xs text-text-primary placeholder:text-text-dim focus:outline-none focus:ring-1 transition-all shadow-inner shadow-black/20',
-              isGenerating
-                ? 'border-border-primary/30 cursor-wait opacity-60'
-                : 'border-border-primary/50 focus:border-accent/50 focus:ring-accent/50'
-            )}
-          />
-        </div>
+      <div className="flex-1 p-5">
+        <div className="space-y-4">
+          {/* Company */}
+          <Field label="Company">
+            <TextInput
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="e.g. Siemens, SAP, BMW"
+              disabled={isGenerating}
+              tone="accent"
+            />
+          </Field>
 
-        {/* Role */}
-        <div>
-          <label className="block text-[10px] font-semibold text-text-dim uppercase tracking-widest mb-1.5">
-            Role / Title
-          </label>
-          <input
-            type="text"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            placeholder="e.g. ML Engineer, Data Scientist"
-            disabled={isGenerating}
-            className={cn(
-              'w-full px-3 py-2.5 rounded-lg bg-bg-input/50 border text-xs text-text-primary placeholder:text-text-dim focus:outline-none focus:ring-1 transition-all shadow-inner shadow-black/20',
-              isGenerating
-                ? 'border-border-primary/30 cursor-wait opacity-60'
-                : 'border-border-primary/50 focus:border-accent/50 focus:ring-accent/50'
-            )}
-          />
-        </div>
+          {/* Role */}
+          <Field label="Role / Title">
+            <TextInput
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="e.g. ML Engineer, Data Scientist"
+              disabled={isGenerating}
+              tone="accent"
+            />
+          </Field>
 
-        {/* Language Toggle */}
-        <div>
-          <label className="block text-[10px] font-semibold text-text-dim uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-            <Languages className="w-3 h-3" />
-            Language
-          </label>
-          <div className="flex gap-1 bg-bg-secondary/50 backdrop-blur-sm rounded-lg p-1 border border-border-primary/20 shadow-inner shadow-black/10">
-            {(['de', 'en', 'both'] as const).map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setLang(opt)}
-                disabled={isGenerating}
-                className={cn(
-                  'flex-1 py-1.5 rounded-md text-xs font-bold transition-all uppercase tracking-wider',
-                  isGenerating ? 'opacity-60 cursor-wait' : '',
-                  lang === opt
-                    ? 'bg-bg-card text-text-primary shadow-md shadow-black/20 ring-1 ring-white/5'
-                    : 'text-text-muted hover:text-text-primary hover:bg-bg-card/30'
-                )}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
-        </div>
+          {/* Language */}
+          <Field label="Language" icon={<Languages className="h-3 w-3" />}>
+            <Segmented
+              value={lang}
+              onChange={setLang}
+              disabled={isGenerating}
+              options={[
+                { value: 'de', label: 'DE' },
+                { value: 'en', label: 'EN' },
+                { value: 'both', label: 'Both' },
+              ]}
+            />
+          </Field>
 
-        {/* Include Projects */}
-        <label className="flex items-center gap-3 cursor-pointer group">
-          <div
-            onClick={() => !isGenerating && setIncludeProjects(!includeProjects)}
-            className={cn(
-              'w-4 h-4 rounded border-2 flex items-center justify-center transition-all shrink-0',
-              isGenerating ? 'opacity-60 cursor-wait' : '',
-              includeProjects
-                ? 'bg-accent border-accent shadow-sm shadow-accent/30'
-                : 'border-border-accent group-hover:border-accent/50'
-            )}
+          {/* Max bullets */}
+          <Field
+            label="Max Bullets per Role"
+            hint="Optional — leave empty for the default depth"
           >
-            {includeProjects && <CheckCircle className="w-3 h-3 text-white" />}
+            <TextInput
+              type="number"
+              min={1}
+              max={20}
+              value={maxBullets}
+              onChange={(e) => setMaxBullets(e.target.value)}
+              placeholder="e.g. 8"
+              disabled={isGenerating}
+              tone="accent"
+              className="w-28"
+            />
+          </Field>
+
+          {/* Include projects */}
+          <div className="rounded-md border border-border-primary/50 bg-bg-secondary/30 px-2 py-1.5">
+            <Toggle
+              checked={includeProjects}
+              onChange={setIncludeProjects}
+              disabled={isGenerating}
+              label="Include Projects"
+              description="Fold portfolio / GitHub projects into the CV"
+              icon={<FolderGit className="h-3.5 w-3.5" />}
+            />
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-text-secondary group-hover:text-text-primary transition-colors">
-            <FolderGit className="w-3.5 h-3.5" />
-            Include Projects
+
+          <ActionButton
+            onClick={handleGenerate}
+            disabled={!company.trim()}
+            loading={isGenerating}
+            tone="accent"
+          >
+            {isGenerating ? 'Generating…' : 'Generate CV'}
+          </ActionButton>
+        </div>
+
+        {/* Feedback */}
+        {status === 'error' && errorMsg && (
+          <div className="mt-4 animate-slide-in">
+            <ErrorBar message={errorMsg} />
           </div>
-        </label>
+        )}
       </div>
 
-      {/* Action */}
-      <div className="px-5 pb-5 shrink-0">
-        <button
-          onClick={handleGenerate}
-          disabled={isGenerating || !company.trim()}
-          className={cn(
-            'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all',
-            isGenerating || !company.trim()
-              ? 'bg-bg-secondary/50 text-text-dim cursor-wait border border-border-primary/30'
-              : 'bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent text-white shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:-translate-y-0.5 active:translate-y-0'
-          )}
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <FileText className="w-4 h-4" />
-              Generate CV
-            </>
-          )}
-        </button>
-      </div>
+      {/* Results — per-language cards */}
+      {hasSuccess && (
+        <div className="space-y-3 border-t border-border-primary/70 p-5 animate-slide-in">
+          {results.map((r, i) => {
+            const meta = LANG_META[r.lang] ?? { label: r.lang.toUpperCase(), color: 'text-text-secondary' };
+            const open = expanded === i;
+            const pdfHref =
+              r.pdf && (r.pdf.startsWith('http') ? r.pdf : `http://localhost:3001${r.pdf}`);
 
-      {/* Results */}
-      {(hasSuccess || hasError) && (
-        <div className="px-5 pb-5 animate-slide-in shrink-0">
-          {hasError && errorMsg && (
-            <div className="px-3 py-2 rounded-lg text-[11px] bg-loss-bg text-loss border border-loss-border">
-              {errorMsg}
-            </div>
-          )}
-
-          {hasSuccess && results.length > 0 && (
-            <div className="space-y-2">
-              {results.map((r, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gain-bg border border-gain-border"
-                >
-                  <CheckCircle className="w-3.5 h-3.5 text-gain shrink-0" />
-                  <span className="text-xs text-text-primary flex-1 truncate">
-                    {r.filename || r.lang.toUpperCase()} CV
+            return (
+              <div key={i} className="overflow-hidden rounded-md border border-border-primary/70">
+                {/* Card header */}
+                <div className="flex items-center gap-2 border-b border-border-primary/70 bg-bg-secondary/50 px-3 py-2">
+                  <span className={cn('font-mono text-[10px] font-bold tracking-[0.14em]', meta.color)}>
+                    {meta.label}
                   </span>
-                  {r.pdf && (
+                  <span className="min-w-0 flex-1 truncate font-mono text-[10px] text-text-muted">
+                    {r.filename ?? `${r.lang.toUpperCase()} CV`}
+                  </span>
+
+                  {r.html && (
+                    <button
+                      onClick={() => setExpanded(open ? null : i)}
+                      className="inline-flex items-center gap-1 rounded-md border border-border-secondary/70 px-2 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-text-muted transition-colors hover:border-cyan/40 hover:text-cyan"
+                    >
+                      {open ? (
+                        <ChevronDown className="h-3 w-3" />
+                      ) : (
+                        <ChevronRight className="h-3 w-3" />
+                      )}
+                      {open ? 'Close' : 'HTML'}
+                    </button>
+                  )}
+
+                  {pdfHref && (
                     <a
-                      href={r.pdf.startsWith('http') ? r.pdf : `http://localhost:3001${r.pdf}`}
+                      href={pdfHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-2 py-1 rounded-md bg-accent/10 text-accent hover:bg-accent/20 transition-colors text-[10px] font-bold uppercase tracking-wider"
+                      className="inline-flex items-center gap-1 rounded-md border border-accent-border bg-accent-bg px-2 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-accent transition-colors hover:border-accent/50 hover:bg-accent/15"
                     >
-                      <Download className="w-3 h-3" />
-                      Download
+                      <Download className="h-3 w-3" />
+                      PDF
                     </a>
                   )}
                 </div>
-              ))}
-            </div>
-          )}
+
+                {/* Error / html preview */}
+                {r.error ? (
+                  <div className="p-3">
+                    <ErrorBar message={r.error} />
+                  </div>
+                ) : open && r.html ? (
+                  <pre className="max-h-72 overflow-auto bg-bg-primary/60 px-4 py-3 font-mono text-[10px] leading-relaxed text-text-secondary">
+                    {r.html}
+                  </pre>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       )}
-    </div>
+    </Panel>
   );
 }

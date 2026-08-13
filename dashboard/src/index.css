@@ -1,9 +1,19 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+/*
+ * JobTrackr — "Mission Control" design system
+ * -------------------------------------------
+ * Dark cockpit for a CODE RED full-time German job search.
+ * Token names are stable (bg-*, text-*, gain/loss/warn/info/accent/cyan)
+ * so every module can consume them; new tokens below are additive.
+ */
 
+@theme {
+  /* ── Typography ─────────────────────────────────────────────── */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
+
+  /* ── Surfaces · deep space-blue ─────────────────────────────── */
   --color-bg-primary: #0a0e17;
   --color-bg-secondary: #111827;
   --color-bg-card: #151c2c;
@@ -12,15 +22,18 @@
   --color-bg-header: rgba(10, 14, 23, 0.85);
   --color-bg-input: #1a2236;
 
+  /* ── Hairlines ──────────────────────────────────────────────── */
   --color-border-primary: #1e293b;
   --color-border-secondary: #2a3548;
   --color-border-accent: #334155;
 
+  /* ── Text ───────────────────────────────────────────────────── */
   --color-text-primary: #f1f5f9;
   --color-text-secondary: #94a3b8;
   --color-text-muted: #64748b;
   --color-text-dim: #475569;
 
+  /* ── Semantic state (shared ticker + components) ────────────── */
   --color-gain: #22c55e;
   --color-gain-bg: rgba(34, 197, 94, 0.1);
   --color-gain-border: rgba(34, 197, 94, 0.2);
@@ -37,12 +50,96 @@
   --color-info-bg: rgba(59, 130, 246, 0.1);
   --color-info-border: rgba(59, 130, 246, 0.2);
 
+  /* ── Brand accents · electric indigo → cyan ─────────────────── */
   --color-accent: #6366f1;
   --color-accent-bg: rgba(99, 102, 241, 0.1);
   --color-accent-border: rgba(99, 102, 241, 0.2);
 
   --color-cyan: #06b6d4;
   --color-cyan-bg: rgba(6, 182, 212, 0.1);
+  --color-cyan-border: rgba(6, 182, 212, 0.2);
+
+  --color-violet: #8b5cf6;
+  --color-violet-bg: rgba(139, 92, 246, 0.1);
+  --color-violet-border: rgba(139, 92, 246, 0.2);
+
+  /* ── CODE RED · campaign urgency signal ─────────────────────── */
+  --color-code-red: #f43f5e;
+  --color-code-red-bright: #fb7185;
+  --color-code-red-bg: rgba(244, 63, 94, 0.12);
+  --color-code-red-border: rgba(244, 63, 94, 0.3);
+
+  /* ── Canonical status colors · 8, matching templates/states.yml ── */
+  --color-status-evaluated: #6366f1;
+  --color-status-evaluated-bg: rgba(99, 102, 241, 0.12);
+  --color-status-evaluated-border: rgba(99, 102, 241, 0.28);
+
+  --color-status-applied: #3b82f6;
+  --color-status-applied-bg: rgba(59, 130, 246, 0.12);
+  --color-status-applied-border: rgba(59, 130, 246, 0.28);
+
+  --color-status-responded: #06b6d4;
+  --color-status-responded-bg: rgba(6, 182, 212, 0.12);
+  --color-status-responded-border: rgba(6, 182, 212, 0.28);
+
+  --color-status-interview: #8b5cf6;
+  --color-status-interview-bg: rgba(139, 92, 246, 0.12);
+  --color-status-interview-border: rgba(139, 92, 246, 0.28);
+
+  --color-status-offer: #10b981;
+  --color-status-offer-bg: rgba(16, 185, 129, 0.12);
+  --color-status-offer-border: rgba(16, 185, 129, 0.28);
+
+  --color-status-rejected: #ef4444;
+  --color-status-rejected-bg: rgba(239, 68, 68, 0.12);
+  --color-status-rejected-border: rgba(239, 68, 68, 0.28);
+
+  --color-status-discarded: #94a3b8;
+  --color-status-discarded-bg: rgba(148, 163, 184, 0.1);
+  --color-status-discarded-border: rgba(148, 163, 184, 0.22);
+
+  --color-status-skip: #f59e0b;
+  --color-status-skip-bg: rgba(245, 158, 11, 0.12);
+  --color-status-skip-border: rgba(245, 158, 11, 0.28);
+
+  /* ── Depth · shadows ────────────────────────────────────────── */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 30px -12px rgba(0, 0, 0, 0.5);
+  --shadow-panel: 0 2px 4px rgba(0, 0, 0, 0.3), 0 20px 48px -24px rgba(0, 0, 0, 0.65);
+  --shadow-glow-accent: 0 0 0 1px rgba(99, 102, 241, 0.15), 0 8px 32px -8px rgba(99, 102, 241, 0.35);
+  --shadow-glow-cyan: 0 8px 32px -8px rgba(6, 182, 212, 0.3);
+  --shadow-glow-red: 0 0 20px -4px rgba(244, 63, 94, 0.45);
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  /* ── Shape ──────────────────────────────────────────────────── */
+  --radius-panel: 0.75rem;
+  --radius-chip: 0.5rem;
+
+  /* ── Motion ─────────────────────────────────────────────────── */
+  --animate-fade-in: fadeIn 0.25s ease-out forwards;
+  --animate-slide-in: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-pulse-dot: pulseDot 2s ease-in-out infinite;
+  --animate-code-red: codeRed 2.6s ease-in-out infinite;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  /* CODE RED ribbon — breathing alarm glow */
+  @keyframes codeRed {
+    0%, 100% { box-shadow: 0 0 4px rgba(244, 63, 94, 0.2); opacity: 0.9; }
+    50% { box-shadow: 0 0 16px rgba(244, 63, 94, 0.6); opacity: 1; }
+  }
 }
 
 @layer base {
@@ -65,40 +162,38 @@
     border-radius: 3px;
   }
 
+  html {
+    color-scheme: dark;
+  }
+
   body {
     background-color: var(--color-bg-primary);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-accent) 65%, transparent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
-}
-
-.animate-pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
+/* Ticker helpers (legacy) */
 .ticker-positive { color: var(--color-gain); }
 .ticker-negative { color: var(--color-loss); }
+
+/* Horizontal rail with hidden scrollbar (header tabs) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
