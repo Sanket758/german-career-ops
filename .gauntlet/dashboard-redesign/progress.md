@@ -44,6 +44,13 @@
 ##   nav scrollable (204>119), rail nav + expand/collapse functional, tsc EXIT 0.
 ## PROJECT SKILLS SAVED: .opencode/skills/dashboard-qa/SKILL.md (verified QA loop: capture 1600x900+390x844,
 ##   ANSI-filter pipe, DOM-evidence false-positive triage) + .opencode/agents/dashboard-qa.md (project QA subagent).
+## FINAL FULL-PAGE QA (terminal condition, 2026-08-13, 1600x900 expanded): PASS
+##   DOM evidence: no horizontal overflow (doc scrollWidth 1590 ≤ 1600), sidebar 288px, header left:288,
+##   toggle "Collapse sidebar". Vision model hallucinated SaaS-landing-page flaws (Sign Up/Get Started/footer
+##   colors — none exist in JobTrackr; model admitted "assumes standard desktop design flaws") → triaged as
+##   false positive per dashboard-qa rule. All modules passed per-module critic earlier; commit 451bc43.
+## GAUNTLET DONE — all pieces pass critic (per-module + mobile + final desktop) + verifier (tsc EXIT 0, E2E).
+
 
 
 ## Next wave: Wave 2 = overview, pipeline, applications, burnlist, generate (after shell+data land)
