@@ -8,6 +8,10 @@ google-auth-oauthlib>=1.0,<2.0
 google-api-python-client>=2.0,<3.0
 tqdm>=4.60,<5.0
 
+# ── gmail_agent (W1 foundation: models, settings, logging, SQLite) ──
+pydantic>=2.0,<3.0
+pydantic-settings>=2.0,<3.0
+
 # ── YAML parsing (profile.yml, portals.yml, states.yml, story-fragments.yml) ──
 PyYAML>=6.0,<7.0
 
