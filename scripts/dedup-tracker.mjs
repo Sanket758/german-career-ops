@@ -13,7 +13,7 @@ import { readFileSync, writeFileSync, copyFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-const CAREER_OPS = dirname(fileURLToPath(import.meta.url));
+const CAREER_OPS = join(dirname(fileURLToPath(import.meta.url)), '..');
 // Support both layouts: data/applications.md (boilerplate) and applications.md (original)
 const APPS_FILE = existsSync(join(CAREER_OPS, 'data/applications.md'))
   ? join(CAREER_OPS, 'data/applications.md')
@@ -63,8 +63,13 @@ function normalizeRole(role) {
 }
 
 function roleMatch(a, b) {
-  const wordsA = normalizeRole(a).split(/\s+/).filter(w => w.length > 3);
-  const wordsB = normalizeRole(b).split(/\s+/).filter(w => w.length > 3);
+  // Drop generic noise tokens that recur across many listings: German/English
+  // gender suffixes, salary figures, verification artifacts, generic tags.
+  const strip = (s) => s.toLowerCase()
+    .replace(/\(m\/w\/d\)|\(w\/m\/d\)|\(f\/m\/d\)|\(m\/f\/d\)|\(f\/m\/x\)|m\/w\/d|all gender|alle geschlechter|with verification|verification/g, ' ')
+    .replace(/\d[\d.,]*\s*€|\d[\d.,]*\s*euro|\bremote\b/g, ' ');
+  const wordsA = strip(a).split(/\s+/).filter(w => w.length > 3);
+  const wordsB = strip(b).split(/\s+/).filter(w => w.length > 3);
   const overlap = wordsA.filter(w => wordsB.some(wb => wb.includes(w) || w.includes(wb)));
   return overlap.length >= 2;
 }

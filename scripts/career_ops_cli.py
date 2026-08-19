@@ -37,7 +37,7 @@ from typing import Optional
 # Configuration
 # ---------------------------------------------------------------------------
 
-PROJECT_ROOT = Path(__file__).parent.resolve()
+PROJECT_ROOT = Path(__file__).parent.resolve().parent
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "gemma4:e2b-it-q4_K_M")
 
@@ -144,6 +144,58 @@ def read_file_safe(path: Path, max_chars: int = 0) -> str:
         return content
     except FileNotFoundError:
         return ""
+
+
+def extract_score(evaluation: str) -> float:
+    """Extract an X.X/5 score from common report formats."""
+    patterns = [
+        r"^\s*SCORE\s*[:\-]\s*(\d+(?:\.\d+)?)\s*/\s*5\b",
+        r"^\s*#+\s*\d+\.?\s*SCORE\s*\(\s*(\d+(?:\.\d+)?)\s*/\s*5\s*\)",
+        r"\bScore\s*[:\-]\s*(\d+(?:\.\d+)?)\s*/\s*5\b",
+        r"\bSCORE\s*\(\s*(\d+(?:\.\d+)?)\s*/\s*5\s*\)",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, evaluation, re.IGNORECASE | re.MULTILINE)
+        if match:
+            return float(match.group(1))
+    return 0.0
+
+
+def extract_field(evaluation: str, field_names: list[str]) -> Optional[str]:
+    """Extract a simple metadata field from model output."""
+    for field in field_names:
+        pattern = rf"^\s*(?:\*\*)?{re.escape(field)}(?:\*\*)?\s*[:\-]\s*(.+?)\s*$"
+        match = re.search(pattern, evaluation, re.IGNORECASE | re.MULTILINE)
+        if match:
+            return match.group(1).strip().strip("*")
+    return None
+
+
+def extract_recommendation(evaluation: str, score: float) -> str:
+    """Extract APPLY/CONSIDER/SKIP, falling back to score thresholds."""
+    match = re.search(
+        r"^\s*(?:\*\*)?RECOMMENDATION(?:\*\*)?\s*[:\-]\s*(APPLY|CONSIDER|SKIP)\b",
+        evaluation,
+        re.IGNORECASE | re.MULTILINE,
+    )
+    if match:
+        return match.group(1).upper()
+
+    section = re.search(
+        r"#+\s*\d+\.?\s*RECOMMENDATION\b([\s\S]*?)(?:\n\s*---|\n\s*#+\s*\d+\.|\Z)",
+        evaluation,
+        re.IGNORECASE,
+    )
+    if section:
+        rec_match = re.search(r"\b(APPLY|CONSIDER|SKIP)\b", section.group(1), re.IGNORECASE)
+        if rec_match:
+            return rec_match.group(1).upper()
+
+    if score >= 4.0:
+        return "APPLY"
+    if score >= 3.5:
+        return "CONSIDER"
+    return "SKIP"
 
 
 # ---------------------------------------------------------------------------
@@ -317,7 +369,13 @@ def build_eval_system_prompt() -> str:
     {profile[:1000]}
 
     ## Instructions
-    For the job description provided, output a structured evaluation with these sections:
+    Start with these exact metadata lines:
+    Company: <company>
+    Role: <role>
+    SCORE: <X.X>/5
+    RECOMMENDATION: <APPLY|CONSIDER|SKIP>
+
+    Then output a structured evaluation with these sections:
 
     ### 1. SUMMARY
     Company, Role, Location, Remote Policy, Seniority level, one-line TL;DR
@@ -416,15 +474,10 @@ def cmd_evaluate(url: str, report_num: Optional[int] = None) -> dict:
         return {"error": str(e)}
 
     # Step 3: Extract score and metadata from response
-    score_match = re.search(
-        r"(?:SCORE|Score)[:\s]*(\d+\.?\d*)\s*/\s*5", evaluation
-    )
-    score = float(score_match.group(1)) if score_match else 0.0
+    score = extract_score(evaluation)
 
     # Try to extract company name
-    company_match = re.search(
-        r"(?:Company|company)[:\s]*(.+?)(?:\n|$)", evaluation
-    )
+    company_match = re.search(r"^\s*(?:\*\*)?Company(?:\*\*)?\s*[:\-]\s*(.+?)\s*$", evaluation, re.IGNORECASE | re.MULTILINE)
     company = "Unknown"
     if company_match:
         company = company_match.group(1).strip().strip("*")
@@ -435,18 +488,11 @@ def cmd_evaluate(url: str, report_num: Optional[int] = None) -> dict:
             company = domain_match.group(1).title()
 
     # Try to extract role
-    role_match = re.search(
-        r"(?:Role|Title|Position)[:\s]*(.+?)(?:\n|$)", evaluation
-    )
+    role_match = re.search(r"^\s*(?:\*\*)?(?:Role|Title|Position)(?:\*\*)?\s*[:\-]\s*(.+?)\s*$", evaluation, re.IGNORECASE | re.MULTILINE)
     role = role_match.group(1).strip().strip("*") if role_match else "Unknown Role"
 
     # Try to extract recommendation
-    rec_match = re.search(
-        r"(?:RECOMMENDATION|Recommendation)[:\s]*(APPLY|CONSIDER|SKIP)",
-        evaluation,
-        re.IGNORECASE,
-    )
-    recommendation = rec_match.group(1).upper() if rec_match else "UNKNOWN"
+    recommendation = extract_recommendation(evaluation, score)
 
     # Step 4: Write report
     today = date.today().isoformat()
@@ -542,36 +588,30 @@ def cmd_pipeline() -> None:
         results.append(result)
         next_num += 1
 
-    # Update pipeline.md: move processed items
-    updated = pipeline_text
-    for r in results:
-        if "error" not in r:
-            old_line = r["original_line"]
-            score = r.get("score", 0)
-            company = r.get("company", "Unknown")
-            role = r.get("role", "Unknown")
-            rnum = r.get("report_num", 0)
+        # Checkpoint after each URL so long local runs can be resumed safely.
+        updated = PIPELINE_PATH.read_text(encoding="utf-8")
+        if "error" not in result:
+            score = result.get("score", 0)
+            company = result.get("company", "Unknown")
+            role = result.get("role", "Unknown")
             new_line = (
-                f"- [x] {r['url']} | {company} | {role} | "
+                f"- [x] {url} | {company} | {role} | "
                 f"Score: {score}/5 | "
-                f"[Report](reports/{rnum:03d}-{Path(r['report_path']).name})"
+                f"[Report](reports/{Path(result['report_path']).name})"
             )
-            updated = updated.replace(old_line, "")
-            # Add to Procesadas
+            updated = updated.replace(original_line, "")
             if "## Procesadas" in updated:
                 updated = updated.replace(
                     "## Procesadas",
                     f"## Procesadas\n\n{new_line}",
+                    1,
                 )
             else:
                 updated += f"\n## Procesadas\n\n{new_line}\n"
         else:
-            old_line = r["original_line"]
-            err = r.get("error", "Unknown error")
-            new_line = f"- [!] {r['url']} — Error: {err}"
-            updated = updated.replace(old_line, new_line)
-
-    PIPELINE_PATH.write_text(updated, encoding="utf-8")
+            err = result.get("error", "Unknown error")
+            updated = updated.replace(original_line, f"- [!] {url} — Error: {err}")
+        PIPELINE_PATH.write_text(updated, encoding="utf-8")
 
     # Merge tracker
     print(f"\n{'━' * 60}")

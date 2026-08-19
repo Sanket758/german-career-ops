@@ -91,3 +91,40 @@ The system is in "CODE RED" mode (per brain hot.md): full-time job search only, 
 - **Tech CVs**: Photo OFF — AGG/GDPR make it legal+optional; tech culture is photo-optional
 - **Mittelstand/financial apps**: Photo can be kept for future use
 - The 4 pending German CVs had photos removed and were regenerated photo-free into /tmp; PDFs need to be re-generated into output/
+
+## LinkedIn Apply — WORKING PATH (batch bot via CDP attach)
+
+> The old EasyApply bot (`scripts/linkedin_easyapply.mjs`, `.linkedin-profile/`, mode `linkedin-apply.md`) was removed 2026-08-17 — its selectors targeted a German-UI profile and dead-ended. Do NOT rebuild it.
+
+### Working setup (all verified 2026-08-17)
+
+1. **Launch Chrome with a DEDICATED profile + debug port.** Chrome 136+ ignores `--remote-debugging-port` unless a non-default `--user-data-dir` is set, so the desktop-icon/default profile is NOT debuggable:
+   ```bash
+   DISPLAY=:1 nohup /opt/google/chrome/chrome --remote-debugging-port=9222 \
+     --user-data-dir=/home/sanket758/.config/career-ops-chrome \
+     --no-first-run --no-default-browser-check --ozone-platform=x11 about:blank &
+   ```
+2. **Verify auth:** `node scripts/linkedin_attach.mjs` → expect `AUTHED: true`, `STORAGE_SAVED`.
+3. **Run the batch bot** (writes to `batch/tracker-additions/*.tsv`, logs to the given file; log timestamps are UTC ~2h behind local time):
+   ```bash
+   nohup env BATCH_TPR=all BATCH_FAST=1 node scripts/linkedin_batch_apply.mjs \
+     --limit 20 --keywords "KW1,KW2,..." < /dev/null > /tmp/batch-apply-run.log 2>&1 &
+   ```
+   Monitor with: `pgrep -f linkedin_batch_apply` and `grep -c SUBMITTED /tmp/batch-apply-run.log`.
+
+### Bot behavior
+- CDP-attaches to real Chrome on 127.0.0.1:9222 (profile `~/.config/career-ops-chrome` — this profile renders the OLD-style EasyApply DOM the bot's selectors expect; a German-UI profile will break them).
+- Searches LinkedIn Jobs: Germany, Easy-Apply only (`f_AL=true`), full-time (`f_JT=F`), entry/associate/mid (`f_E=2,3,4`), recency via `BATCH_TPR` (`r604800`=week, `all`=year).
+- Scores fit vs Sanket's stack; hard-skips embedded/fpga/vhdl/verilog/marketing/sales/devops/c1-fluent-german roles; logs MISMATCH/MARGINAL for human review.
+- Answers German screening questions conservatively; if a required question is unanswerable it writes to `data/pending-questions.md`/`.json`, saves a draft, and stops the run (UNATTENDED mode).
+- On submit: handles "Save this application?" (clicks Save), writes a 9-col row to `batch/tracker-additions/batch-apply-YYYY-MM-DD-NNN.tsv`.
+
+### Known fixes baked in (2026-08-17)
+- Contact step: fills the email-type dropdown if left unselected (unselected required select disables Next).
+- Resume step is OPTIONAL — skipped when absent (some flows go contact → questions directly).
+- `nextStep` retries up to 3× with 1.5s waits.
+- German variants: submit candidates `Absenden`/`übermitteln`/`Bewerbung absenden`; success confirmation matches `gesendet|übermittelt|bewerbung (gesendet|übermittelt)`; review step matches `Überprüfen`/`Prüfen`/`Weiter`.
+- An "external apply" warning means the job has no Easy Apply button (can't auto-apply).
+
+### Tracker pipeline (never edit applications.md directly)
+Run in order: `npm run doctor` → `node scripts/verify-pipeline.mjs` → `node scripts/normalize-statuses.mjs` → `node scripts/dedup-tracker.mjs` → `node scripts/merge-tracker.mjs` (merges `batch/tracker-additions/*.tsv`).

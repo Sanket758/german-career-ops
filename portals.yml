@@ -69,8 +69,15 @@ title_filter:
     # -- Robotics --
     - "Robotics"
     - "ROS"
+    - "ROS2"
+    - "ROS 2"
+    - "TurtleBot3"
     - "Autonomous"
     - "Edge"
+    - "Robotik"
+    - "SLAM"
+    - "Motion Planning"
+    - "Manipulation"
     # -- Python/Backend --
     - "Python"
     - "Data Engineer"
@@ -98,7 +105,8 @@ title_filter:
     - "Web3"
     - "Crypto"
     - "Salesforce Admin"
-    - "SAP "
+    - "SAP Consultant"
+    - "SAP Basis"
     - "Oracle EBS"
     - "Mainframe"
     - "COBOL"
@@ -370,6 +378,32 @@ search_queries:
     query: 'site:arbeitnow.com "computer vision" OR "perception" OR "object detection" Germany 2026'
     enabled: true
 
+  # -- Robotics / ROS2: Berlin & Nearby (Track B) --
+
+  - name: LinkedIn — ROS2/Robotics Berlin (Track B)
+    query: 'site:linkedin.com/jobs "ROS2" OR "ROS 2" OR "TurtleBot3" Berlin'
+    enabled: true
+
+  - name: LinkedIn — Robotics Engineer Berlin (Track B)
+    query: 'site:linkedin.com/jobs "Robotics Engineer" OR "ROS Engineer" OR "Perception Engineer" Berlin'
+    enabled: true
+
+  - name: StepStone — ROS/Robotik Berlin (Track B)
+    query: 'site:stepstone.de "ROS" OR "Robotik" OR "Robotics" Berlin Vollzeit'
+    enabled: true
+
+  - name: XING — Robotik/ROS Berlin (Track B)
+    query: 'site:xing.com/jobs "Robotik" OR "ROS" OR "Robotics" Berlin'
+    enabled: true
+
+  - name: JOIN — ROS2/Robotics Berlin (Track B)
+    query: 'site:join.com "ROS2" OR "ROS 2" OR "robotics engineer" OR "robotik" Berlin'
+    enabled: true
+
+  - name: Arbeitnow — ROS/Robotics Berlin (Track B)
+    query: 'site:arbeitnow.com "ROS2" OR "ROS 2" OR "Robotics" Berlin 2026'
+    enabled: true
+
   # ============================================
   # TIER 2: GERMANY-WIDE (RELOCATE)
   # ============================================
@@ -469,6 +503,32 @@ search_queries:
     query: '"Edge ML" OR "Edge AI" OR "ONNX" OR "TensorRT" "Engineer" OR "Developer" Germany'
     enabled: true
 
+  # -- Robotics / ROS2: Germany-Wide (Track B) --
+
+  - name: LinkedIn DE — ROS2/Robotics Germany (Track B)
+    query: 'site:linkedin.com/jobs "ROS2" OR "ROS 2" OR "TurtleBot3" Germany'
+    enabled: true
+
+  - name: LinkedIn DE — Manipulation/Navigation Germany (Track B)
+    query: 'site:linkedin.com/jobs "Motion Planning" OR "SLAM" OR "Manipulation" OR "Navigation" "Engineer" Germany'
+    enabled: true
+
+  - name: StepStone — Robotik/ROS Germany (Track B)
+    query: 'site:stepstone.de "Robotik" OR "ROS" OR "Autonomes Fahren" OR "Robotics" Vollzeit Munich OR Stuttgart'
+    enabled: true
+
+  - name: XING — Robotik/ROS Germany (Track B)
+    query: 'site:xing.com/jobs "Robotik" OR "ROS" OR "Robotics" Vollzeit'
+    enabled: true
+
+  - name: Arbeitnow — ROS2/Robotics Germany (Track B)
+    query: 'site:arbeitnow.com "ROS2" OR "ROS 2" OR "TurtleBot3" OR "Robotics" Germany 2026'
+    enabled: true
+
+  - name: Ashby — ROS/Robotics Germany (Track B)
+    query: 'site:jobs.ashbyhq.com "ROS" OR "Robotics" OR "Manipulation" Germany Munich Berlin Stuttgart'
+    enabled: true
+
   # ============================================
   # TIER 3: REMOTE / EU (Good fit = apply anyway)
   # ============================================
@@ -499,6 +559,24 @@ search_queries:
 
   - name: HN Who's Hiring — ML/AI
     query: 'site:news.ycombinator.com "ML Engineer" OR "AI Engineer" OR "Computer Vision" OR "Robotics" remote Germany'
+    enabled: true
+
+  # -- Robotics / ROS2: EU / Remote (Track B) --
+
+  - name: Remotive — Robotics/ROS EU (Track B)
+    query: 'site:remotive.com "Robotics" "ROS" remote Europe'
+    enabled: true
+
+  - name: ai-jobs.net — ROS2/Robotics (Track B)
+    query: 'site:ai-jobs.net "ROS2" OR "ROS 2" OR "Robotics" remote Europe'
+    enabled: true
+
+  - name: Workable — Robotics/ROS EU (Track B)
+    query: 'site:apply.workable.com "Robotics" OR "ROS" "Machine Learning" OR "Computer Vision" remote Europe Germany'
+    enabled: true
+
+  - name: HN — Robotics/ROS2 Remote (Track B)
+    query: 'site:news.ycombinator.com "Robotics" OR "ROS2" OR "ROS 2" remote'
     enabled: true
 
 # -- Tracked companies --
@@ -1993,5 +2071,51 @@ tracked_companies:
     scan_method: websearch
     scan_query: '"Uncountable" careers jobs Munich "working student" software engineer Python Flask React 2026'
     notes: "Munich. Scientific R&D platform. Working Student Software Engineer. Python Flask, React. 15-20hr/week."
+    priority: tier2
+    enabled: true
+
+  # =============================================
+  # GERMANY WAVE TARGETS — 15-20 LIST (feedback)
+  # Added 2026-08-13 from Claude feedback priority list.
+  # Already present in file: Aleph Alpha, Helsing, Celonis,
+  # DeepL, Black Forest Labs. Missing → added below:
+  # Sereact, SAP, Bosch AI, BMW Group AI, DFKI.
+  # =============================================
+
+  - name: Sereact
+    careers_url: https://jobs.ashbyhq.com/sereact
+    notes: "Stuttgart. Embodied AI for intralogistics pick-and-place. ROS2, VLA, vision. Series B ($149M). PERFECT Track B robotics match."
+    priority: tier1
+    enabled: true
+
+  - name: SAP
+    careers_url: https://jobs.sap.com
+    scan_method: websearch
+    scan_query: 'site:jobs.sap.com "AI Engineer" OR "Machine Learning Engineer" OR "Computer Vision" Walldorf OR Berlin OR Munich'
+    notes: "Walldorf/Berlin/Munich/Garching. Enterprise AI, AI CoE, BTP Foundation Models. Junior/mid ML roles."
+    priority: tier2
+    enabled: true
+
+  - name: Bosch AI (BCAI)
+    careers_url: https://jobs.bosch.com/en/
+    scan_method: websearch
+    scan_query: 'site:jobs.bosch.com "AI Engineer" OR "Machine Learning" OR "Computer Vision" Renningen OR Stuttgart OR Munich'
+    notes: "Renningen/Stuttgart/Munich/Tübingen. Bosch Center for Artificial Intelligence — industrial AI, CV, automated driving."
+    priority: tier2
+    enabled: true
+
+  - name: BMW Group AI
+    careers_url: https://www.bmwgroup.jobs/
+    scan_method: websearch
+    scan_query: 'site:bmwgroup.jobs "AI" OR "Machine Learning" OR "Computer Vision" OR "Autonomous" Munich'
+    notes: "Munich/Ulm (BMW Car IT). AI platform, autonomous driving, perception, agentic AI. Senior-heavy; internships/graduate for junior."
+    priority: tier2
+    enabled: true
+
+  - name: DFKI
+    careers_url: https://jobs.dfki.de/en/vacancies.html
+    scan_method: websearch
+    scan_query: 'site:jobs.dfki.de "machine learning" OR "robotics" OR "computer vision" OR "robot learning"'
+    notes: "Kaiserslautern/Saarbrücken/Bremen/Berlin. German Research Center for AI — Robotics Innovation Center, Robot Learning. Research roles."
     priority: tier2
     enabled: true

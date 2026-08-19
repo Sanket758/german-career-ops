@@ -20,6 +20,9 @@ This directory contains all project scripts for scanning, evaluation, PDF genera
 | `cv-sync-check.mjs` | Checks if the generated CV is in sync with `cv.md`. |
 | `update-system.mjs` | Manages system updates and rollbacks. |
 | `explore_fraunhofer.mjs` | Specialized scraper for Fraunhofer. |
+| `linkedin_batch_apply.mjs` | WORKING LinkedIn batch apply bot — CDP attach to Chrome on :9222 (see AGENTS.md) |
+| `extract_linkedin_cookies.py` | Decrypts LinkedIn cookies from Chrome → `data/linkedin_cookies.json`. |
+| `advanced_linkedin_scan.py` | Live Playwright LinkedIn scanner (browser-based, appends to pipeline). |
 | `linkedin_scan.py` | LinkedIn job scanner. |
 | `gmail_sync.py` | Core Gmail sync logic. |
 | `career_ops_cli.py` | CLI entry point for career-ops. |

@@ -70,6 +70,7 @@ function parseArgs(argv) {
     maxBullets: 3,
     output: '',
     photo: '',
+    template: '',
   };
 
   for (const arg of argv) {
@@ -85,6 +86,7 @@ function parseArgs(argv) {
       case 'max-bullets':      args.maxBullets = parseInt(value, 10) || 3; break;
       case 'output':           args.output = value; break;
       case 'photo':            args.photo = value; break;
+      case 'template':         args.template = value; break;
     }
   }
 
@@ -596,7 +598,10 @@ async function main() {
   const cvSections = parseCVSections(cvMarkdown);
 
   // ── Load template ────────────────────────────────────────────────────────
-  const templatePath = path.resolve(__dirname, 'templates/cv-template.html');
+  const templateArg = args.template || 'templates/cv-template.html';
+  const templatePath = path.isAbsolute(templateArg)
+    ? templateArg
+    : path.resolve(__dirname, templateArg);
   if (!fs.existsSync(templatePath)) {
     console.error(`❌  Template not found: ${templatePath}`);
     console.error(`    Expected at: templates/cv-template.html`);

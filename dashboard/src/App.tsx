@@ -126,12 +126,10 @@ export default function App() {
   // user's manual collapsed/expanded choice.
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
-    const apply = () => {
-      if (mq.matches) setSidebarCollapsed(true);
-    };
+    const apply = () => setSidebarCollapsed(mq.matches);
     apply();
-    mq.addEventListener('change', apply);
-    return () => mq.removeEventListener('change', apply);
+    window.addEventListener('resize', apply);
+    return () => window.removeEventListener('resize', apply);
   }, []);
 
   // Check API health and load data

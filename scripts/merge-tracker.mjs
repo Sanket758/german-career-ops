@@ -68,8 +68,13 @@ function normalizeCompany(name) {
 }
 
 function roleFuzzyMatch(a, b) {
-  const wordsA = a.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-  const wordsB = b.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  // Drop generic noise tokens that recur across many listings: German/English
+  // gender suffixes, salary figures, verification artifacts, generic tags.
+  const strip = (s) => s.toLowerCase()
+    .replace(/\(m\/w\/d\)|\(w\/m\/d\)|\(f\/m\/d\)|\(m\/f\/d\)|\(f\/m\/x\)|m\/w\/d|all gender|alle geschlechter|with verification|verification/g, ' ')
+    .replace(/\d[\d.,]*\s*€|\d[\d.,]*\s*euro|\bremote\b/g, ' ');
+  const wordsA = strip(a).split(/\s+/).filter(w => w.length > 3);
+  const wordsB = strip(b).split(/\s+/).filter(w => w.length > 3);
   const overlap = wordsA.filter(w => wordsB.some(wb => wb.includes(w) || w.includes(wb)));
   return overlap.length >= 2;
 }
