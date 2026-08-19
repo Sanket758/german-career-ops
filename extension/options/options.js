@@ -15,7 +15,7 @@ const DEFAULT_PROFILE = {
   visaStatus: '§16b AufenthG - 20h/week',
   language: {
     english: 'C1',
-    german: 'A2.1'
+    german: 'B1'
   },
   targetRoles: [
     'AI/ML Engineer (Werkstudent)',

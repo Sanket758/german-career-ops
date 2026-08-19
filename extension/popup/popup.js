@@ -17,7 +17,7 @@ const DEFAULT_PROFILE = {
   visaStatus: '§16b AufenthG - 20h/week',
   language: {
     english: 'C1',
-    german: 'A2.1'
+    german: 'B1'
   },
   targetRoles: [
     'AI/ML Engineer (Werkstudent)',
@@ -504,7 +504,7 @@ function generateEnglishCV(job) {
         <div class="row">
             <div class="col-left">Aug 2017 – Sep 2020</div>
             <div class="col-right">
-                <div class="bold">BSc Computer Science, Mumbai University</div>
+                <div class="bold">B.E. Computer Engineering, Mumbai University</div>
                 <ul>
                     <li>CGPA: 7.32/10</li>
                 </ul>
@@ -532,7 +532,7 @@ function generateEnglishCV(job) {
         </div>
         <div class="row">
             <div class="col-left">Languages</div>
-            <div class="col-right">English (C1), German (A2.1)</div>
+            <div class="col-right">English (C1), German (B1)</div>
         </div>
     </div>
   `;
@@ -602,7 +602,7 @@ function generateGermanCV(job) {
         <div class="row">
             <div class="col-left">Aug 2017 – Sep 2020</div>
             <div class="col-right">
-                <div class="bold">BSc Computer Science, Mumbai University</div>
+                <div class="bold">B.E. Computer Engineering, Mumbai University</div>
                 <ul>
                     <li>CGPA: 7.32/10</li>
                 </ul>
@@ -630,7 +630,7 @@ function generateGermanCV(job) {
         </div>
         <div class="row">
             <div class="col-left">Sprachkenntnisse</div>
-            <div class="col-right">Englisch (C1), Deutsch (A2.1)</div>
+            <div class="col-right">Englisch (C1), Deutsch (B1)</div>
         </div>
     </div>
 

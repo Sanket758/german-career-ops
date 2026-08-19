@@ -13,7 +13,7 @@ When generating any German `Lebenslauf`, verify:
 - [ ] **Personal data section:** Address, phone, email (DOB/nationality only if user opts in)
 - [ ] **Signature line:** `Berlin, den [DATUM]` + `[Unterschrift]` at bottom
 - [ ] **Chronology:** Reverse chronological within each section
-- [ ] **Language level:** Explicitly stated (e.g., "Deutsch: A2.1 (Intensivkurs)")
+- [ ] **Language level:** Explicitly stated (e.g., "Deutsch: B1")
 - [ ] **Visa status:** Mentioned in profile section if relevant
 - [ ] **No hype verbs:** No "Shipped", "Architected", "Pioneered", "Boosted"
 

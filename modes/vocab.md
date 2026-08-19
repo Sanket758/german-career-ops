@@ -2,7 +2,7 @@
 
 ## Purpose
 Extract German technical vocabulary from JDs and generate Anki flashcards.
-Addresses the A2.1 → B1 gap that blocks 30% of viable roles.
+Addresses the B1 → B2 gap that blocks German-required roles.
 
 ## Input
 - German JD text (pasted) or URL
