@@ -36,6 +36,7 @@
   "dependencies": {
     "@playwright/mcp": "^0.0.70",
     "js-yaml": "^4.1.1",
+    "pdf-lib": "^1.17.1",
     "playwright": "^1.58.1"
   }
 }

@@ -793,6 +793,115 @@ def cmd_cover_letters_all() -> None:
         print(red(result.stderr))
 
 
+def cmd_german_cv(args) -> None:
+    """Generate German tabellarischer Lebenslauf PDF."""
+    print(bold("📄 Generating German CV (tabellarischer Lebenslauf)...\n"))
+    
+    node_args = ["--lang", args.lang]
+    if args.photo:
+        node_args.append("--photo")
+    if args.output:
+        node_args.extend(["--output", args.output])
+    
+    result = run_node("scripts/generate-german-cv.mjs", *node_args)
+    print(result.stdout)
+    if result.returncode != 0:
+        print(red(result.stderr))
+
+
+def cmd_anschreiben(args) -> None:
+    """Generate German cover letter (Anschreiben) PDF."""
+    print(bold("📝 Generating German cover letter (Anschreiben)...\n"))
+    
+    if not args.url and not args.jd_file:
+        print(red("❌ Either --url or --jd-file required"))
+        return
+    
+    node_args = ["--lang", args.lang]
+    if args.url:
+        node_args.extend(["--url", args.url])
+    if args.jd_file:
+        node_args.extend(["--jd-file", args.jd_file])
+    if args.company:
+        node_args.extend(["--company", args.company])
+    if args.role:
+        node_args.extend(["--role", args.role])
+    if args.output:
+        node_args.extend(["--output", args.output])
+    
+    result = run_node("scripts/generate-anschreiben.mjs", *node_args)
+    print(result.stdout)
+    if result.returncode != 0:
+        print(red(result.stderr))
+
+
+def cmd_package_german(args) -> None:
+    """Generate complete German application package (CV + Anschreiben)."""
+    print(bold("📦 Generating German application package (CV + Anschreiben)...\n"))
+    
+    if not args.url and not args.jd_file:
+        print(red("❌ Either --url or --jd-file required"))
+        return
+    
+    node_args = ["--lang", args.lang]
+    if args.url:
+        node_args.extend(["--url", args.url])
+    if args.jd_file:
+        node_args.extend(["--jd-file", args.jd_file])
+    if args.company:
+        node_args.extend(["--company", args.company])
+    if args.role:
+        node_args.extend(["--role", args.role])
+    if args.photo:
+        node_args.append("--photo")
+    if args.output:
+        node_args.extend(["--output", args.output])
+    
+    result = run_node("scripts/generate-application-package.mjs", *node_args)
+    print(result.stdout)
+    if result.returncode != 0:
+        print(red(result.stderr))
+
+
+def cmd_health(args) -> None:
+    """Check if job postings are still live and applyable."""
+    print(bold("🏥 Checking application health...\n"))
+    
+    cmd = ["node", "scripts/check-application-health.mjs"]
+    if args.url:
+        cmd.extend(["--url", args.url])
+    if args.file:
+        cmd.extend(["--file", args.file])
+    if args.high_score:
+        cmd.append("--high-score")
+    
+    result = run_node(*cmd)
+    print(result.stdout)
+    if result.returncode != 0:
+        print(red(result.stderr))
+
+
+def cmd_weekly(args) -> None:
+    """German market weekly workflow."""
+    print(bold(f"📅 Weekly workflow: {args.weekly_cmd}...\n"))
+    
+    cmd = [sys.executable, "scripts/weekly-workflow.py", args.weekly_cmd]
+    result = run_node(*cmd)
+    print(result.stdout)
+    if result.returncode != 0:
+        print(red(result.stderr))
+
+
+def cmd_batch_package() -> None:
+    """Generate packages for all high-score evaluated roles."""
+    print(bold("📦 Batch generating packages for high-score roles...\n"))
+    
+    result = run_node("scripts/batch-generate-packages.mjs")
+    print(result.stdout)
+    if result.returncode != 0:
+        print(red(result.stderr))
+
+
 def cmd_help() -> None:
     """Show available commands."""
     print(f"""
@@ -804,10 +913,18 @@ def cmd_help() -> None:
   {bold('patterns')}             Analyze rejection patterns
   {bold('tracker')}              Show application status
   {bold('sync')}                 Sync application statuses from Gmail
+  {bold('health [--url|--file|--high-score]')}  Check if postings are live
 
 {cyan('Evaluate')} (uses Ollama: {OLLAMA_MODEL}):
   {bold('evaluate <url>')}       Evaluate a single job posting
   {bold('pipeline')}             Process all pending URLs
+
+{cyan('German Market')} (no LLM needed):
+  {bold('german-cv [--lang de|en] [--photo] [--output]')}  Generate tabellarischer Lebenslauf
+  {bold('anschreiben --url URL [--lang de|en] [--output]')}  Generate cover letter
+  {bold('package --url URL [--lang de|en] [--photo] [--output]')}  Full package (CV + CL)
+  {bold('batch-package')}        Generate packages for all high-score roles
+  {bold('weekly plan|research|package|submit|followup|status')}  Weekly workflow
 
 {cyan('Generate')} (no LLM needed):
   {bold('cover-letter <.md>')}   Convert cover letter to PDF
@@ -867,6 +984,57 @@ def main() -> None:
         "cover-letters", help="Convert all .md in output/ to PDF"
     )
 
+    # German market commands
+    german_parser = subparsers.add_parser(
+        "german-cv", help="Generate German tabellarischer Lebenslauf PDF"
+    )
+    german_parser.add_argument("--lang", choices=["de", "en"], default="de", help="Language")
+    german_parser.add_argument("--photo", action="store_true", help="Include photo placeholder")
+    german_parser.add_argument("--output", help="Output PDF path")
+
+    anschreiben_parser = subparsers.add_parser(
+        "anschreiben", help="Generate German cover letter (Anschreiben) PDF"
+    )
+    anschreiben_parser.add_argument("--url", help="Job posting URL")
+    anschreiben_parser.add_argument("--jd-file", help="Path to JD text file")
+    anschreiben_parser.add_argument("--company", help="Company name (with --jd-file)")
+    anschreiben_parser.add_argument("--role", help="Role title (with --jd-file)")
+    anschreiben_parser.add_argument("--lang", choices=["de", "en"], default="de")
+    anschreiben_parser.add_argument("--output", help="Output PDF path")
+
+    package_parser = subparsers.add_parser(
+        "package", help="Generate complete German application package (CV + Anschreiben)"
+    )
+    package_parser.add_argument("--url", help="Job posting URL")
+    package_parser.add_argument("--jd-file", help="Path to JD text file")
+    package_parser.add_argument("--company", help="Company name (with --jd-file)")
+    package_parser.add_argument("--role", help="Role title (with --jd-file)")
+    package_parser.add_argument("--lang", choices=["de", "en"], default="de")
+    package_parser.add_argument("--photo", action="store_true", help="Include photo in CV")
+    package_parser.add_argument("--output", help="Output PDF path")
+
+    health_parser = subparsers.add_parser(
+        "health", help="Check if job postings are still live and applyable"
+    )
+    health_parser.add_argument("--url", help="Check single URL")
+    health_parser.add_argument("--file", help="Check URLs from pipeline file")
+    health_parser.add_argument("--high-score", action="store_true", help="Check high-score applications")
+
+    weekly_parser = subparsers.add_parser(
+        "weekly", help="German market weekly workflow"
+    )
+    weekly_subparsers = weekly_parser.add_subparsers(dest="weekly_cmd", help="Weekly command")
+    weekly_subparsers.add_parser("plan", help="Plan this week's 5 applications")
+    weekly_subparsers.add_parser("research", help="Research companies for planned roles")
+    weekly_subparsers.add_parser("package", help="Generate packages for planned roles")
+    weekly_subparsers.add_parser("submit", help="Guide for manual submission")
+    weekly_subparsers.add_parser("followup", help="Check follow-ups due")
+    weekly_subparsers.add_parser("status", help="Show weekly status")
+
+    batch_parser = subparsers.add_parser(
+        "batch-package", help="Generate packages for all high-score evaluated roles"
+    )
+
     # help
     subparsers.add_parser("help", help="Show all commands")
 
@@ -888,6 +1056,18 @@ def main() -> None:
         cmd_cover_letter_pdf(args.md_path)
     elif args.command == "cover-letters":
         cmd_cover_letters_all()
+    elif args.command == "german-cv":
+        cmd_german_cv(args)
+    elif args.command == "anschreiben":
+        cmd_anschreiben(args)
+    elif args.command == "package":
+        cmd_package_german(args)
+    elif args.command == "health":
+        cmd_health(args)
+    elif args.command == "weekly":
+        cmd_weekly(args)
+    elif args.command == "batch-package":
+        cmd_batch_package()
     elif args.command == "help":
         cmd_help()
     else:

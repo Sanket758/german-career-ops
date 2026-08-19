@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="{{HTML_LANG}}">
+<head>
+<meta charset="UTF-8">
+<title>{{DOCUMENT_TITLE}} — {{FULL_NAME}}</title>
+<style>
+  @page { size: A4; margin: 0; }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #202332;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.3px;
+    line-height: 1.38;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 10mm 15mm 8mm;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8mm;
+    padding-bottom: 5mm;
+    margin-bottom: 5mm;
+    border-bottom: 2px solid #2f5872;
+    break-inside: avoid;
+  }
+  .header-left { min-width: 0; flex: 1; }
+  .name {
+    margin: 0;
+    color: #24465c;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -.025em;
+    line-height: 1.05;
+  }
+  .headline {
+    margin: 2mm 0 3mm;
+    color: #52616c;
+    font-size: 10.5px;
+    line-height: 1.3;
+  }
+  .contact-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1mm 3mm;
+    color: #45515b;
+    font-size: 8.5px;
+    line-height: 1.4;
+  }
+  .contact-line a { color: #355d76; text-decoration: none; }
+  .contact-separator { color: #a4afb6; }
+  .visa-note {
+    display: inline-block;
+    margin-top: 2.5mm;
+    padding: 1.3mm 2.5mm;
+    border: 1px solid #b9d7c0;
+    border-radius: 3px;
+    background: #f0f8f2;
+    color: #2c7042;
+    font-size: 8px;
+    font-weight: 600;
+  }
+  .header-photo {
+    flex: 0 0 34mm;
+    text-align: center;
+  }
+  .header-photo:empty { display: none; }
+  .photo-box {
+    width: 33mm;
+    height: 43mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5mm;
+    border: 1px dashed #8b969d;
+    background: #f7f8f9;
+    color: #66737b;
+    font-size: 8px;
+  }
+  .photo-hint { color: #7c878e; font-size: 7px; line-height: 1.3; }
+
+  .section {
+    margin-bottom: 4.5mm;
+    break-inside: auto;
+  }
+  .section-title {
+    display: flex;
+    align-items: baseline;
+    gap: 3mm;
+    margin: 0 0 2.2mm;
+    padding-bottom: 1.2mm;
+    border-bottom: 1px solid #d4dde2;
+    color: #2f5872;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .075em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+  .section-title::before {
+    width: 3mm;
+    height: 1.4mm;
+    display: inline-block;
+    background: #6f9bb3;
+    content: "";
+  }
+  .summary {
+    max-width: 174mm;
+    color: #35414a;
+    font-size: 9.4px;
+    line-height: 1.48;
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 29mm minmax(0, 1fr);
+    gap: 4mm;
+    margin-bottom: 3.2mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .entry-date {
+    padding-top: .3mm;
+    color: #476a80;
+    font-size: 8.6px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .entry-content {
+    min-width: 0;
+    padding-left: 3mm;
+    border-left: 1.5px solid #dfe6ea;
+  }
+  .entry-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 3mm;
+  }
+  .entry-role {
+    color: #26353f;
+    font-size: 9.6px;
+    font-weight: 700;
+  }
+  .entry-company {
+    margin-top: .4mm;
+    color: #3d596a;
+    font-size: 9.4px;
+    font-weight: 600;
+  }
+  .entry-location {
+    flex: 0 0 auto;
+    color: #6b777f;
+    font-size: 8.3px;
+    text-align: right;
+  }
+  .entry-content > .entry-location { text-align: left; }
+  ul { margin: 1.2mm 0 0; padding: 0; }
+  .entry-bullets, .detail-list { list-style: none; }
+  li {
+    position: relative;
+    padding-left: 3.2mm;
+    color: #354149;
+    font-size: 8.7px;
+    line-height: 1.38;
+  }
+  li + li { margin-top: .8mm; }
+  li::before {
+    position: absolute;
+    left: 0;
+    color: #56809a;
+    content: "▸";
+    font-weight: 700;
+  }
+
+  .skill-row {
+    display: grid;
+    grid-template-columns: 34mm minmax(0, 1fr);
+    gap: 3mm;
+    margin-bottom: 1.4mm;
+    break-inside: avoid;
+  }
+  .skill-category {
+    color: #34566c;
+    font-size: 8.7px;
+    font-weight: 700;
+  }
+  .skill-items { color: #3d4a52; font-size: 8.7px; }
+
+  .project {
+    margin-bottom: 2.5mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .project-title {
+    color: #345d76;
+    font-size: 9px;
+    font-weight: 700;
+  }
+  .project-description {
+    margin-top: .4mm;
+    color: #435058;
+    font-size: 8.6px;
+    line-height: 1.4;
+  }
+
+  .language-columns {
+    display: grid;
+    grid-template-columns: 1fr 1.7fr;
+    gap: 8mm;
+    break-inside: avoid;
+  }
+  .subsection-label {
+    margin-bottom: 1.2mm;
+    color: #6c7880;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .language-item {
+    display: flex;
+    justify-content: space-between;
+    max-width: 52mm;
+    color: #3d4b53;
+    font-size: 8.7px;
+  }
+  .language-item strong { color: #345d76; }
+  .certification-item { color: #3d4b53; font-size: 8.4px; line-height: 1.35; }
+  .certification-item + .certification-item { margin-top: .7mm; }
+
+  .footer {
+    margin-top: 5mm;
+    padding-top: 2.5mm;
+    border-top: 1px solid #d4dde2;
+    color: #7b858b;
+    font-size: 7.7px;
+    text-align: center;
+    break-inside: avoid;
+  }
+  @media print {
+    .section, .entry, .project, .language-columns, .footer { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="header">
+    <div class="header-left">
+      <h1 class="name">{{FULL_NAME}}</h1>
+      <div class="headline">{{HEADLINE}}</div>
+      <div class="contact-line">
+        <span>{{LOCATION}}</span><span class="contact-separator">·</span>
+        <a href="mailto:{{EMAIL}}">{{EMAIL}}</a><span class="contact-separator">·</span>
+        <a href="tel:{{PHONE}}">{{PHONE}}</a><span class="contact-separator">·</span>
+        <a href="https://{{LINKEDIN}}">{{LINKEDIN}}</a><span class="contact-separator">·</span>
+        <a href="https://{{GITHUB}}">{{GITHUB}}</a>
+      </div>
+      <div class="visa-note">{{VISA_NOTE}}</div>
+    </div>
+    <div class="header-photo">{{HEADER_PHOTO}}</div>
+  </header>
+
+  <section class="section">
+    <h2 class="section-title">{{SECTION_SUMMARY}}</h2>
+    <div class="summary">{{SUMMARY}}</div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">{{SECTION_EXPERIENCE}}</h2>
+    {{EXPERIENCE}}
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">{{SECTION_EDUCATION}}</h2>
+    {{EDUCATION}}
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">{{SECTION_SKILLS}}</h2>
+    {{SKILLS}}
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">{{SECTION_PROJECTS}}</h2>
+    {{PROJECTS}}
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">{{SECTION_LANGUAGES}}</h2>
+    {{LANGUAGES}}
+  </section>
+
+  <footer class="footer">{{LOCATION_DATE}} · {{FULL_NAME_FOOTER}}</footer>
+</div>
+</body>
+</html>

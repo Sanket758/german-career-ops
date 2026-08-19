@@ -7,6 +7,8 @@ This directory contains all project scripts for scanning, evaluation, PDF genera
 | `scan.mjs` | Main job portal scanner (zero-token). |
 | `init-session.mjs` | Initializes the compact session state for AI agents. |
 | `generate-pdf.mjs` | Converts HTML CVs/CLs to PDF. |
+| `generate-german-cv.mjs` | Generates and QA-gates the German two-page CV PDF. |
+| `german-cv-renderer.mjs` | Shared parser and deterministic German CV HTML renderer. |
 | `generate-cover-letter-pdf.mjs` | Specialized PDF generator for cover letters. |
 | `lint-style-guide.mjs` | Automated Rule 5 gate: banned phrases, number traceability to cv.md, header date, language match. |
 | `doctor.mjs` | System diagnostics and health checks. |

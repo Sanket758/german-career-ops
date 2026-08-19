@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+<meta charset="UTF-8">
+<title>Anschreiben - {{full_name}} - {{role}}</title>
+<style>
+@page { size: A4; margin: 25mm 20mm 25mm 20mm; }
+* { box-sizing: border-box; }
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #1a1a1a; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.container { max-width: 100%; }
+
+/* Sender (Absender) - top right */
+.sender { text-align: right; margin-bottom: 20px; font-size: 10pt; line-height: 1.5; color: #333; }
+.sender-name { font-weight: 600; font-size: 11pt; color: #2c3e50; margin-bottom: 4px; }
+.sender-line { margin: 1px 0; }
+
+/* Recipient (Empfänger) - left */
+.recipient { margin-bottom: 30px; font-size: 11pt; line-height: 1.5; color: #333; }
+.recipient-name { font-weight: 600; margin-bottom: 2px; }
+.recipient-company { font-weight: 500; margin-bottom: 2px; }
+.recipient-line { margin: 1px 0; }
+
+/* Date and Location */
+.date-location { text-align: right; margin-bottom: 30px; font-size: 11pt; color: #333; }
+
+/* Subject line */
+.subject { font-weight: 700; font-size: 11pt; margin-bottom: 20px; color: #2c3e50; }
+.subject-line { border-top: 1px solid #2c3e50; border-bottom: 1px solid #2c3e50; padding: 6px 0; }
+
+/* Salutation */
+.salutation { margin-bottom: 20px; font-size: 11pt; }
+
+/* Body paragraphs */
+.body { text-align: justify; }
+.paragraph { margin-bottom: 16px; line-height: 1.7; text-align: justify; }
+.paragraph strong { color: #2c3e50; }
+
+/* Visa highlight box */
+.visa-box { background: #e8f5e9; border: 1px solid #c8e6c9; border-left: 4px solid #2e7d32; padding: 12px 16px; margin: 20px 0; border-radius: 0 4px 4px 0; }
+.visa-title { font-weight: 700; color: #2e7d32; margin-bottom: 4px; font-size: 10pt; }
+.visa-text { font-size: 10pt; color: #333; line-height: 1.6; }
+
+/* Closing */
+.closing { margin-top: 30px; }
+.closing-line { margin-bottom: 8px; }
+
+/* Signature block */
+.signature { margin-top: 40px; }
+.signature-line { border-top: 1px solid #333; width: 60px; margin-bottom: 4px; }
+.signature-name { font-weight: 600; font-size: 11pt; color: #2c3e50; }
+
+/* Attachments */
+.attachments { margin-top: 30px; font-size: 10pt; color: #555; }
+.attachments-title { font-weight: 700; margin-bottom: 6px; }
+.attachments-list { font-size: 10pt; line-height: 1.8; }
+
+/* Footer note */
+.footer-note { margin-top: 40px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 8.5pt; color: #888; text-align: center; }
+
+/* Print */
+@media print {
+  body { font-size: 10.5pt; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Sender (Absender) -->
+  <div class="sender">
+    <div class="sender-name">{{full_name}}</div>
+    <div class="sender-line">{{address_line1}}</div>
+    <div class="sender-line">{{address_line2}}</div>
+    <div class="sender-line">Tel: {{phone}}</div>
+    <div class="sender-line">E-Mail: <a href="mailto:{{email}}">{{email}}</a></div>
+    <div class="sender-line">LinkedIn: <a href="https://{{linkedin}}">{{linkedin}}</a></div>
+    <div class="sender-line">GitHub: <a href="https://{{github}}">{{github}}</a></div>
+  </div>
+
+  <!-- Recipient (Empfänger) -->
+  <div class="recipient">
+    {{recipient_content}}
+  </div>
+
+  <!-- Date and Location -->
+  <div class="date-location">
+    {{location}}, den {{date_today}}
+  </div>
+
+  <!-- Subject -->
+  <div class="subject">
+    <div class="subject-line">Bewerbung als {{role}}{% if ref_number %} – {{ref_number}}{% endif %}</div>
+  </div>
+
+  <!-- Salutation -->
+  <div class="salutation">
+    {% if contact_person %}
+    Sehr geehrte{{contact_title}} {{contact_lastname}},
+    {% else %}
+    Sehr geehrte Damen und Herren,
+    {% endif %}
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+    <!-- Opening: Why this company -->
+    <div class="paragraph">
+      {{opening}}
+    </div>
+
+    <!-- Body paragraphs: JD requirements -> proof points -->
+    <div class="paragraph">
+      {{body_paragraphs}}
+    </div>
+
+    <!-- Visa box -->
+    <div class="visa-box">
+      <div class="visa-title">📋 Visastatus & Verfügbarkeit</div>
+      <div class="visa-text">
+        {{visa_text}}
+      </div>
+    </div>
+
+    <!-- Closing paragraph -->
+    <div class="paragraph">
+      {{closing_paragraph}}
+    </div>
+  </div>
+
+  <!-- Closing -->
+  <div class="closing">
+    <div class="closing-line">{{closing_greeting}}</div>
+  </div>
+
+  <!-- Signature -->
+  <div class="signature">
+    <div class="signature-line"></div>
+    <div class="signature-name">{{full_name}}</div>
+  </div>
+
+  <!-- Attachments -->
+  <div class="attachments">
+    <div class="attachments-title">Anlagen:</div>
+    <div class="attachments-list">
+      {{attachments}}
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Diese Bewerbung wurde maschinell erstellt und manuell geprüft. Alle Angaben entsprechen der Wahrheit.
+  </div>
+</div>
+</body>
+</html>
