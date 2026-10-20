@@ -67,6 +67,36 @@ test('parsePostedAge reads "1 day ago" as 24 hours', () => {
   assert.equal(parsePostedAge('1 day ago', NOW).posted_age_hours, 24);
 });
 
+test('parsePostedAge reads the doubled copy LinkedIn renders', () => {
+  // The live card puts the accessible copy and the sighted copy in one line:
+  // "Posted 5 hours ago" + "5 hours ago" -> "Posted 5 hours ago5 hours ago".
+  const r = parsePostedAge('Posted 5 hours ago5 hours ago', NOW);
+  assert.equal(r.posted_age_hours, 5);
+  assert.equal(r.posted_raw, 'Posted 5 hours ago');
+});
+
+test('parsePostedAge reads the doubled copy without the "Posted" prefix', () => {
+  const r = parsePostedAge('19 hours ago19 hours ago', NOW);
+  assert.equal(r.posted_age_hours, 19);
+  assert.equal(r.posted_raw, '19 hours ago');
+});
+
+test('parsePostedAge reads the German minute and hour forms', () => {
+  assert.equal(parsePostedAge('vor 3 Minuten', NOW).posted_age_hours, 0.05);
+  assert.equal(parsePostedAge('vor 1 Stunde', NOW).posted_age_hours, 1);
+  assert.equal(parsePostedAge('vor 2 Stunden', NOW).posted_age_hours, 2);
+});
+
+test('parsePostedAge reads "a minute ago"', () => {
+  assert.equal(parsePostedAge('a minute ago', NOW).posted_age_hours, 0.017);
+});
+
+test('parsePostedAge still flags a repost that also carries an age', () => {
+  const r = parsePostedAge('Reposted 3 days ago', NOW);
+  assert.equal(r.reposted, true);
+  assert.equal(r.posted_age_hours, 72);
+});
+
 // ── location ─────────────────────────────────────────────────────────────────
 
 test('parseLocation reads "Berlin (Hybrid)"', () => {
@@ -114,6 +144,30 @@ test('parseLocation recognises a non-German country', () => {
   assert.equal(r.country, 'IN');
 });
 
+test('parseLocation reads a country LinkedIn writes in parentheses', () => {
+  const r = parseLocation('Remote (UK)');
+  assert.equal(r.country, 'GB');
+  assert.equal(r.work_mode, 'remote');
+});
+
+test('parseLocation reads the German work-mode words', () => {
+  assert.equal(parseLocation('Berlin (Homeoffice)').work_mode, 'remote');
+  assert.equal(parseLocation('Berlin (Vor Ort)').work_mode, 'onsite');
+  assert.equal(parseLocation('Berlin (Präsenz)').work_mode, 'onsite');
+});
+
+test('parseLocation reads an unlisted European country', () => {
+  const r = parseLocation('Tallinn, Estonia');
+  assert.equal(r.country, 'EE');
+  assert.equal(r.city, 'Tallinn');
+});
+
+test('parseLocation splits the legacy form on dashes as well as middots', () => {
+  const r = parseLocation('Munich, Bavaria, Germany - 3 hours ago - 55 applicants');
+  assert.equal(r.city, 'Munich');
+  assert.equal(r.country, 'DE');
+});
+
 test('parseLocation returns nulls for text that is not a location', () => {
   const r = parseLocation('Excelloit Consultancy Services');
   assert.equal(r.city, null);
@@ -159,6 +213,10 @@ test('cleanTitle removes gender markers but keeps the display title', () => {
 
 test('cleanTitle collapses the whitespace a card layout leaves behind', () => {
   assert.equal(cleanTitle('  AI   Engineer  ').title, 'AI Engineer');
+});
+
+test('cleanTitle de-duplicates a short doubled title', () => {
+  assert.equal(cleanTitle('HRHR').title, 'HR');
 });
 
 // ── card text ────────────────────────────────────────────────────────────────
@@ -249,6 +307,65 @@ test('parseCardText sets already_applied for an "Applied now" card', () => {
 test('parseCardText reports a null company rather than guessing', () => {
   const r = parseCardText(['Role', 'Berlin (Hybrid)']);
   assert.equal(r.company, null);
+});
+
+test('parseCardText never reports a bare legal form as the company', () => {
+  // The name line is missing: "GmbH" alone is a partial company, not a company.
+  assert.equal(parseCardText(['Role', 'GmbH', 'Berlin (Hybrid)']).company, null);
+  assert.equal(parseCardText(['Role', 'AG', 'Berlin (Hybrid)']).company, null);
+});
+
+test('parseCardText keeps a company that mentions a country', () => {
+  const r = parseCardText(['Role', 'Bosch, Germany', 'Berlin (Hybrid)']);
+  assert.equal(r.company, 'Bosch, Germany');
+  assert.equal(r.location_raw, 'Berlin (Hybrid)');
+});
+
+test('parseCardText takes the location from the position, not from a vocabulary', () => {
+  const r = parseCardText(['Role', 'Acme', 'Tallinn, Estonia']);
+  assert.equal(r.company, 'Acme');
+  assert.equal(r.location_raw, 'Tallinn, Estonia');
+});
+
+test('parseCardText reads a German work-mode location', () => {
+  const r = parseCardText(['Role', 'Acme', 'Berlin (Homeoffice)']);
+  assert.equal(r.company, 'Acme');
+  assert.equal(r.work_mode, 'remote');
+});
+
+test('parseCardText does not swallow card meta into the company', () => {
+  const r = parseCardText(['Role', 'Acme GmbH', '1 connection works here']);
+  assert.equal(r.company, 'Acme GmbH');
+  assert.equal(r.location_raw, null);
+});
+
+test('parseCardText reads a promoted card whose teaser line leads the card', () => {
+  const r = parseCardText([
+    'Solutions Architect GenAI | €250K OTE | Fortune 100',
+    'Katapult',
+    'Munich (Hybrid)',
+    '200K EUR/yr - 250K EUR/yr + Bonus, Stock, Stock options, Profit sharing',
+    'Posted 20 hours ago',
+    '20 hours ago',
+    '·',
+    'Be an early applicant',
+    '·',
+    'Easy Apply',
+    '·',
+    'Promoted',
+  ]);
+  assert.equal(r.title, 'Solutions Architect GenAI');
+  assert.equal(r.company, 'Katapult');
+  assert.equal(r.location_raw, 'Munich (Hybrid)');
+  assert.equal(r.salary_raw, '200K EUR/yr - 250K EUR/yr + Bonus, Stock, Stock options, Profit sharing');
+  assert.equal(r.posted_raw, 'Posted 20 hours ago');
+  assert.equal(parsePostedAge(r.posted_raw, NOW).posted_age_hours, 20);
+});
+
+test('parseCardText treats "55 applicants" as meta, not content', () => {
+  const r = parseCardText(['Role', 'Acme', 'Berlin (Hybrid)', '55 applicants']);
+  assert.equal(r.company, 'Acme');
+  assert.equal(r.location_raw, 'Berlin (Hybrid)');
 });
 
 test('parseCardText records the card meta lines as notes', () => {

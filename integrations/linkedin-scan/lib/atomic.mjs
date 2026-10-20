@@ -10,27 +10,43 @@
 
 export const ATOMIC_CLASS_RE = /^(?:[a-z]{1,3})0[a-z0-9]{2,}$/;
 
-/** Prefix for a renamed token: deliberately outside ATOMIC_CLASS_RE. */
-export const RENAMED_PREFIX = 'renamed';
+/**
+ * Prefix for a renamed token. It must stay outside ATOMIC_CLASS_RE, so that
+ * "no obfuscated class survived the rename" stays a meaningful assertion: the
+ * pattern is 1-3 letters + "0" + alphanumerics, and four letters never match.
+ */
+export const RENAMED_PREFIX = 'rmap';
 
 /**
  * Rename every obfuscated class token in an HTML string, deterministically.
  * The first token seen becomes renamed0000, the second renamed0001, and so on.
+ *
+ * Handles double-quoted, single-quoted and unquoted class attributes.
  *
  * @param {string} html
  * @returns {string}
  */
 export function renameAtomicClasses(html) {
   const seen = new Map();
-  return String(html).replace(/class="([^"]*)"/g, (match, value) => {
-    const tokens = value.split(/\s+/).filter(Boolean);
-    const renamed = tokens.map((token) => {
-      if (!ATOMIC_CLASS_RE.test(token)) return token;
-      if (!seen.has(token)) {
-        seen.set(token, `${RENAMED_PREFIX}${String(seen.size).padStart(4, '0')}`);
-      }
-      return seen.get(token);
-    });
-    return `class="${renamed.join(' ')}"`;
-  });
+  const renameValue = (value) =>
+    value
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((token) => {
+        if (!ATOMIC_CLASS_RE.test(token)) return token;
+        if (!seen.has(token)) {
+          seen.set(token, `${RENAMED_PREFIX}${String(seen.size).padStart(4, '0')}`);
+        }
+        return seen.get(token);
+      })
+      .join(' ');
+
+  return String(html).replace(
+    /class\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g,
+    (match, doubleQuoted, singleQuoted, unquoted) => {
+      const value = doubleQuoted ?? singleQuoted ?? unquoted ?? '';
+      const quote = doubleQuoted !== undefined ? '"' : singleQuoted !== undefined ? "'" : '';
+      return `class=${quote}${renameValue(value)}${quote}`;
+    }
+  );
 }

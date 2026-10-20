@@ -2,10 +2,15 @@
 // Usage: node integrations/linkedin-scan/tools/wait-auth.mjs [timeoutSeconds]
 import { chromium } from 'playwright';
 import { mkdirSync } from 'fs';
+import { dirname, join, resolve } from 'path';
+import { fileURLToPath } from 'url';
 
 const TIMEOUT_S = Number(process.argv[2] || 900);
 const CDP = 'http://127.0.0.1:9222';
-const OUT = 'data/linkedin_storage_state.json';
+// Resolved against the repository, never against the current directory: the
+// file holds live session cookies and must land in the gitignored data/ folder.
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const OUT = join(ROOT, 'data', 'linkedin_storage_state.json');
 
 const browser = await chromium.connectOverCDP(CDP);
 const ctx = browser.contexts()[0];
@@ -38,7 +43,7 @@ while ((Date.now() - started) / 1000 < TIMEOUT_S) {
         last = status;
       }
       if (liAt && jsession && !isLoginPage && !looksLoggedOut) {
-        mkdirSync('data', { recursive: true });
+        mkdirSync(dirname(OUT), { recursive: true });
         await ctx.storageState({ path: OUT });
         console.log('AUTHED: true');
         console.log('STORAGE_SAVED:', OUT);

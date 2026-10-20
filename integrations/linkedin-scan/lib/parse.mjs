@@ -13,10 +13,13 @@ const AGE_UNITS = {
   minutes: 1 / 60,
   min: 1 / 60,
   mins: 1 / 60,
+  minuten: 1 / 60,
   hour: 1,
   hours: 1,
   hr: 1,
   hrs: 1,
+  stunde: 1,
+  stunden: 1,
   day: 24,
   days: 24,
   tag: 24,
@@ -32,6 +35,13 @@ const AGE_UNITS = {
   month: 24 * 30,
   months: 24 * 30,
 };
+
+/**
+ * Relative-time patterns. The English form ends in "ago" and is matched without
+ * an end anchor, because LinkedIn renders the age twice inside one paragraph.
+ */
+const AGE_EN = /^(?:posted\s+)?(a|an|\d+)\s+(minutes?|mins?|hours?|hrs?|days?|weeks?|months?)\s+ago/i;
+const AGE_DE = /^vor\s+(\d+)\s+(minuten?|min|stunden?|stunde|tag|tage|tagen|woche|wochen|monat|monate|monaten)\b/i;
 
 /** Countries we can name, mapped to ISO-2. */
 const COUNTRIES = {
@@ -57,6 +67,44 @@ const COUNTRIES = {
   france: 'FR',
   spain: 'ES',
   italy: 'IT',
+  estonia: 'EE',
+  estland: 'EE',
+  latvia: 'LV',
+  lithuania: 'LT',
+  greece: 'GR',
+  czechia: 'CZ',
+  'czech republic': 'CZ',
+  croatia: 'HR',
+  turkey: 'TR',
+  israel: 'IL',
+  singapore: 'SG',
+  australia: 'AU',
+  'new zealand': 'NZ',
+  romania: 'RO',
+  bulgaria: 'BG',
+  slovakia: 'SK',
+  slovenia: 'SI',
+  serbia: 'RS',
+  ukraine: 'UA',
+  brazil: 'BR',
+  mexico: 'MX',
+  china: 'CN',
+  japan: 'JP',
+  'south korea': 'KR',
+  vietnam: 'VN',
+  thailand: 'TH',
+  malaysia: 'MY',
+  indonesia: 'ID',
+  philippines: 'PH',
+  nigeria: 'NG',
+  kenya: 'KE',
+  egypt: 'EG',
+  morocco: 'MA',
+  'south africa': 'ZA',
+  argentina: 'AR',
+  chile: 'CL',
+  colombia: 'CO',
+  peru: 'PE',
   canada: 'CA',
   ireland: 'IE',
   portugal: 'PT',
@@ -66,36 +114,88 @@ const COUNTRIES = {
   finland: 'FI',
 };
 
-/** Work-mode suffix in parentheses, or a bare work-mode word. */
+/**
+ * Work-mode suffix in parentheses, or a bare work-mode word.
+ * English and German, because the postings come in both languages.
+ */
 const WORK_MODE = [
   [/\(\s*remote\s*\)/i, 'remote'],
+  [/\(\s*home-?office\s*\)/i, 'remote'],
   [/\(\s*hybrid\s*\)/i, 'hybrid'],
   [/\(\s*on-?site\s*\)/i, 'onsite'],
+  [/\(\s*vor ort\s*\)/i, 'onsite'],
+  [/\(\s*pr(?:ä|a)senz\s*\)/i, 'onsite'],
   [/^\s*remote\s*$/i, 'remote'],
+  [/^\s*home-?office\s*$/i, 'remote'],
   [/^\s*hybrid\s*$/i, 'hybrid'],
   [/^\s*on-?site\s*$/i, 'onsite'],
 ];
 
+/** Two-letter country codes LinkedIn writes in parentheses ("Remote (UK)"). */
+const COUNTRY_CODES = {
+  DE: 'DE',
+  AT: 'AT',
+  CH: 'CH',
+  NL: 'NL',
+  BE: 'BE',
+  LU: 'LU',
+  FR: 'FR',
+  ES: 'ES',
+  IT: 'IT',
+  PL: 'PL',
+  SE: 'SE',
+  DK: 'DK',
+  NO: 'NO',
+  FI: 'FI',
+  IE: 'IE',
+  PT: 'PT',
+  US: 'US',
+  UK: 'GB',
+  GB: 'GB',
+  IN: 'IN',
+  CA: 'CA',
+  AU: 'AU',
+  SG: 'SG',
+  JP: 'JP',
+  BR: 'BR',
+  MX: 'MX',
+  ZA: 'ZA',
+  AE: 'AE',
+  IL: 'IL',
+  TR: 'TR',
+  EE: 'EE',
+  LV: 'LV',
+  LT: 'LT',
+};
+
 /** Bare legal forms that belong to the company line above them. */
 const LEGAL_FORM =
-  /^(gmbh\s*&\s*co\.?\s*kg|gmbh\s*&\s*co\.?\s*kg|mbh|mbh\s*&\s*co\.?\s*kg|gmbh|ag|kg|ohg|ug|gbr|eg|se|spa|s\.?a\.?r\.?l|b\.?v\.?|n\.?v\.?|inc\.?|llc|l\.?l\.?c\.?|ltd\.?|limited|plc|corp\.?|corporation|co\.?|company|sarl|sarl|oy|ab|as|a\/s|pty|pte|kk)\.?$/i;
+  /^(gmbh\s*&\s*co\.?\s*kg|mbh\s*&\s*co\.?\s*kg|gmbh|mbh|ag|kg|kgaa|ohg|ug|gbr|eg|se|spa|s\.?a\.?r\.?l|b\.?v\.?|n\.?v\.?|inc\.?|llc|l\.?l\.?c\.?|ltd\.?|limited|plc|pty|pte|kk)\.?$/i;
 
-/** Card meta that is a badge rather than content. */
-const BADGE_LINES = new Set([
-  'easy apply',
-  'be an early applicant',
-  'promoted',
-  'applied',
-  'applied now',
-  'hiring now',
-  'new',
-  'featured',
-  'applicants',
-  'saves',
-]);
+/**
+ * Card meta that is a badge rather than content. Matched by pattern, because the
+ * live card renders counts ("55 applicants", "1 connection works here") as well
+ * as fixed labels.
+ */
+const BADGE_PATTERNS = [
+  /^easy apply$/i,
+  /^be an early applicant$/i,
+  /^promoted$/i,
+  /^applied$/i,
+  /^applied now$/i,
+  /^beworben$/i,
+  /^hiring now$/i,
+  /^new$/i,
+  /^featured$/i,
+  /^\d+ applicants?$/i,
+  /^\d+ connections? works here$/i,
+  /^\d+ connections?$/i,
+  /^reposted$/i,
+];
 
 /** Card meta that is a note rather than a badge. */
 const NOTE_LINES = new Set(['viewed', 'actively reviewing applicants']);
+
 
 const SALARY_RE =
   /(?:\d[\d.,]*\s*k?\s*(?:eur|usd|chf|€|\$|£)|(?:eur|usd|chf|€|\$|£)\s*\d[\d.,]*\s*k?)/i;
@@ -141,10 +241,7 @@ export function parsePostedAge(raw, now = Date.now()) {
   const empty = { posted_raw: text || null, posted_at: null, posted_age_hours: null, reposted: false };
   if (!text) return empty;
 
-  if (/^reposted$/i.test(text) || /^vor \d+ tagen erneut/i.test(text)) {
-    return { posted_raw: text, posted_at: null, posted_age_hours: null, reposted: true };
-  }
-
+  const reposted = /^reposted\b/i.test(text) || /^vor \d+ tagen erneut/i.test(text);
   const nowMs = typeof now === 'number' ? now : Date.parse(now);
 
   // "Just now" / "Gerade eben"
@@ -153,28 +250,39 @@ export function parsePostedAge(raw, now = Date.now()) {
       posted_raw: text,
       posted_at: new Date(nowMs).toISOString(),
       posted_age_hours: 0,
-      reposted: false,
+      reposted,
     };
   }
 
   // "Posted 5 hours ago" | "5 hours ago" | "vor 2 Tagen"
-  const m =
-    text.match(/^posted\s+(\d+)\s+([a-z]+)\s+ago$/i) ||
-    text.match(/^(\d+)\s+([a-z]+)\s+ago$/i) ||
-    text.match(/^vor\s+(\d+)\s+([a-z]+)$/i);
+  //
+  // The match is NOT anchored at the end of the line: LinkedIn renders the age
+  // twice inside one paragraph (the accessible copy and the sighted copy), so
+  // the real line reads "Posted 5 hours ago5 hours ago".
+  const ageText = reposted ? text.replace(/^reposted\s+/i, '') : text;
+  const m = ageText.match(AGE_EN) || ageText.match(AGE_DE);
 
   if (m) {
-    const count = Number(m[1]);
+    const raw = m[1].toLowerCase();
+    const count = /^(a|an|ein|eine)$/.test(raw) ? 1 : Number(raw);
     const unit = m[2].toLowerCase();
     const hours = AGE_UNITS[unit];
-    if (hours === undefined) return empty;
+    if (hours === undefined || Number.isNaN(count)) {
+      return reposted
+        ? { posted_raw: text, posted_at: null, posted_age_hours: null, reposted: true }
+        : empty;
+    }
     const ageHours = count * hours;
     return {
-      posted_raw: text,
+      posted_raw: m[0].trim(),
       posted_at: new Date(nowMs - ageHours * 3600_000).toISOString(),
       posted_age_hours: Math.round(ageHours * 1000) / 1000,
-      reposted: false,
+      reposted,
     };
+  }
+
+  if (reposted) {
+    return { posted_raw: text, posted_at: null, posted_age_hours: null, reposted: true };
   }
 
   return empty;
@@ -189,11 +297,20 @@ export function parseLocation(raw) {
   const result = { location_raw: text, city: null, country: null, work_mode: null };
   if (!text) return result;
 
-  // Legacy layout: "Munich, Bavaria, Germany · 3 hours ago · 55 applicants"
-  const head = text.split('·')[0].trim();
+  // Legacy layout: "Munich, Bavaria, Germany · 3 hours ago · 55 applicants".
+  const head = text.split(/[·•]|\s+-\s+/)[0].trim();
 
-  let work = null;
   let body = head;
+
+  // A country code in parentheses: "Remote (UK)".
+  const code = body.match(/\(([A-Z]{2})\)\s*$/);
+  if (code && COUNTRY_CODES[code[1]]) {
+    result.country = COUNTRY_CODES[code[1]];
+    body = body.replace(code[0], '').trim();
+  }
+
+  // Work mode: a parenthesised word ("Munich (Hybrid)") or a bare word ("Remote").
+  let work = null;
   for (const [re, mode] of WORK_MODE) {
     if (re.test(body)) {
       work = mode;
@@ -211,9 +328,8 @@ export function parseLocation(raw) {
   const countryPart = parts.find((p) => COUNTRIES[p.toLowerCase()]);
 
   // Not a location at all: no work-mode marker and no country in sight.
-  if (!work && !countryPart) return result;
+  if (!work && !countryPart && !result.country) return result;
 
-  result.work_mode = work;
   if (countryPart) result.country = COUNTRIES[countryPart.toLowerCase()];
 
   const nonCountry = parts.filter((p) => !COUNTRIES[p.toLowerCase()]);
@@ -235,12 +351,12 @@ export function parseLocation(raw) {
  */
 export function cleanTitle(raw) {
   const display = cleanText(raw);
-  const deduped = dedupeRepeatedTitle(display);
-  let withoutStatus = deduped;
-  for (const re of TITLE_STATUS_SUFFIXES) withoutStatus = withoutStatus.replace(re, '');
-  let norm = deduped;
-  for (const re of TITLE_GENDER_SUFFIXES) norm = norm.replace(re, '');
-  return { title: cleanText(deduped), title_norm: cleanText(norm) };
+  // The de-duplication already removes a trailing status marker; the explicit
+  // pass catches a marker that stands on its own.
+  const title = cleanText(dedupeRepeatedTitle(display));
+  const withoutStatus = TITLE_STATUS_SUFFIXES.reduce((acc, re) => acc.replace(re, ''), title);
+  const norm = TITLE_GENDER_SUFFIXES.reduce((acc, re) => acc.replace(re, ''), withoutStatus);
+  return { title: cleanText(withoutStatus), title_norm: cleanText(norm) };
 }
 
 /**
@@ -261,7 +377,7 @@ function dedupeRepeatedTitle(text) {
 
   // No marker: LinkedIn still renders the title twice, so the whole string can be
   // two identical halves.
-  if (text.length > 4 && text.length % 2 === 0) {
+  if (text.length >= 4 && text.length % 2 === 0) {
     const half = text.length / 2;
     const a = text.slice(0, half);
     const b = text.slice(half);
@@ -295,15 +411,21 @@ export function canonicalJobUrl(source) {
 }
 
 function isBadge(line) {
-  return BADGE_LINES.has(line.toLowerCase());
+  return BADGE_PATTERNS.some((re) => re.test(line.trim()));
 }
 
 function isNote(line) {
   return NOTE_LINES.has(line.toLowerCase());
 }
 
+/**
+ * Does this line read like a location rather than a company?
+ * Only used for the single-line case; with two or more lines the location is
+ * taken from its position, because the vocabulary of cities and countries is
+ * endless.
+ */
 function looksLikeLocation(line) {
-  const head = line.split('·')[0].trim();
+  const head = line.split(/[·•]|\s+-\s+/)[0].trim();
   for (const [re] of WORK_MODE) {
     if (re.test(head)) return true;
   }
@@ -331,6 +453,7 @@ export function parseCardText(lines) {
   const badges = [];
   const notes = [];
   const content = [];
+  const meta = [];
   let sawEasyApply = false;
 
   for (const line of all) {
@@ -345,6 +468,21 @@ export function parseCardText(lines) {
       if (!notes.includes(line)) notes.push(line);
       continue;
     }
+    // A promoted card can lead with a teaser line instead of the title:
+    //   "Solutions Architect GenAI | €250K OTE | Fortune 100"
+    // The title is the first segment; the rest is a label, not content.
+    if (!content.length && line.includes(' | ') && /[€$£]|EUR|CHF|USD/i.test(line)) {
+      const [head, ...tail] = line.split('|').map((s) => s.trim()).filter(Boolean);
+      if (head) {
+        content.push(head);
+        for (const label of tail) if (!notes.includes(label)) notes.push(label);
+        continue;
+      }
+    }
+    if (parsePostedAge(line, 0).posted_age_hours !== null || SALARY_RE.test(line)) {
+      meta.push(line);
+      continue;
+    }
     content.push(line);
   }
 
@@ -353,12 +491,15 @@ export function parseCardText(lines) {
     title_norm: '',
     company: null,
     location_raw: null,
+    city: null,
+    country: null,
+    work_mode: null,
     posted_raw: null,
     badges,
     notes,
     salary_raw: null,
     easy_apply: sawEasyApply,
-    already_applied: badges.some((b) => /^(applied|applied now)$/i.test(b)),
+    already_applied: badges.some((b) => /^(applied|applied now|beworben)$/i.test(b)),
   };
 
   if (!content.length) return result;
@@ -372,12 +513,36 @@ export function parseCardText(lines) {
   let rest = content.slice(1);
   if (rest.length && cleanTitle(rest[0]).title_norm === title_norm) rest = rest.slice(1);
 
-  // Location: the first content line that looks like one.
-  const locIdx = rest.findIndex(looksLikeLocation);
-  const companyLines = locIdx === -1 ? rest : rest.slice(0, locIdx);
-  const metaLines = locIdx === -1 ? [] : rest.slice(locIdx + 1);
+  // Layout: title, company (one or more lines), location, then meta.
+  //
+  // The location is taken from its POSITION, not from a vocabulary: LinkedIn
+  // names cities and countries we have never heard of, and a vocabulary-driven
+  // guess silently folds the location into the company.
+  let companyLines = rest;
+  let locationLine = null;
 
-  if (locIdx !== -1) result.location_raw = rest[locIdx];
+  if (rest.length >= 2) {
+    const last = rest[rest.length - 1];
+    if (LEGAL_FORM.test(last)) {
+      // A bare legal form is the tail of a company, not a location.
+      companyLines = rest;
+    } else {
+      companyLines = rest.slice(0, -1);
+      locationLine = last;
+    }
+  } else if (rest.length === 1 && looksLikeLocation(rest[0])) {
+    // One line that reads like a location: the card has no company line.
+    companyLines = [];
+    locationLine = rest[0];
+  }
+
+  result.location_raw = locationLine;
+  if (locationLine) {
+    const location = parseLocation(locationLine);
+    result.city = location.city;
+    result.country = location.country;
+    result.work_mode = location.work_mode;
+  }
 
   // Company: join the lines above the location, folding a bare legal form back
   // into the line it belongs to ("AlexA Pflege" + "GmbH").
@@ -389,15 +554,23 @@ export function parseCardText(lines) {
         merged.splice(i, 1);
       }
     }
-    result.company = cleanText(merged.join(' '));
+    // A company that is nothing but a legal form means the name line is
+    // missing: report no company rather than a partial "GmbH".
+    if (!(merged.length === 1 && LEGAL_FORM.test(merged[0]))) {
+      result.company = cleanText(merged.join(' '));
+    }
   }
 
-  // Meta: posted time, salary.
-  const postedPrefixed = metaLines.find((l) => /^posted\s+/i.test(l));
-  const postedAny = metaLines.find((l) => parsePostedAge(l, 0).posted_age_hours !== null || /^reposted$/i.test(l));
-  result.posted_raw = postedPrefixed || postedAny || null;
+  // Meta: posted time, salary. The raw value is the *matched* age, not the whole
+  // line: LinkedIn renders the age twice inside one paragraph.
+  const postedPrefixed = meta.find((l) => /^posted\s+/i.test(l));
+  const postedAny = meta.find(
+    (l) => parsePostedAge(l, 0).posted_age_hours !== null || /^reposted\b/i.test(l)
+  );
+  const postedLine = postedPrefixed || postedAny || null;
+  result.posted_raw = postedLine ? parsePostedAge(postedLine, 0).posted_raw : null;
 
-  const salary = metaLines.find((l) => SALARY_RE.test(l));
+  const salary = meta.find((l) => SALARY_RE.test(l));
   if (salary) result.salary_raw = salary;
 
   return result;

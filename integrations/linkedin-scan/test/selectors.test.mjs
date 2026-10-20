@@ -24,15 +24,31 @@ after(async () => {
 
 async function load(file) {
   const p = await browser.newPage();
+  // The suite must never reach the network: anything that is not the fixture
+  // file is aborted, so a fixture that sneaks in a remote asset fails loudly
+  // instead of quietly loading it.
+  await p.route('**/*', (route) => {
+    const url = route.request().url();
+    if (url.startsWith('file://') || url.startsWith('data:') || url.startsWith('about:')) {
+      return route.continue();
+    }
+    return route.abort();
+  });
   await p.goto('file://' + file, { waitUntil: 'domcontentloaded' });
   await p.addScriptTag({ content: scannerSource() });
   return p;
 }
 
+const NOW = Date.parse('2026-10-20T12:00:00.000Z');
+
 async function extractAll(file) {
   const p = await load(file);
-  const cards = await p.evaluate(() =>
-    globalThis.__linkedinScan.findCards(document).map((c) => globalThis.__linkedinScan.extractCard(c))
+  const cards = await p.evaluate(
+    (now) =>
+      globalThis.__linkedinScan
+        .findCards(document)
+        .map((c) => globalThis.__linkedinScan.extractCard(c, { now })),
+    NOW
   );
   const detail = await p.evaluate(() => globalThis.__linkedinScan.extractDetail(document));
   await p.close();
@@ -137,15 +153,85 @@ test('matches the golden record file', async () => {
   assert.deepEqual(slim, golden);
 });
 
+test('reads the posting age of a card', async () => {
+  const { cards } = await extractAll(FIXTURE);
+  const card = cards.find((c) => c.job_id === '4480443245');
+  assert.equal(typeof card.posted_age_hours, 'number', 'the posting age must be parsed');
+  // The exact age ages between captures, so only its shape is pinned.
+  assert.match(card.posted_raw, /^Posted \d+ (minutes?|hours?|days?) ago$/);
+  assert.equal(card.posted_at, new Date(NOW - card.posted_age_hours * 3600_000).toISOString());
+});
+
+test('takes the detail pane time from the pane, not from the results list', async () => {
+  const { cards, detail } = await extractAll(FIXTURE);
+  // The detail header writes the bare age ("3 hours ago"); a card writes the
+  // prefixed one ("Posted 5 hours ago"). Reading the wrong pane is therefore
+  // visible in the raw value, whatever the two jobs happen to be today.
+  assert.match(detail.posted_raw, /^\d+ (minutes?|hours?|days?) ago$/);
+  assert.equal(typeof detail.posted_age_hours, 'number');
+  const firstCardAge = cards.find((c) => c.posted_raw)?.posted_raw ?? null;
+  assert.notEqual(detail.posted_raw, firstCardAge);
+});
+
+test('does not let an inline icon label become a card line', async () => {
+  const p = await browser.newPage();
+  await p.setContent(
+    '<div id="c"><p>Real Title</p><svg><title>Secret Icon Label</title></svg><p>Real Company</p></div>'
+  );
+  await p.addScriptTag({ content: scannerSource() });
+  const lines = await p.evaluate(() => globalThis.__linkedinScan.textLines(document.getElementById('c')));
+  await p.close();
+  assert.deepEqual(lines, ['Real Title', 'Real Company']);
+});
+
+test('without an "About the job" section the description is empty and flagged', async () => {
+  const p = await browser.newPage();
+  await p.setContent('<main><h1>Some Job</h1><p>Some Company</p><p>Berlin (Hybrid)</p></main>');
+  await p.addScriptTag({ content: scannerSource() });
+  const detail = await p.evaluate(() => globalThis.__linkedinScan.extractDetail(document));
+  await p.close();
+  assert.equal(detail.jd_text, '');
+  assert.equal(detail.jd_chars, 0);
+  assert.equal(detail.jd_incomplete, true);
+});
+
+test('names the strategy that actually resolved each field', async () => {
+  const { cards, detail } = await extractAll(FIXTURE);
+  const card = cards[0];
+  assert.equal(card.extraction.tiers.cardRoot, 'T0');
+  assert.equal(card.extraction.tiers.cardTitle, 'T3');
+  assert.equal(card.extraction.tiers.cardCompany, 'T3');
+  assert.equal(detail.extraction.tiers.detailJD, 'T0');
+  assert.equal(detail.extraction.tiers.detailTitle, 'T0');
+  assert.equal(detail.extraction.tiers.detailCompany, 'T0');
+});
+
 test('produces byte-identical output for the atomic-renamed fixture', async () => {
   const original = await extractAll(FIXTURE);
   const renamed = await extractAll(RENAMED);
-  assert.equal(
-    JSON.stringify(renamed.cards),
-    JSON.stringify(original.cards),
-    'a renamed atomic class must not change a single extracted field'
-  );
-  assert.equal(renamed.detail.jd_text, original.detail.jd_text);
+  // The wall-clock fields are derived from Date.now() and would differ between
+  // two runs, so they are compared separately.
+  const stable = (cards) =>
+    cards.map(({ posted_at, posted_age_hours, ...rest }) => rest);
+  assert.deepEqual(stable(renamed.cards), stable(original.cards));
+  for (const cards of [renamed.cards, original.cards]) {
+    const withAge = cards.filter((c) => c.posted_raw);
+    assert.ok(withAge.length > 0, 'the fixture must contain cards with a posting age');
+    for (const card of withAge) {
+      assert.equal(typeof card.posted_age_hours, 'number');
+    }
+  }
+  // The detail record is guarded as well — not just its description.
+  const stableDetail = (d) => ({
+    job_id: d.job_id,
+    title: d.title,
+    company: d.company,
+    jd_text: d.jd_text,
+    jd_chars: d.jd_chars,
+    posted_raw: d.posted_raw,
+    jd_incomplete: d.jd_incomplete,
+  });
+  assert.deepEqual(stableDetail(renamed.detail), stableDetail(original.detail));
 });
 
 test('never resolves a field through an atomic class', async () => {
@@ -155,6 +241,15 @@ test('never resolves a field through an atomic class', async () => {
       assert.notEqual(tier, 'T4', `${field} must not be resolved through an atomic class`);
     }
   }
+});
+
+test('the fixture loads no remote asset', () => {
+  const html = readFileSync(FIXTURE, 'utf8');
+  // Links are inert; what must not exist is anything the browser would fetch.
+  const remote = [...html.matchAll(/src="(https?:[^"]*)"/g)].map((m) => m[1]);
+  assert.deepEqual(remote, [], 'a committed fixture must not pull anything from the network');
+  assert.equal((html.match(/<link/g) || []).length, 0, 'no stylesheet link');
+  assert.equal((html.match(/<script/g) || []).length, 0, 'no script tag');
 });
 
 test('the atomic-renamed fixture really renames the obfuscated classes', () => {

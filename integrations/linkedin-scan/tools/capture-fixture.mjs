@@ -3,16 +3,17 @@
 //   node integrations/linkedin-scan/tools/capture-fixture.mjs [--out <path>] [--url <url>]
 //
 // Only two subtrees are saved: the results list and the selected job's detail pane.
-// Everything else (nav, profile, scripts, images, inline styles) is dropped, so the
-// fixture carries no personal data and stays small enough to commit.
+// Everything else (nav, profile, scripts, images, inline styles) is dropped, and the
+// write is refused outright if anything personal survives the sanitizing.
 //
 // The atomic-renamed twin is generated from the same capture: every obfuscated class
 // token (i0…, js0…) is renamed deterministically. The scanner must produce byte-identical
 // output from both — that is the guardrail against a class-based dependency.
 import { chromium } from 'playwright';
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { writeFileSync, mkdirSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { renameAtomicClasses } from '../lib/atomic.mjs';
+import { findPersonalData, isClean, stripProfileLinks } from '../lib/sanitize.mjs';
 
 const argv = process.argv.slice(2);
 const argOf = (name, fallback) => {
@@ -27,9 +28,6 @@ const URL_ = argOf(
 const OUT = resolve(argOf('--out', 'integrations/linkedin-scan/fixtures/search-results.html'));
 const CDP = argOf('--cdp', 'http://127.0.0.1:9222');
 const WAIT_MS = Number(argOf('--wait', 12000));
-
-/** Obfuscated LinkedIn class tokens: i0lax0, js0lk1, … (letters, then 0, then alnum). */
-const ATOMIC_CLASS_RE = /^(?:[a-z]{1,3})0[a-z0-9]{2,}$/;
 
 const browser = await chromium.connectOverCDP(CDP);
 const ctx = browser.contexts()[0];
@@ -53,31 +51,22 @@ const panes = await page.evaluate(() => {
   const list = [...cards.values()];
   if (!list.length) return { ok: false };
 
-  // Common ancestor that still contains every card.
-  let listRoot = list[0].parentElement;
-  while (listRoot && list.every((c) => listRoot.contains(c)) === false) {
-    listRoot = listRoot.parentElement;
+  // The list root: the smallest ancestor that still contains every card. The
+  // smallest one is the one without the page chrome around it.
+  let listRoot = null;
+  for (let node = list[0].parentElement; node; node = node.parentElement) {
+    if (!list.every((c) => node.contains(c))) continue;
+    if (!listRoot || node.textContent.length < listRoot.textContent.length) listRoot = node;
   }
-  // Fall back to the ancestor that contains the most cards.
-  if (!listRoot || !list.every((c) => listRoot.contains(c))) {
-    const counts = new Map();
-    for (const c of list) {
-      let n = c.parentElement;
-      while (n) {
-        counts.set(n, (counts.get(n) || 0) + 1);
-        n = n.parentElement;
-      }
-    }
-    listRoot = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
-  }
+  if (!listRoot) return { ok: false };
 
+  // The detail pane: the last ancestor of the "About the job" heading that does
+  // not also contain the results list.
   const heading = [...document.querySelectorAll('h1,h2,h3,h4')].find(
     (e) => e.textContent.trim() === 'About the job'
   );
   let detailRoot = null;
   if (heading) {
-    // Climb to the detail pane root: the last ancestor that does not also
-    // contain the results list.
     detailRoot = heading.parentElement;
     for (let i = 0; i < 10 && detailRoot.parentElement; i++) {
       const parent = detailRoot.parentElement;
@@ -86,12 +75,37 @@ const panes = await page.evaluate(() => {
     }
   }
 
+  // Who is the account holder? Their name and e-mail must never be committed.
+  const names = new Set();
+  const emails = new Set();
+  for (const a of document.querySelectorAll('a[href*="/in/"]')) {
+    const label = (a.getAttribute('aria-label') || a.innerText || '').trim();
+    if (label && label.length > 2) names.add(label);
+  }
+  for (const m of document.body.innerText.matchAll(/[\w.+-]+@[\w-]+\.[\w.]+/g)) {
+    emails.add(m[0]);
+  }
+
+  // The page chrome that the search pane drags in: the global footer links and
+  // the job-alert promo. None of it belongs to a job card.
+  const CHROME_TEXT = [
+    'privacy & terms', 'accessibility', 'help center', 'ad choices', 'advertising',
+    'business services', 'get the linkedin app', 'linkedin corporation',
+    'get job alerts for this search', 'sign in', 'join now', 'cookie policy',
+    'user agreement', 'privacy policy', 'language',
+  ];
+
   const strip = (root) => {
     if (!root) return '';
     const clone = root.cloneNode(true);
     clone
-      .querySelectorAll('script,style,noscript,img,svg,link,iframe,button')
+      .querySelectorAll('script,style,noscript,img,svg,link,iframe,button,a[href*="/in/"]')
       .forEach((el) => el.remove());
+    clone.querySelectorAll('p').forEach((el) => {
+      const text = el.textContent.trim().toLowerCase();
+      if (text && CHROME_TEXT.includes(text)) el.remove();
+    });
+    clone.querySelectorAll('a[href*="n_nav"], a[href*="trk="]').forEach((el) => el.remove());
     clone
       .querySelectorAll('*')
       .forEach((el) => {
@@ -107,7 +121,10 @@ const panes = await page.evaluate(() => {
     cards: list.length,
     listHtml: strip(listRoot),
     detailHtml: strip(detailRoot),
-    jdChars: detailRoot ? detailRoot.innerText.length : 0,
+    listRootTag: listRoot.tagName,
+    listRootIsBody: listRoot === document.body || listRoot === document.documentElement,
+    names: [...names],
+    emails: [...emails],
   };
 });
 
@@ -117,6 +134,11 @@ await browser.close();
 if (!panes.ok) {
   console.error('NO_CARDS: the results list did not render');
   process.exit(3);
+}
+
+if (panes.listRootIsBody) {
+  console.error('REFUSING: the results list resolved to <body> — the capture would include page chrome');
+  process.exit(4);
 }
 
 const doc = `<!doctype html>
@@ -137,13 +159,23 @@ ${panes.detailHtml}
 </html>
 `;
 
+const stripped = stripProfileLinks(doc);
+const found = findPersonalData(stripped, { names: panes.names, emails: panes.emails });
+if (!isClean(found)) {
+  console.error('REFUSING: personal data survived the sanitizer — no file written');
+  console.error('  names:', found.names);
+  console.error('  emails:', found.emails);
+  console.error('  profile links:', found.profileHrefs.slice(0, 5));
+  process.exit(5);
+}
+
 mkdirSync(dirname(OUT), { recursive: true });
-writeFileSync(OUT, doc);
-const renamed = renameAtomicClasses(doc);
+writeFileSync(OUT, stripped);
+const renamed = renameAtomicClasses(stripped);
 const renamedOut = OUT.replace(/\.html$/, '.atomic-renamed.html');
 writeFileSync(renamedOut, renamed);
 
 console.log('CARDS:', panes.cards);
-console.log('JD_CHARS:', panes.jdChars);
-console.log('WROTE:', OUT, doc.length, 'bytes');
+console.log('LIST ROOT:', panes.listRootTag);
+console.log('WROTE:', OUT, stripped.length, 'bytes');
 console.log('WROTE:', renamedOut, renamed.length, 'bytes');

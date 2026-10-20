@@ -787,13 +787,22 @@ const LEGAL_FORM = /^(gmbh|gmbh & co\.? kg|ag|se|ug|mbh|inc\.?|ltd\.?|sarl|bv|nv
 |---|---|
 | `title` | first content line; **de-duplicate the double rendering** (§6.2.1 item 4): `"Role (Verified job)Role"` → `Role`, `"RoleRole"` → `Role`; strip the `(Verified job)` marker; keep `(m/w/d)` in the display title and strip it in `title_norm` |
 | `company` | **Multi-line safe, never `Unknown`:** (1) `locIdx` = first content line that looks like a location (a work-mode marker in brackets, or a known country) and is not a badge; (2) candidate span = non-badge lines between the title and `locIdx`; (3) if the span has ≥2 lines and the last is a bare legal form (`LEGAL_FORM`), append it to the previous line (`AlexA Pflege` + `GmbH` → `AlexA Pflege GmbH`); (4) join the span with single spaces; (5) if the span is empty, leave `company = null` **provisionally**, capture the detail header company when the pane opens, and only fail the record if both are empty |
-| `location_raw` | the location line; the legacy form `"Munich, Bavaria, Germany · 3 hours ago · 55 applicants"` is split on `·` first |
+| `location_raw` | taken from its **position**, not from a vocabulary: with two or more lines after the title, the last one is the location and everything before it is the company. A vocabulary of cities and countries is endless, and a guess silently folds the location into the company (`"Acme Tallinn, Estonia"`). The vocabulary is only used for the single-line case (a lone line that reads like a location means the card has no company line) and for the legacy form `"Munich, Bavaria, Germany · 3 hours ago · 55 applicants"`, which is split on `·`, `•` and ` - ` first |
 | `city` / `country` | `country` is only set when the text **names** a country (`Germany` → `DE`); a bare `"Munich (Hybrid)"` has `country = null` and the search geography supplies the default. `city` is the first non-country segment |
 | `work_mode` | parenthetical `(On-site\|Hybrid\|Remote\|Vor Ort\|Präsenz)`; else map `Remote`/`Homeoffice` → `remote`, `Hybrid` → `hybrid`, else `onsite`; unknown → `null` |
-| `posted_raw` / `posted_at` | `AGE_RE` → minutes → ISO timestamp relative to run start; `Just now` → 0; `Reposted` sets `reposted = true`; German `vor 2 Tagen` → 48 h. A `"Posted …"` line wins over the bare age line LinkedIn repeats next to it |
+| `posted_raw` / `posted_at` | the age is matched **without an end anchor** (`^(?:Posted\s+)?(\d+)\s+(unit)\s+ago`), because LinkedIn renders the age twice inside one paragraph: the accessible copy and the sighted copy land on the same line (`"Posted 5 hours ago5 hours ago"`). The raw value is the *matched* substring, not the whole line. `Just now` → 0; `Reposted 3 days ago` → 72 h **and** `reposted = true`; German `vor 2 Tagen` → 48 h, `vor 3 Minuten` → 0.05 h, `vor 1 Stunde` → 1 h |
 | `badges` | every line matching `BADGES`, **except** `Easy Apply` (it is the `easy_apply` field); `already_applied = /^(applied\|applied now\|beworben)$/i.test(line)` — the live card renders **"Applied now"**, not "Applied" |
 | `easy_apply` | card badge **or** the detail-pane apply button replacing the save/apply pair |
 | `salary_raw` | currency + number in either order (`85K EUR/yr`, `70K EUR/yr - 95K EUR/yr`, `€70.000`); display-only, **no score points** (§9.1) |
+
+Two more card shapes the live page produces:
+
+- **A promoted card can lead with a teaser line** instead of the title:
+  `"Solutions Architect GenAI | €250K OTE | Fortune 100"`. The title is the first
+  segment, the rest are labels. Without this rule the teaser is classified as a salary
+  line and the card ends up with the company as its title.
+- **A company that is nothing but a legal form** (`"GmbH"`, `"AG"`) means the name line
+  is missing. The record reports **no company** rather than a partial one.
 
 The card is a lossy view: a company split across lines, a missing location, or a promo
 badge must degrade to the detail header, never to a partial string like `GmbH`.
@@ -904,10 +913,18 @@ function largestTextBlock() {
 
 `fixtures/search-results.atomic-renamed.html` is identical to `search-results.html`
 except that every class matching `/^(?:[a-z]{1,3})0[a-z0-9]{2,}$/` is replaced with
-`renamed<n>` (`i0lax0`, `js0lk1` → `renamed0000`, `renamed0001`, …). The pattern and
+`rmap<n>` (`i0lax0`, `js0lk1` → `rmap0000`, `rmap0001`, …). The pattern and
 the renamer live in `lib/atomic.mjs`, so the test and the capture tool cannot drift
-apart. The renamed prefix is deliberately outside the pattern, so "no obfuscated class
-survived" is a meaningful assertion.
+apart. The renamed prefix is four letters — deliberately outside the pattern (which is
+1–3 letters + `0` + alphanumerics), so "no obfuscated class survived" stays a
+meaningful assertion. The renamer handles double-quoted, single-quoted and unquoted
+`class` attributes.
+
+The suite also proves the mutation is real **and** that it bites: injecting an
+obfuscated class into either the card path or the detail path makes the mutation test
+fail. (Before the review, the detail record was compared on `jd_text` only, so a class
+dependency in the detail path passed — the comparison now covers the whole stable
+detail record.)
 
 Test assertion:
 
@@ -1755,9 +1772,12 @@ Everything under `integrations/linkedin-scan/` (§3.1) plus:
 | `integrations/linkedin-scan/lib/selectors.mjs` | DOM resolvers: card discovery, card extraction, detail-pane extraction, structure-based `textLines()` |
 | `integrations/linkedin-scan/lib/inject.mjs` | Turns the modules into a classic script the page can run (`globalThis.__linkedinScan`) |
 | `integrations/linkedin-scan/lib/atomic.mjs` | The obfuscated-class pattern and the deterministic renamer shared by the capture tool and the test |
+| `integrations/linkedin-scan/lib/sanitize.mjs` | Personal-data guard for captures: find names, e-mails and profile links; strip profile links |
 | `integrations/linkedin-scan/test/parse.test.mjs` | Unit tests for the text rules (no browser) |
 | `integrations/linkedin-scan/test/selectors.test.mjs` | Fixture tests in a real Chromium (offline, `file://`) |
+| `integrations/linkedin-scan/test/guards.test.mjs` | Injection guards, personal-data guard, renamer rules |
 | `integrations/linkedin-scan/test/golden/cards.json` | The 25 expected card records |
+| `integrations/linkedin-scan/notes/phase-0a-ledger.md` | The implementation ledger: the rulings and the review findings that shaped this phase |
 | `integrations/linkedin-scan/fixtures/search-results.html` | Sanitized capture of the real results list + detail pane |
 | `integrations/linkedin-scan/fixtures/search-results.atomic-renamed.html` | The same fixture with every obfuscated class renamed |
 | `integrations/linkedin-scan/tools/capture-fixture.mjs` | Captures and sanitizes the fixture pair |
@@ -1900,9 +1920,15 @@ profile URN and click-tracking ids.
 # Capture needs auth (§4.4). Writes both the fixture and its atomic-renamed twin.
 npm run linkedin:fixtures
 # The capture keeps only the two subtrees the resolvers read — the results list and
-# the selected job's detail pane — and strips scripts, styles, images, SVG, buttons
-# and inline styles. The nav bar never enters the file, so no personal data is
-# committed at all.
+# the selected job's detail pane — and strips scripts, styles, images, SVG, buttons,
+# inline styles and every profile link.
+#
+# The write is GUARDED, not merely careful:
+#   - the list root must not be <body> (that would pull in the page chrome)
+#   - profile links (the account holder and any third party) are removed
+#   - the account holder's name and e-mail are collected from the live page and
+#     the result is scanned for them
+#   - if anything personal survives, NO FILE IS WRITTEN (exit 5)
 ```
 
 `fixtures/README.md` records capture date, URL, UI variant and the sanitizer version.
@@ -1917,8 +1943,9 @@ npm run linkedin:fixtures
 
 | Test file | Asserts |
 |---|---|
-| `test/parse.test.mjs` | `29 minutes ago`, `3 hours ago`, `17 hours ago`, `Just now`, `vor 2 Tagen`, `Reposted`, `Posted 5 hours ago`, `1 day ago`; `Berlin (Hybrid)`, `Woltersdorf (On-site)`, `Berlin, Germany (On-site)`, `Remote`, `Germany (Remote)`, `Bangalore, India`; a non-location string yields nulls; **multi-line company (`AlexA Pflege` + `GmbH`) parses as `AlexA Pflege GmbH`, never `GmbH`**; a two-word company stays one company; `Applied now` sets `already_applied`; the title double rendering is de-duplicated; the job id is read from a `componentkey` and from a `/jobs/view/` href; the canonical URL drops every tracking parameter |
-| `test/selectors.test.mjs` | **25 cards found with unique ids**; the title/company/location/work-mode of known cards; a multi-word company; a disclosed salary range; **no card is reported without a company**; `Easy Apply` is a field, not a badge; the description is > 300 characters and comes from the "About the job" section; **the 25 records match `test/golden/cards.json`**; **the atomic-renamed fixture produces byte-identical output**; no field resolves through a T4 (atomic) class; the mutation is real (> 100 obfuscated tokens before, none after, text identical) |
+| `test/parse.test.mjs` | `29 minutes ago`, `3 hours ago`, `17 hours ago`, `Just now`, `vor 2 Tagen`, `Reposted`, `Posted 5 hours ago`, `1 day ago`; the **doubled** age LinkedIn renders (`"Posted 5 hours ago5 hours ago"`); `vor 3 Minuten`, `vor 1 Stunde`; `a minute ago`; `Reposted 3 days ago`; `Berlin (Hybrid)`, `Woltersdorf (On-site)`, `Berlin, Germany (On-site)`, `Remote`, `Germany (Remote)`, `Bangalore, India`, `Tallinn, Estonia`, `Remote (UK)`, `Berlin (Homeoffice)`, `Berlin (Vor Ort)`; a non-location string yields nulls; **multi-line company (`AlexA Pflege` + `GmbH`) parses as `AlexA Pflege GmbH`, never `GmbH`**; a bare legal form is never reported as the company; a two-word company stays one company; the location comes from its position, not from a vocabulary; a promoted card's teaser line is read as the title; card meta never leaks into the company; `Applied now` sets `already_applied`; the title double rendering is de-duplicated (including a short one); the job id is read from a `componentkey` and from a `/jobs/view/` href; the canonical URL drops every tracking parameter |
+| `test/selectors.test.mjs` | the fixture loads no remote asset and the page aborts every non-`file://` request; **25 cards found with unique ids**; the title/company/location/work-mode of known cards; a multi-word company; a disclosed salary range; **no card is reported without a company**; `Easy Apply` is a field, not a badge; **the posting age is parsed** (the doubled copy LinkedIn renders); **the detail pane's time comes from the pane, not from the first card of the list**; an inline SVG label never becomes a card line; without an "About the job" section the description is empty and flagged; the extraction tiers name the strategy that actually ran; the description is > 300 characters and comes from the "About the job" section; **the 25 records match `test/golden/cards.json`**; **the atomic-renamed fixture produces byte-identical output for the cards *and* the detail record**; no field resolves through a T4 (atomic) class; the mutation is real (> 100 obfuscated tokens before, none after, text identical) |
+| `test/guards.test.mjs` | the injected script has no leftover module syntax, no duplicate top-level name and parses; a module with `export default` is refused; the personal-data scan finds a name, an e-mail and a profile link; profile links are stripped; the renamer handles single-quoted and unquoted `class` attributes and leaves semantic names alone; the atomic pattern matches `js0lk1`/`i0lax0` and not `rmap0000` |
 | `test/normalize.test.mjs` | canonical URL drops `eBP/refId/trackingId/trk`; job id from `/jobs/view/123`, `/jobs/view/slug-at-co-4454388223?x=1`; title gender-tag stripping |
 | `test/dedup.test.mjs` | same id skipped; same URL with tracking skipped; **scanner prefix rule matches `Deloitte` ↔ `Deloitte GmbH`**; `dedup-tracker.mjs`'s own output is byte-identical before/after the `tracker-keys` extraction (fixture copy of the tracker); `roleMatch` ≥2 words; jd-hash collision skipped; burn-list penalty is not a silent skip; fuzzy match is reported as `dedup_match=fuzzy` |
 | `test/prescore.test.mjs` | golden table: Werkstudent → HARD_SKIP; FPGA title → HARD_SKIP; **B1 German requirement → HARD_SKIP**; **"Deutsch von Vorteil" → −6, not skip**; **German-language JD with no level → not skipped for language**; **"5+ years" → −25 and `yoe:5+`**; **"7+ years" → HARD_SKIP**; **"3+ years" → no YoE penalty**; US-only → HARD_SKIP; CV Engineer Berlin fresh → CANDIDATE; senior title → −20 and **`portals.yml` `seniority_boost` is not the penalty source**; senior title is capped at REVIEW; `--allow-senior` zeroes the penalty and lifts the cap; Berlin on-site → positive (regression for the removed `berlin only` blocker); JD-only `embedded` yields REVIEW, not HARD_SKIP; salary mention yields no points; burn-list → −50 |
@@ -1947,14 +1974,14 @@ Live checks must be run with the user present; they consume the real session bud
 
 Each phase is independently shippable and testable.
 
-| Phase | Deliverable | Exit criteria |
-|---|---|---|
-| **0a. Selector registry (offline)** | `selectors.mjs`, `parse.mjs`, `inject.mjs`, `atomic.mjs`, tests, golden records | `node --test` green against committed fixtures; the **test suite** makes no network calls; atomic-renamed fixture produces identical output | **DONE 2026-10-20** — 46 tests green; 25 real cards; spec §6.2.1 records the five DOM findings that changed the design |
-| **0b. Fixture capture (one-time, live)** | sanitized `fixtures/*.html`, `test/golden/cards.json`, `fixtures/README.md` | capture requires auth (§4.4); sanitizer keeps only the results list + detail pane and strips scripts/styles/images; goldens generated from the same DOM | **DONE 2026-10-20** (folded into 0a: the capture tool ships with the suite) |
-| **1. Auth + discovery** | `browser.mjs`, `search-url.mjs`, `extract-cards.mjs`, `normalize.mjs`, `store.mjs`, `log.mjs`, `config.example.yml` + loader/overlay, `cli.mjs scan --no-score` | 5 jobs extracted live with non-empty required fields; dedup works on a second run; records JSONL valid; config overlay test green |
-| **2. Detail + pre-score + report** | `extract-detail.mjs`, `prescore.mjs`, `report.mjs`, `dedup.mjs` | `review-YYYY-MM-DD.md` produced; 0 atomic-only resolutions; `scan-history.tsv` rows appended |
-| **3. CV match bridge** | `deepscore.mjs`, `career_ops_cli.py` flags, prompt + model fixes | `--deep` yields a report + TSV; `deep.match_10` matches the report's `MATCH: x/10`; `score_5 = match_10/2`; prompt contains `German: A2`; `OLLAMA_MODEL` resolves to an installed tag; Ollama-down path degrades cleanly |
-| **4. Hardening** | drift telemetry, detail-page fallback, `--strict-selectors`, optional Voyager capture, docs | 3 consecutive live runs with no manual selector fixes; README + runbook complete |
+| Phase | Deliverable | Exit criteria | Status |
+|---|---|---|---|
+| **0a. Selector registry (offline)** | `selectors.mjs`, `parse.mjs`, `inject.mjs`, `atomic.mjs`, `sanitize.mjs`, tests, golden records | `node --test` green against committed fixtures; the **test suite** makes no network calls; atomic-renamed fixture produces identical output | **DONE 2026-10-20** — 79 tests green; 25 real cards; §6.2.1 records the five DOM findings that changed the design; the review's 4 Critical + 7 Important findings are fixed and listed in `notes/phase-0a-ledger.md` |
+| **0b. Fixture capture (one-time, live)** | sanitized `fixtures/*.html`, `test/golden/cards.json`, `fixtures/README.md` | capture requires auth (§4.4); the write is refused if any personal data survives; goldens generated from the same DOM | **DONE 2026-10-20** (folded into 0a: the capture tool ships with the suite) |
+| **1. Auth + discovery** | `browser.mjs`, `search-url.mjs`, `extract-cards.mjs`, `normalize.mjs`, `store.mjs`, `log.mjs`, `config.example.yml` + loader/overlay, `cli.mjs scan --no-score` | 5 jobs extracted live with non-empty required fields; dedup works on a second run; records JSONL valid; config overlay test green | — |
+| **2. Detail + pre-score + report** | `extract-detail.mjs`, `prescore.mjs`, `report.mjs`, `dedup.mjs` | `review-YYYY-MM-DD.md` produced; 0 atomic-only resolutions; `scan-history.tsv` rows appended | — |
+| **3. CV match bridge** | `deepscore.mjs`, `career_ops_cli.py` flags, prompt + model fixes | `--deep` yields a report + TSV; `deep.match_10` matches the report's `MATCH: x/10`; `score_5 = match_10/2`; prompt contains `German: A2`; `OLLAMA_MODEL` resolves to an installed tag; Ollama-down path degrades cleanly | — |
+| **4. Hardening** | drift telemetry, detail-page fallback, `--strict-selectors`, optional Voyager capture, docs | 3 consecutive live runs with no manual selector fixes; README + runbook complete | — |
 
 Phase 0 is split because "no network" and "capture live fixtures" cannot both be true of
 one step. The offline suite is the release gate; capture is a supervised one-time action

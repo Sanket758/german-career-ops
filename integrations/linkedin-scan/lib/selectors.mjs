@@ -74,7 +74,9 @@ export function textLines(el) {
         continue;
       }
       if (child.nodeType !== 1) continue;
-      const tag = child.tagName;
+      // SVG elements keep their authored (lower-case) tag name in an HTML
+      // document, so normalise before matching the skip list.
+      const tag = child.tagName.toUpperCase();
       if (SKIP_TAGS.has(tag)) continue;
       const isBlock = BLOCK_TAGS.has(tag);
       if (isBlock) flush();
@@ -125,11 +127,10 @@ export function findCards(root) {
  *
  * @param {{job_id?: string, el: Element}|Element} card
  */
-export function extractCard(card) {
+export function extractCard(card, options = {}) {
   const el = card && card.el ? card.el : card;
   const parsed = parseCardText(textLines(el));
-  const location = parseLocation(parsed.location_raw);
-  const posted = parsePostedAge(parsed.posted_raw);
+  const posted = parsePostedAge(parsed.posted_raw, options.now ?? Date.now());
   const jobId = (card && card.job_id) || parseJobId(el.getAttribute('componentkey') || '');
 
   return {
@@ -140,9 +141,9 @@ export function extractCard(card) {
     title_norm: parsed.title_norm,
     company: parsed.company,
     location_raw: parsed.location_raw,
-    city: location.city,
-    country: location.country,
-    work_mode: location.work_mode,
+    city: parsed.city,
+    country: parsed.country,
+    work_mode: parsed.work_mode,
     posted_raw: parsed.posted_raw,
     posted_at: posted.posted_at,
     posted_age_hours: posted.posted_age_hours,
@@ -153,12 +154,14 @@ export function extractCard(card) {
     easy_apply: parsed.easy_apply,
     already_applied: parsed.already_applied,
     extraction: {
+      // The tier names the strategy that actually ran, so the drift telemetry
+      // (§6.6) and the "no atomic class" assertion have something to read.
       tiers: {
-        cardRoot: 'T0',
-        cardTitle: 'T3',
-        cardCompany: 'T3',
-        cardLocation: 'T3',
-        cardPosted: 'T3',
+        cardRoot: 'T0', // componentKey
+        cardTitle: 'T3', // text lines
+        cardCompany: 'T3', // company span
+        cardLocation: 'T3', // position in the card text
+        cardPosted: 'T3', // relative time in the card meta
       },
     },
   };
@@ -169,59 +172,95 @@ export function extractCard(card) {
  *
  * @param {ParentNode} root
  */
-export function extractDetail(root) {
+export function extractDetail(root, options = {}) {
   const scope = root || document;
 
-  // Description: the section that follows the "About the job" heading.
+  // The description is anchored by the "About the job" heading.
   const heading = [...scope.querySelectorAll('h1,h2,h3,h4')].find(
     (e) => e.textContent.trim() === 'About the job'
   );
 
-  let section = null;
-  let jdEl = null;
-  if (heading) {
-    section = heading;
-    for (let i = 0; i < 8 && section.parentElement; i++) {
-      const parent = section.parentElement;
-      if (parent.querySelectorAll('h1,h2,h3,h4').length > 1) break;
-      section = parent;
-      const box = section.querySelector('[data-testid="expandable-text-box"]');
-      if (box) jdEl = box;
-      if (section.textContent.trim().length > 200) break;
+  // The detail header links to the job; that link is the pane's identity.
+  const jobLink = scope.querySelector('a[href*="/jobs/view/"]');
+  const title = jobLink ? cleanText(jobLink.innerText) : null;
+  const jobId = jobLink ? parseJobId(jobLink.getAttribute('href') || '') : null;
+
+  // The pane is the closest common ancestor of the heading and the job link, so
+  // the results list is never mistaken for the detail.
+  let pane = scope;
+  if (heading && jobLink) {
+    let node = jobLink;
+    while (node && !node.contains(heading)) node = node.parentElement;
+    if (node) pane = node;
+  }
+
+  const base = {
+    job_id: jobId,
+    title,
+    company: null,
+    jd_text: '',
+    jd_chars: 0,
+    jd_incomplete: true,
+    degraded: false,
+    identity_ok: true,
+    posted_raw: null,
+    posted_at: null,
+    posted_age_hours: null,
+    extraction: {
+      tiers: {
+        detailJD: heading ? 'T0' : 'T3',
+        detailTitle: jobLink ? 'T0' : 'T3',
+        detailCompany: 'T3',
+      },
+    },
+  };
+
+  // No "About the job" section: no description. Returning the whole page as a
+  // job description would look like a complete posting to every later stage.
+  if (!heading) return base;
+
+  // Identity check (SPEC §6.5 step 4): the pane must be the job we asked for.
+  if (options.expectedTitle && title) {
+    const wanted = cleanText(options.expectedTitle).toLowerCase().split(' ').slice(0, 4).join(' ');
+    if (wanted && !title.toLowerCase().startsWith(wanted.slice(0, Math.max(8, wanted.length - 4)))) {
+      base.identity_ok = false;
     }
   }
-  if (!section) section = scope;
 
-  // The description lives in the paragraphs that follow the heading. The
-  // "expandable text box" wrapper is empty once the browser has repaired
-  // LinkedIn's invalid <p><span><p> nesting, so the section text is the source
-  // of truth.
+  // Section: the ancestor that holds the description and no second heading.
+  let section = heading;
+  for (let i = 0; i < 8 && section.parentElement; i++) {
+    const parent = section.parentElement;
+    if (parent.querySelectorAll('h1,h2,h3,h4').length > 1) break;
+    section = parent;
+    if (section.textContent.trim().length > 200) break;
+  }
+
   const lines = textLines(section);
   const start = lines.findIndex((l) => l.toLowerCase() === 'about the job');
   let jdLines = start === -1 ? lines : lines.slice(start + 1);
   while (jdLines.length && /^(…|\.{1,3})\s*more$/i.test(jdLines[jdLines.length - 1])) jdLines.pop();
   const jdText = jdLines.join('\n').trim();
 
-  // Title + job id: the detail header links to the job.
-  const jobLink = scope.querySelector('a[href*="/jobs/view/"]');
-  const title = jobLink ? cleanText(jobLink.innerText) : null;
-  const jobId = jobLink ? parseJobId(jobLink.getAttribute('href') || '') : null;
-
   // Company: the logo block carries an ARIA label ("Company, XpertDirect.").
-  const aria = scope.querySelector('[aria-label^="Company,"]');
+  const aria = pane.querySelector('[aria-label^="Company,"]');
   let company = null;
   if (aria) {
     company = cleanText((aria.getAttribute('aria-label') || '').replace(/^Company,\s*/i, '').replace(/\.$/, ''));
   }
   if (!company) {
-    const link = scope.querySelector('a[href*="/company/"]');
+    const link = pane.querySelector('a[href*="/company/"]');
     if (link) company = cleanText(link.innerText);
   }
 
-  // Posted time: the header meta line ("… · 3 hours ago · 56 applicants").
+  // Posted time: the pane header, i.e. the lines BEFORE the description. Reading
+  // it from the whole scope would pick up the first card of the results list.
+  const paneLines = textLines(pane);
+  const jdStart = paneLines.findIndex((l) => l.toLowerCase() === 'about the job');
+  const headerLines = jdStart === -1 ? paneLines : paneLines.slice(0, jdStart);
   let postedRaw = null;
-  for (const p of scope.querySelectorAll('p')) {
-    const m = p.textContent.match(AGE_RE);
+  for (const line of headerLines) {
+    const m = line.match(AGE_RE);
     if (m) {
       postedRaw = cleanText(m[0]);
       break;
@@ -230,17 +269,18 @@ export function extractDetail(root) {
   const posted = parsePostedAge(postedRaw);
 
   return {
-    job_id: jobId,
-    title,
+    ...base,
     company,
     jd_text: jdText,
     jd_chars: jdText.length,
+    jd_incomplete: jdText.length < 200,
+    degraded: jdText.length >= 200 && jdText.length < 300,
     posted_raw: postedRaw,
     posted_at: posted.posted_at,
     posted_age_hours: posted.posted_age_hours,
     extraction: {
       tiers: {
-        detailJD: jdEl ? 'T1' : 'T3',
+        detailJD: 'T0',
         detailTitle: jobLink ? 'T0' : 'T3',
         detailCompany: aria ? 'T0' : 'T0',
       },
