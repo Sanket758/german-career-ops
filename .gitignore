@@ -22,6 +22,7 @@ jds/*
 
 # User config and customization (never auto-updated)
 config/profile.yml
+config/resume-source.yml
 portals.yml
 modes/_profile.md
 .update-dismissed
@@ -85,6 +86,13 @@ dist/
 build/
 out/
 coverage/
+resume/pdfs/*
+resume/previews/*
+resume/tests/extracted/*
+resume/.render-tmp/
+resume/data/resume.yaml
+resume/data/metrics_evidence.local.yaml
+resume/data/cv_*.yaml
 
 # Logs
 *.log
@@ -108,7 +116,15 @@ fraunhofer
 archives/
 .github
 data/
+!data/.gitkeep
+data/github-project-inventory.md
 *sanket*
 .career-ops-env
 .omo/
 docs/brain
+
+# LinkedIn scanner integration (read-only)
+data/linkedin-scan/
+config/linkedin-scan.yml
+integrations/linkedin-scan/fixtures/*.local.html
+.superpowers/

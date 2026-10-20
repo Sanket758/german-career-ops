@@ -1,0 +1,397 @@
+[
+  {
+    "job_id": "4478659811",
+    "title": "Computer Vision ML Engineer",
+    "title_norm": "Computer Vision ML Engineer",
+    "company": "XpertDirect",
+    "location_raw": "Munich (Hybrid)",
+    "city": "Munich",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4480443245",
+    "title": "AI/ML Engineer",
+    "title_norm": "AI/ML Engineer",
+    "company": "Jobgether",
+    "location_raw": "Germany (Remote)",
+    "city": null,
+    "country": "DE",
+    "work_mode": "remote",
+    "badges": [
+      "Be an early applicant"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4481530978",
+    "title": "AI & Automation Expert (f/m/d)",
+    "title_norm": "AI & Automation Expert",
+    "company": "Heitkamp & Thumann Group",
+    "location_raw": "Düsseldorf (Hybrid)",
+    "city": "Düsseldorf",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4480474015",
+    "title": "Artificial Intelligence Engineer",
+    "title_norm": "Artificial Intelligence Engineer",
+    "company": "Excelloit Consultancy Services",
+    "location_raw": "Germany (Remote)",
+    "city": null,
+    "country": "DE",
+    "work_mode": "remote",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4477080142",
+    "title": "Software Engineer C++ / Image Processing (m/f/d)",
+    "title_norm": "Software Engineer C++ / Image Processing",
+    "company": "Next Ventures",
+    "location_raw": "Hannover (On-site)",
+    "city": "Hannover",
+    "country": null,
+    "work_mode": "onsite",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": "85K EUR/yr"
+  },
+  {
+    "job_id": "4478282945",
+    "title": "Agentic Software Engineer (m/w/d)",
+    "title_norm": "Agentic Software Engineer",
+    "company": "Lovely Systems GmbH",
+    "location_raw": "Germany (Remote)",
+    "city": null,
+    "country": "DE",
+    "work_mode": "remote",
+    "badges": [
+      "Be an early applicant"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4478299911",
+    "title": "Founding Engineer",
+    "title_norm": "Founding Engineer",
+    "company": "AI Futures",
+    "location_raw": "Berlin, Germany (On-site)",
+    "city": "Berlin",
+    "country": "DE",
+    "work_mode": "onsite",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": "70K EUR/yr - 95K EUR/yr"
+  },
+  {
+    "job_id": "4475234207",
+    "title": "AI Engineer / KI-Entwickler – LLM & Intelligent Document Search (all genders)",
+    "title_norm": "AI Engineer / KI-Entwickler – LLM & Intelligent Document Search",
+    "company": "ALTEN",
+    "location_raw": "Schrobenhausen (Hybrid)",
+    "city": "Schrobenhausen",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4478659833",
+    "title": "AI Model Optimisation Engineer / Shopper Marketing Manager / Strategic Investment Associate",
+    "title_norm": "AI Model Optimisation Engineer / Shopper Marketing Manager / Strategic Investment Associate",
+    "company": "Nexus- Business Management Consulting",
+    "location_raw": "Hamburg (Hybrid)",
+    "city": "Hamburg",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4480451848",
+    "title": "Data & AI Consultant – Microsoft Fabric (m/w/d)",
+    "title_norm": "Data & AI Consultant – Microsoft Fabric",
+    "company": "IT sure GmbH",
+    "location_raw": "Neu-Ulm (Remote)",
+    "city": "Neu-Ulm",
+    "country": null,
+    "work_mode": "remote",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4481247507",
+    "title": "Solutions Engineer",
+    "title_norm": "Solutions Engineer",
+    "company": "Strativ Group",
+    "location_raw": "Germany (Remote)",
+    "city": null,
+    "country": "DE",
+    "work_mode": "remote",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": "140K EUR/yr"
+  },
+  {
+    "job_id": "4481548496",
+    "title": "Senior AI Developer",
+    "title_norm": "Senior AI Developer",
+    "company": "Interiman Group",
+    "location_raw": "Germany (Remote)",
+    "city": null,
+    "country": "DE",
+    "work_mode": "remote",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4478686264",
+    "title": "Senior Machine Learning Engineer - ML, MLOps & Data",
+    "title_norm": "Senior Machine Learning Engineer - ML, MLOps & Data",
+    "company": "Acceler8 Talent",
+    "location_raw": "Munich (On-site)",
+    "city": "Munich",
+    "country": null,
+    "work_mode": "onsite",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": "80K EUR/yr - 135K EUR/yr"
+  },
+  {
+    "job_id": "4480443757",
+    "title": "AI Engineering Consultant (all gender)",
+    "title_norm": "AI Engineering Consultant",
+    "company": "ALTEN",
+    "location_raw": "Munich (Hybrid)",
+    "city": "Munich",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4478667682",
+    "title": "Founding AI Engineer",
+    "title_norm": "Founding AI Engineer",
+    "company": "AI Futures",
+    "location_raw": "Munich (On-site)",
+    "city": "Munich",
+    "country": null,
+    "work_mode": "onsite",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": "70K EUR/yr - 100K EUR/yr + Stock options"
+  },
+  {
+    "job_id": "4478665798",
+    "title": "Product Engineer",
+    "title_norm": "Product Engineer",
+    "company": "Stott and May",
+    "location_raw": "Berlin, Germany (On-site)",
+    "city": "Berlin",
+    "country": "DE",
+    "work_mode": "onsite",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": "90K EUR/yr"
+  },
+  {
+    "job_id": "4481532665",
+    "title": "AI Research & Prototyping Engineer",
+    "title_norm": "AI Research & Prototyping Engineer",
+    "company": "Hornetsecurity",
+    "location_raw": "Hannover (Hybrid)",
+    "city": "Hannover",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4478676119",
+    "title": "AI Solutions Architect / Partner Marketing Manager / Corporate Procurement Manager",
+    "title_norm": "AI Solutions Architect / Partner Marketing Manager / Corporate Procurement Manager",
+    "company": "Impact Investment Group",
+    "location_raw": "Frankfurt am Main (Hybrid)",
+    "city": "Frankfurt am Main",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4481206633",
+    "title": "Artificial Intelligence Engineer",
+    "title_norm": "Artificial Intelligence Engineer",
+    "company": "THRYVE",
+    "location_raw": "Germany (Remote)",
+    "city": null,
+    "country": "DE",
+    "work_mode": "remote",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4480238377",
+    "title": "Senior Software Engineer",
+    "title_norm": "Senior Software Engineer",
+    "company": "TOPdesk",
+    "location_raw": "Kaiserslautern (Hybrid)",
+    "city": "Kaiserslautern",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": "5,750 EUR/month - 6,500 EUR/month"
+  },
+  {
+    "job_id": "4480990943",
+    "title": "Senior Machine Learning Data Processing Engineer",
+    "title_norm": "Senior Machine Learning Data Processing Engineer",
+    "company": "European Tech Recruit",
+    "location_raw": "Berlin, Germany (Hybrid)",
+    "city": "Berlin",
+    "country": "DE",
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4478679550",
+    "title": "KI- & Automatisierungs-Engineer (m/w/d)",
+    "title_norm": "KI- & Automatisierungs-Engineer",
+    "company": "Mindspace Solutions GmbH",
+    "location_raw": "Dresden (Hybrid)",
+    "city": "Dresden",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4471884046",
+    "title": "Senior Data Scientist (m/w/d)",
+    "title_norm": "Senior Data Scientist",
+    "company": "BAUMLINK",
+    "location_raw": "Berlin, Germany (Hybrid)",
+    "city": "Berlin",
+    "country": "DE",
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4480225224",
+    "title": "Senior Machine Learning Engineer (Radar & AI)",
+    "title_norm": "Senior Machine Learning Engineer (Radar & AI)",
+    "company": "General Motors",
+    "location_raw": "Munich (Hybrid)",
+    "city": "Munich",
+    "country": null,
+    "work_mode": "hybrid",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  },
+  {
+    "job_id": "4481566306",
+    "title": "Generative AI Engineer",
+    "title_norm": "Generative AI Engineer",
+    "company": "THRYVE",
+    "location_raw": "Germany (Remote)",
+    "city": null,
+    "country": "DE",
+    "work_mode": "remote",
+    "badges": [
+      "Be an early applicant",
+      "Promoted"
+    ],
+    "easy_apply": true,
+    "salary_raw": null
+  }
+]

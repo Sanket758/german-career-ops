@@ -8,7 +8,6 @@
     "normalize": "node scripts/normalize-statuses.mjs",
     "dedup": "node scripts/dedup-tracker.mjs",
     "merge": "node scripts/merge-tracker.mjs",
-    "pdf": "node scripts/generate-pdf.mjs",
     "sync-check": "node scripts/cv-sync-check.mjs",
     "update:check": "node scripts/update-system.mjs check",
     "update": "node scripts/update-system.mjs apply",
@@ -16,8 +15,12 @@
     "liveness": "node scripts/check-liveness.mjs",
     "scan": "node scripts/scan.mjs",
     "scan:loop": "node scripts/scan-loop.mjs",
+    "github:inventory": "node scripts/create-github-inventory.mjs",
     "cover-letter": "node scripts/generate-cover-letter-pdf.mjs",
-    "cover-letters": "node scripts/generate-cover-letter-pdf.mjs --all"
+    "cover-letters": "node scripts/generate-cover-letter-pdf.mjs --all",
+    "linkedin:test": "node --test \"integrations/linkedin-scan/test/*.test.mjs\"",
+    "linkedin:fixtures": "node integrations/linkedin-scan/tools/capture-fixture.mjs",
+    "linkedin:golden": "node integrations/linkedin-scan/tools/update-golden.mjs"
   },
   "keywords": [
     "ai",
