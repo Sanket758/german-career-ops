@@ -168,3 +168,68 @@ M-9 (the ledger was untracked) is fixed by committing it as
 - The work is committed on the branch `german-reform` (18d5e67, ae64bb9). No merge and
   no push: the repository carries a large amount of unrelated uncommitted work, so
   integrating this is a decision for the owner.
+
+## ECC onboarding (2026-10-20)
+
+`/project-init` on this repo. The command's default target is `claude`; the harness in
+use is **OpenCode**, and the machine already carried two ECC surfaces.
+
+| Surface | Before | After |
+|---|---|---|
+| `~/.config/opencode/skills/` (always-on) | 326 | **55** (30 ECC + 14 user + 11 symlinks) |
+| `~/.config/opencode/skills-library/` (on-demand) | 301 | 301 (untouched) |
+| `~/.claude/plugins/cache/ecc` (Claude plugin) | 228 MB | **removed** |
+
+Ruling: target `opencode`, not the command's default `claude`. The installer refuses
+the bare-language syntax for `opencode` ("only accepts claude, claude-project, cursor,
+antigravity"), so the command's step-3 path was structurally impossible for the
+harness in use — the default target was the only one that "worked", and it wrote to the
+wrong place.
+
+Ruling: the 2026-10-17 curation (30 skills auto-loaded, ~300 moved to
+`skills-library/`) was the right call and the 2026-10-18 `profile: full` install
+reverted it. The trim restores the curation **and** pins it, so the next update cannot
+re-expand it: `ecc-install.json` (committed) holds the module list.
+
+Finding: 30 of the 35 DAILY skills resolve to synthetic single-skill modules
+(`skill-<id>`), so they install exactly. Five do not — they live in a multi-skill module
+and their real component drags the whole parent:
+
+| Skill | Parent module | Would add |
+|---|---|---|
+| coding-standards | `framework-language` | 71 skills |
+| tdd-workflow, verification-loop | `workflow-quality` | 52 skills |
+| security-review | `security` | 21 skills |
+| mle-workflow | `machine-learning` | framework-language + workflow-quality + database + devops-infra + security |
+
+Ruling: drop those four parents. `mle-workflow` went too — `machine-learning` depends on
+the whole graph, and `ml-adoption-playbook` + `pytorch-patterns` are available as
+single-skill modules, so the ML coverage survives. The four dropped skills stay in
+`skills-library/` and are reachable on demand; the superpowers equivalents
+(`test-driven-development`, `verification-before-completion`) cover the daily need.
+
+Finding: the uninstall refused to finish ("modified or unverifiable managed files were
+preserved") because `tools/changed-files.ts` and `tools/dependency-analyzer.ts` had no
+matching source in the current ECC version. They were stale artifacts of the 2026-10-18
+install; moved to `~/ecc-orphans-2026-10-20/`, and the uninstall then completed
+(`status: uninstalled`) and removed the install-state so the next install started clean.
+
+Ruling: the two stale tools were removed rather than preserved. They are ECC's own files
+from a superseded version, not user work; the current versions were reinstalled in the
+same place.
+
+Verification after the change: `npm run doctor` passes, `npm run linkedin:test` 79/79,
+dashboard Playwright 44/44, all 27 hook script references resolve, `plugins/index.ts`
+imports resolve, and the 14 user-owned skills (impeccable, design, slides,
+ui-ux-pro-max, blender, model-router, …) are untouched. `design-system` was rewritten
+with a byte-identical file, so the AGENTS.md warning about the ui-ux-pro-max variant
+still holds.
+
+Backups: `~/ecc-backup-2026-10-20-1557.tgz` (the whole opencode config),
+`~/ecc-plugin-cache-backup-2026-10-20.tgz` (the Claude plugin cache),
+`~/ecc-orphans-2026-10-20/` (the two stale tools).
+
+Not committed: the prose changes (AGENTS.md, README.md, package.json, modes/scan.md,
+modes/pipeline.md). Those files already carried in-flight German-market edits, so they
+are left in the working tree for the owner's batch instead of being swept into a
+separate commit.
