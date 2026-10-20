@@ -101,6 +101,7 @@ title_filter:
     # Exclude non-matching tech stacks and roles
     - ".NET"
     - "Java "
+    - "HTML"
     - "iOS"
     - "Android"
     - "PHP"
