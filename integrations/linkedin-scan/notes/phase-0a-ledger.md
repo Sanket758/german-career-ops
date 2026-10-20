@@ -155,3 +155,16 @@ M-9 (the ledger was untracked) is fixed by committing it as
   `data/` are gitignored and were not touched by this phase.
 
 
+
+## Final review
+
+- One fresh reviewer read the Phase 0a commit against the spec and the hard constraints.
+- All four Critical and all seven Important findings were reproduced, fixed test-first,
+  and are listed above. Nine of the ten Minors were fixed; none were deferred to a
+  later phase except the ledger-tracking one, which this file resolves.
+- Negative controls: an injected obfuscated class in the card path and in the detail
+  path both make the mutation test fail, so the "no brittle classes" rule is enforced
+  by a test that can actually fail.
+- The work is committed on the branch `german-reform` (18d5e67, ae64bb9). No merge and
+  no push: the repository carries a large amount of unrelated uncommitted work, so
+  integrating this is a decision for the owner.
