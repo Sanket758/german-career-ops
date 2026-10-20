@@ -1,0 +1,1240 @@
+# =============================================
+# BERLIN AI + RETAIL / INVENTORY COMPANIES
+# Generated 2026-10-20 from research/berlin-ai-retail/.
+# careers_url = official careers/jobs landing page (HTTP-checked).
+# Append these entries under the `tracked_companies:` key in portals.yml.
+# =============================================
+
+  - name: Checktur.io
+    careers_url: https://checktur-io-gmbh.jobs.personio.de/
+    scan_method: websearch
+    scan_query: 'site:checktur-io-gmbh.jobs.personio.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: Cito Transport Technologies GmbH
+    careers_url: https://www.cito.ai/karriere
+    scan_method: websearch
+    scan_query: 'site:cito.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: Coca-Cola Europacific Partners
+    careers_url: https://www.ccep.jobs/
+    scan_method: websearch
+    scan_query: 'site:ccep.jobs ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: DREVISE (ex-Cerpro)
+    careers_url: https://drevise.com/de/karriere
+    scan_method: websearch
+    scan_query: 'site:drevise.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Commerce / e-commerce platform. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: Eberlein Kunz
+    careers_url: https://eberleinkunz.de/jobs
+    scan_method: websearch
+    scan_query: 'site:eberleinkunz.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Commerce / e-commerce platform. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: Kittl
+    careers_url: https://www.kittl.com/careers
+    scan_method: websearch
+    scan_query: 'site:kittl.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Commerce / e-commerce platform. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: LILT
+    careers_url: https://lilt.com/careers
+    scan_method: websearch
+    scan_query: 'site:lilt.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Commerce / e-commerce platform. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: nnamu (Beroe X nnamu GmbH)
+    careers_url: https://beroe-inc.jobs.personio.com/?language=en
+    scan_method: websearch
+    scan_query: 'site:beroe-inc.jobs.personio.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: Printify
+    careers_url: https://careers.fyul.com/
+    scan_method: websearch
+    scan_query: 'site:careers.fyul.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Commerce / e-commerce platform. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: rebuy
+    careers_url: https://rebuy.recruitee.com/l/de
+    scan_method: websearch
+    scan_query: 'site:rebuy.recruitee.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Commerce / e-commerce platform. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: Refurbed
+    careers_url: https://www.refurbed.de/careers/
+    scan_method: websearch
+    scan_query: 'site:refurbed.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Commerce / e-commerce platform. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: Unzer
+    careers_url: https://jobs.eu.lever.co/unzer
+    scan_method: websearch
+    scan_query: 'site:jobs.eu.lever.co ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Shelf / store-floor CV. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: XXXLdigital
+    careers_url: https://www.xxxl.digital/karriere
+    scan_method: websearch
+    scan_query: 'site:xxxl.digital ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Adjacent (Berlin AI employer, retail/inventory carve-out)."
+    priority: tier1
+    enabled: true
+
+  - name: 8returns
+    careers_url: https://jobs.ashbyhq.com/8returns
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement; Commerce / e-commerce platform. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Almetra
+    careers_url: https://jobs.ashbyhq.com/almetra
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Back Market Germany GmbH
+    careers_url: https://jobs.ashbyhq.com/backmarket
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Commerce / e-commerce platform; Inventory / stock. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: BeeBI Consulting GmbH
+    careers_url: https://www.beebi-consulting.com/career/
+    scan_method: websearch
+    scan_query: 'site:beebi-consulting.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Inventory / stock. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Datasphere Analytics
+    careers_url: https://join.com/companies/datasphere-analyticscom
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: deevio
+    careers_url: https://wenglorsensoric.softgarden.io/de/vacancies
+    scan_method: websearch
+    scan_query: 'site:wenglorsensoric.softgarden.io ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Dexter
+    careers_url: https://join.com/companies/getdexterco
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: everphone GmbH
+    careers_url: https://join.com/companies/everphone
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Inventory / stock; Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: FactoryPal GmbH
+    careers_url: https://factorypal.com/careers
+    scan_method: websearch
+    scan_query: 'site:factorypal.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Forgent AI
+    careers_url: https://www.forgent.ai/company/careers
+    scan_method: websearch
+    scan_query: 'site:forgent.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Forto
+    careers_url: https://careers.forto.com/forto-jobs/
+    scan_method: websearch
+    scan_query: 'site:careers.forto.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Grover GmbH
+    careers_url: https://job-boards.greenhouse.io/grover
+    api: https://boards-api.greenhouse.io/v1/boards/grover/jobs
+    notes: "Retail / inventory adjacency (unclassified). Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Holocene
+    careers_url: https://holocene-gmbh.jobs.personio.com/
+    scan_method: websearch
+    scan_query: 'site:holocene-gmbh.jobs.personio.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Honeycraft GmbH
+    careers_url: https://bounti.co/careers
+    scan_method: websearch
+    scan_query: 'site:bounti.co ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Industrial Analytics IA GmbH
+    careers_url: https://join.com/companies/recruiting-ia
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: InstaFreight
+    careers_url: https://instafreight.global/careers
+    scan_method: websearch
+    scan_query: 'site:instafreight.global ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Kaiko Systems GmbH
+    careers_url: https://join.com/companies/kaikosystemscom
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: KREATIZE
+    careers_url: https://www.kreatize.com/about#career
+    scan_method: websearch
+    scan_query: 'site:kreatize.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement; Commerce / e-commerce platform. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: MakerVerse
+    careers_url: https://www.makerverse.com/careers/
+    scan_method: websearch
+    scan_query: 'site:makerverse.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement; Commerce / e-commerce platform. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Marentis
+    careers_url: https://www.marentis.ai/company#careers
+    scan_method: websearch
+    scan_query: 'site:marentis.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Mello HQ
+    careers_url: https://join.com/companies/mellohqcom
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Northbound
+    careers_url: https://join.com/companies/gonorthai
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Packmatic
+    careers_url: https://jobs.lever.co/Packmatic
+    scan_method: websearch
+    scan_query: 'site:jobs.lever.co ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement; Commerce / e-commerce platform. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Phantasma Labs GmbH
+    careers_url: https://www.phantasma.global/join-us
+    scan_method: websearch
+    scan_query: 'site:phantasma.global ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: PolyAI GmbH
+    careers_url: https://poly.ai/careers
+    scan_method: websearch
+    scan_query: 'site:poly.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: PSI Software SE
+    careers_url: https://www.psi.de/karriere/stellenangebote
+    scan_method: websearch
+    scan_query: 'site:psi.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Root Global
+    careers_url: https://jobs.ashbyhq.com/rootglobal
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Scandit Germany
+    careers_url: https://www.scandit.com/careers/
+    scan_method: websearch
+    scan_query: 'site:scandit.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Seven Senders
+    careers_url: https://sevensenders.com/de/karriere/
+    scan_method: websearch
+    scan_query: 'site:sevensenders.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement; Commerce / e-commerce platform. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: SumUp GmbH
+    careers_url: https://www.sumup.com/careers/positions/
+    scan_method: websearch
+    scan_query: 'site:sumup.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Talon.One
+    careers_url: https://boards.greenhouse.io/talonone
+    api: https://boards-api.greenhouse.io/v1/boards/talonone/jobs
+    notes: "Supply chain / procurement; Commerce / e-commerce platform. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: TMA
+    careers_url: https://jobs.smartrecruiters.com/JobsForHumanity
+    scan_method: websearch
+    scan_query: 'site:jobs.smartrecruiters.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: truemetrics
+    careers_url: https://truemetrics-io.notion.site/truemetrics-jobs
+    scan_method: websearch
+    scan_query: 'site:truemetrics-io.notion.site ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Voyfai
+    careers_url: https://jobs.ashbyhq.com/voyfai
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Wonnda
+    careers_url: https://wonnda.notion.site/Jobs-Wonnda-2d78bcffba0b48cbab73bdb8d1dcef6d
+    scan_method: websearch
+    scan_query: 'site:wonnda.notion.site ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Zenjob
+    careers_url: https://career.zenjob.com/open-positions/
+    scan_method: websearch
+    scan_query: 'site:career.zenjob.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement; Commerce / e-commerce platform. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: Zentio
+    careers_url: https://join.com/companies/zentioio
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Berlin AI ecosystem (adjacent)."
+    priority: tier1
+    enabled: true
+
+  - name: 4flow SE
+    careers_url: https://karriere.4flow.de/
+    scan_method: websearch
+    scan_query: 'site:karriere.4flow.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: 7Learnings GmbH
+    careers_url: https://7learnings.jobs.personio.de/
+    scan_method: websearch
+    scan_query: 'site:7learnings.jobs.personio.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: A11
+    careers_url: https://www.a11.com/careers
+    scan_method: websearch
+    scan_query: 'site:a11.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: ABOUT YOU
+    careers_url: https://corporate.aboutyou.de/en/career/jobs
+    scan_method: websearch
+    scan_query: 'site:corporate.aboutyou.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Amazon / AWS
+    careers_url: https://www.amazon.jobs/content/en/locations/germany/berlin
+    scan_method: websearch
+    scan_query: 'site:amazon.jobs ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Andercore
+    careers_url: https://jobs.ashbyhq.com/andercore
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: AutoScout24
+    careers_url: https://job-boards.greenhouse.io/autoscout24
+    api: https://boards-api.greenhouse.io/v1/boards/autoscout24/jobs
+    notes: "Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Awin
+    careers_url: https://www.awin.com/us/careers
+    scan_method: websearch
+    scan_query: 'site:awin.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Bring! / BringExpress GmbH
+    careers_url: https://bring-express.com/careers
+    scan_method: websearch
+    scan_query: 'site:bring-express.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: CarOnSale GmbH
+    careers_url: https://www.caronsale.com/en/careers
+    scan_method: websearch
+    scan_query: 'site:caronsale.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Choco
+    careers_url: https://choco.com/us/careers
+    scan_method: websearch
+    scan_query: 'site:choco.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Clera
+    careers_url: https://jobs.ashbyhq.com/clera
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Delivery Hero SE
+    careers_url: https://careers.deliveryhero.com/
+    scan_method: websearch
+    scan_query: 'site:careers.deliveryhero.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Eventim AG
+    careers_url: https://careers.eventim.de/
+    scan_method: websearch
+    scan_query: 'site:careers.eventim.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Flaconi
+    careers_url: https://www.flaconi.de/karriere/en/jobs/
+    scan_method: websearch
+    scan_query: 'site:flaconi.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement; Commerce / e-commerce platform. Operator (retail / commerce using AI internally). Board blocks bots — use a browser."
+    priority: tier1
+    enabled: true
+
+  - name: Flink SE
+    careers_url: https://careers.smartrecruiters.com/Flink3
+    scan_method: websearch
+    scan_query: 'site:careers.smartrecruiters.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Freshflow GmbH
+    careers_url: https://freshflow.ai/careers/
+    scan_method: websearch
+    scan_query: 'site:freshflow.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Inventory / stock; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: GetYourGuide
+    careers_url: https://www.getyourguide.careers/open-roles
+    scan_method: websearch
+    scan_query: 'site:getyourguide.careers ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: GLS/NXT
+    careers_url: https://join.com/companies/glsnxt
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: GotPhoto
+    careers_url: https://jobs.ashbyhq.com/gotphoto
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: HelloFresh
+    careers_url: https://careers.hellofresh.com/global/en/
+    scan_method: websearch
+    scan_query: 'site:careers.hellofresh.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: home24 SE
+    careers_url: https://home24.career.softgarden.de/
+    scan_method: websearch
+    scan_query: 'site:home24.career.softgarden.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Inventory / stock; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: idealo internet GmbH
+    careers_url: https://jobs.idealo.com/
+    scan_method: websearch
+    scan_query: 'site:jobs.idealo.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Internetstores GmbH
+    careers_url: https://join.com/companies/internetstores
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: JTL-Software
+    careers_url: https://jtl-software-gmbh.jobs.personio.de/
+    scan_method: websearch
+    scan_query: 'site:jtl-software-gmbh.jobs.personio.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Just Eat Takeaway
+    careers_url: https://careers.justeattakeaway.com/global/en/germany
+    scan_method: websearch
+    scan_query: 'site:careers.justeattakeaway.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Kleinanzeigen.de GmbH
+    careers_url: https://themen.kleinanzeigen.de/careers/
+    scan_method: websearch
+    scan_query: 'site:themen.kleinanzeigen.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: KoRo Handels GmbH
+    careers_url: https://jobs.ashbyhq.com/koro
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Shelf / store-floor CV; Warehouse / fulfilment; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Lovehoney Group
+    careers_url: https://jobs.eu.lever.co/lovehoneygroup
+    scan_method: websearch
+    scan_query: 'site:jobs.eu.lever.co ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Marley Spoon AG
+    careers_url: https://marleyspoon.com/careers
+    scan_method: websearch
+    scan_query: 'site:marleyspoon.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Mister Spex
+    careers_url: https://misterspex.wd103.myworkdayjobs.com/de-DE/Mister_Spex_Careers
+    scan_method: websearch
+    scan_query: 'site:misterspex.wd103.myworkdayjobs.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: mobile.de GmbH
+    careers_url: https://www.mobile.de/careers/
+    scan_method: websearch
+    scan_query: 'site:mobile.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: momox se
+    careers_url: https://momox.biz/karriere/berlin
+    scan_method: websearch
+    scan_query: 'site:momox.biz ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: rebuy recommerce GmbH
+    careers_url: https://rebuy.recruitee.com/l/de/hqcareers
+    scan_method: websearch
+    scan_query: 'site:rebuy.recruitee.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Redcare Pharmacy
+    careers_url: https://www.redcare-pharmacy.com/careers
+    scan_method: websearch
+    scan_query: 'site:redcare-pharmacy.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Robert Bosch GmbH
+    careers_url: https://jobs.bosch.com/
+    scan_method: websearch
+    scan_query: 'site:jobs.bosch.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Inventory / stock; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Rocket Internet SE
+    careers_url: https://www.rocket-internet.com/careers
+    scan_method: websearch
+    scan_query: 'site:rocket-internet.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Rohlik Group
+    careers_url: https://jobs.ashbyhq.com/rohlik
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: sennder
+    careers_url: https://www.sennder.com/open-positions
+    scan_method: websearch
+    scan_query: 'site:sennder.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: STAYERY
+    careers_url: https://www.stayery.com/de/jobs/
+    scan_method: websearch
+    scan_query: 'site:stayery.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Sunday Natural GmbH
+    careers_url: https://jobs.ashbyhq.com/sunday-natural
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Super.AI
+    careers_url: https://super-ai.jobs.personio.com/
+    scan_method: websearch
+    scan_query: 'site:super-ai.jobs.personio.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Urban Sports Club
+    careers_url: https://job-boards.greenhouse.io/urbansportsclub
+    api: https://boards-api.greenhouse.io/v1/boards/urbansportsclub/jobs
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: URBANARA GmbH
+    careers_url: https://www.urbanara.de/pages/jobs
+    scan_method: websearch
+    scan_query: 'site:urbanara.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Vinted
+    careers_url: https://careers.vinted.com/jobs
+    scan_method: websearch
+    scan_query: 'site:careers.vinted.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: voize GmbH
+    careers_url: https://jobs.ashbyhq.com/voize/
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Wolt
+    careers_url: https://careers.wolt.com/en/jobs
+    scan_method: websearch
+    scan_query: 'site:careers.wolt.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Workist
+    careers_url: https://workist-gmbh.jobs.personio.de/?language=en
+    scan_method: websearch
+    scan_query: 'site:workist-gmbh.jobs.personio.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: WUNDER
+    careers_url: https://wunder.ai/careers/
+    scan_method: websearch
+    scan_query: 'site:wunder.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Commerce / e-commerce platform. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: XU Group
+    careers_url: https://xu-de.jobs.personio.de/
+    scan_method: websearch
+    scan_query: 'site:xu-de.jobs.personio.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Zalando
+    careers_url: https://jobs.zalando.com/de/jobs
+    scan_method: websearch
+    scan_query: 'site:jobs.zalando.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Supply chain / procurement. Operator (retail / commerce using AI internally)."
+    priority: tier1
+    enabled: true
+
+  - name: Aklamio GmbH
+    careers_url: https://aklamio.bamboohr.com/careers
+    scan_method: websearch
+    scan_query: 'site:aklamio.bamboohr.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Alpas AI
+    careers_url: https://alpas.ai/career/
+    scan_method: websearch
+    scan_query: 'site:alpas.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Bettermile / GLS eCom Lab GmbH
+    careers_url: https://bettermile.com/careers/
+    scan_method: websearch
+    scan_query: 'site:bettermile.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Botshare.ai / OpenAMRobot
+    careers_url: https://botshare.ai/career
+    scan_method: websearch
+    scan_query: 'site:botshare.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: byways
+    careers_url: https://www.epg-jobs.com/stellenangebote/
+    scan_method: websearch
+    scan_query: 'site:epg-jobs.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: cargo.one
+    careers_url: https://www.cargo.one/careers
+    scan_method: websearch
+    scan_query: 'site:cargo.one ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: cargomotion
+    careers_url: https://www.cargomotion.io/jobs/initial-application
+    scan_method: websearch
+    scan_query: 'site:cargomotion.io ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: charles
+    careers_url: https://www.hello-charles.com/jobs/
+    scan_method: websearch
+    scan_query: 'site:hello-charles.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Commerce / e-commerce platform. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: CO3
+    careers_url: https://nofluffjobs.com/company/co3-k29h9cmc
+    scan_method: websearch
+    scan_query: 'site:nofluffjobs.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Codept GmbH
+    careers_url: https://join.com/companies/codept
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement; Commerce / e-commerce platform. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Continuum Innovation
+    careers_url: https://join.com/companies/continuum-innovation
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: ctrl+s GmbH
+    careers_url: https://ctrls.recruitee.com/jobs
+    scan_method: websearch
+    scan_query: 'site:ctrls.recruitee.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Data Spree GmbH
+    careers_url: https://www.data-spree.com/careers
+    scan_method: websearch
+    scan_query: 'site:data-spree.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Inventory / stock. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Delvo
+    careers_url: https://jobs.needle.so/delvo
+    scan_method: websearch
+    scan_query: 'site:jobs.needle.so ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Fabrikatör
+    careers_url: https://www.fabrikator.io/hiring
+    scan_method: websearch
+    scan_query: 'site:fabrikator.io ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Inventory / stock; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Faircado UG
+    careers_url: https://join.com/companies/faircado
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: FENKA Robotics
+    careers_url: https://www.fenka.de/jobs
+    scan_method: websearch
+    scan_query: 'site:fenka.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Frontnow GmbH
+    careers_url: https://www.frontnow.com/careers
+    scan_method: websearch
+    scan_query: 'site:frontnow.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Shelf / store-floor CV; Demand forecasting / pricing; Commerce / e-commerce platform. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: GeneralMind
+    careers_url: https://join.com/companies/generalmindcom
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: GK Software SE
+    careers_url: https://www.gk-software.com/de/portale/gk-careers
+    scan_method: websearch
+    scan_query: 'site:gk-software.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Inventory / stock. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: HIVE
+    careers_url: https://job-boards.eu.greenhouse.io/hive
+    api: https://boards-api.greenhouse.io/v1/boards/hive/jobs
+    notes: "Demand forecasting / pricing; Warehouse / fulfilment; Inventory / stock. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: IMPARGO GmbH
+    careers_url: https://impargo.de/karriere
+    scan_method: websearch
+    scan_query: 'site:impargo.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: KleRo GmbH Roboterautomation
+    careers_url: https://www.klero.de/unternehmen/karriere/
+    scan_method: websearch
+    scan_query: 'site:klero.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Konvo GmbH
+    careers_url: https://konvoai.com/careers
+    scan_method: websearch
+    scan_query: 'site:konvoai.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Commerce / e-commerce platform. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Kvinta GmbH
+    careers_url: https://kvinta.com/company/career/
+    scan_method: websearch
+    scan_query: 'site:kvinta.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Levity AI GmbH
+    careers_url: https://levity.ai/en/about#jobs
+    scan_method: websearch
+    scan_query: 'site:levity.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Logistica OS GmbH
+    careers_url: https://join.com/companies/logistica-oscom
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Mercanis
+    careers_url: https://mercanis.jobs.personio.de/
+    scan_method: websearch
+    scan_query: 'site:mercanis.jobs.personio.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Nomitri GmbH
+    careers_url: https://nomitri.recruitee.com/
+    scan_method: websearch
+    scan_query: 'site:nomitri.recruitee.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Nyris GmbH
+    careers_url: https://www.nyris.io/company/careers
+    scan_method: websearch
+    scan_query: 'site:nyris.io ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Shelf / store-floor CV. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: OneChain GmbH
+    careers_url: https://onechain.eu/karriere
+    scan_method: websearch
+    scan_query: 'site:onechain.eu ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: opus
+    careers_url: https://join.com/companies/opus-techai
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Peregrine.ai GmbH
+    careers_url: https://peregrine.ai/join-our-team/
+    scan_method: websearch
+    scan_query: 'site:peregrine.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Shelf / store-floor CV; Demand forecasting / pricing; Warehouse / fulfilment. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: pi4_robotics
+    careers_url: https://www.pi4.de/careers.html
+    scan_method: websearch
+    scan_query: 'site:pi4.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Plato
+    careers_url: https://platoapp.jobs.personio.de/
+    scan_method: websearch
+    scan_query: 'site:platoapp.jobs.personio.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: refive GmbH
+    careers_url: https://join.com/companies/refive
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Shelf / store-floor CV; Demand forecasting / pricing; Commerce / e-commerce platform. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: RoboService GmbH
+    careers_url: https://join.com/companies/roboserviceio
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: SAIZ
+    careers_url: https://coda.io/@saizclientinfo/saiz-job-vaccancies/saiz-job-board-1
+    scan_method: websearch
+    scan_query: 'site:coda.io ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Retail / inventory adjacency (unclassified). Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Sensos
+    careers_url: https://careers.sensos.io/
+    scan_method: websearch
+    scan_query: 'site:careers.sensos.io ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: senvo
+    careers_url: https://join.com/companies/senvo
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Signatrix GmbH
+    careers_url: https://signatrix-gmbh.jobs.personio.de/
+    scan_method: websearch
+    scan_query: 'site:signatrix-gmbh.jobs.personio.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Shelf / store-floor CV; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Sourcera.ai
+    careers_url: https://sourcera.ai/careers
+    scan_method: websearch
+    scan_query: 'site:sourcera.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: SPRK.global
+    careers_url: https://join.com/companies/sprk
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: status C AG
+    careers_url: https://statuscag.recruitee.com/
+    scan_method: websearch
+    scan_query: 'site:statuscag.recruitee.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Inventory / stock; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: SyncroBot
+    careers_url: https://syncrobot.de/careers
+    scan_method: websearch
+    scan_query: 'site:syncrobot.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: th data GmbH
+    careers_url: https://join.com/companies/thdata
+    scan_method: websearch
+    scan_query: 'site:join.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: THEO
+    careers_url: https://heytheo.co/careers/
+    scan_method: websearch
+    scan_query: 'site:heytheo.co ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Tourbosoft
+    careers_url: https://www.tourbosoft.de/de/jobportal.html
+    scan_method: websearch
+    scan_query: 'site:tourbosoft.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Inventory / stock; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: traide AI GmbH
+    careers_url: https://traide-ai.jobs.personio.com/?language=en
+    scan_method: websearch
+    scan_query: 'site:traide-ai.jobs.personio.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: tulanā
+    careers_url: https://tulana.notion.site
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Warehousing1
+    careers_url: https://warehousing1.com/jobs
+    scan_method: websearch
+    scan_query: 'site:warehousing1.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement; Commerce / e-commerce platform. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: yoona.ai
+    careers_url: https://www.yoona.ai/career
+    scan_method: websearch
+    scan_query: 'site:yoona.ai ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Demand forecasting / pricing. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: Zauber
+    careers_url: https://jobs.ashbyhq.com/zauber
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
+  - name: ZenOperator
+    careers_url: https://www.zenoperator.de/karriere
+    scan_method: websearch
+    scan_query: 'site:zenoperator.de ("AI" OR "Machine Learning" OR "Data" OR "Computer Vision" OR "Deep Learning")'
+    notes: "Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory)."
+    priority: tier1
+    enabled: true
+
