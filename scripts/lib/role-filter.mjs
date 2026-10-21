@@ -12,6 +12,11 @@
 export function buildTitleFilter(titleFilter) {
   const positive = (titleFilter?.positive || []).map(k => k.toLowerCase());
   const negative = (titleFilter?.negative || []).map(k => k.toLowerCase());
+  // Optional second signal: the title must ALSO name a hands-on role.
+  // Without it, "Chief of Staff - Strategy & AI Enablement" matches on
+  // "AI" and "Guest Experience Agent" matches on "Agent". With it, a title
+  // has to be a developer / engineer / scientist posting.
+  const role = (titleFilter?.role || []).map(k => k.toLowerCase());
 
   // Short alphanumeric keywords (AI, ML, KI, ROS, RAG, SEO...) must match as whole
   // words only. Plain substring matching turns "Paid Search" into an AI role ("pAId"),
@@ -28,10 +33,15 @@ export function buildTitleFilter(titleFilter) {
   };
 
   return (title) => {
-    const lower = String(title || '').toLowerCase();
+    const lower = String(title || '').toLowerCase().trim();
+    if (!lower) return false;
+    // A job title is at least two words. Single-word entries on a career
+    // page are category headings ("Developer", "Python"), not postings.
+    if (lower.split(/\s+/).filter(Boolean).length < 2) return false;
     const hasPositive = positive.length === 0 || positive.some(k => has(k, lower));
+    const hasRole = role.length === 0 || role.some(k => has(k, lower));
     const hasNegative = negative.some(k => has(k, lower));
-    return hasPositive && !hasNegative;
+    return hasPositive && hasRole && !hasNegative;
   };
 }
 
@@ -68,24 +78,64 @@ export function buildLocationFilter(locationFilter) {
   const positive = (locationFilter?.positive || []).map(k => k.toLowerCase());
   const negative = (locationFilter?.negative || []).map(k => k.toLowerCase());
 
-  return (location) => {
+  const hit = (k, lower) => {
+    // Use word boundaries for short acronyms like US, UK so we don't match 'dusseldorf'
+    if (k.length <= 3) {
+      return new RegExp(`\\b${k}\\b`).test(lower);
+    }
+    return lower.includes(k);
+  };
+
+  const filter = (location) => {
     if (!location) return true;
 
     const lower = String(location).toLowerCase();
 
     // Check negatives FIRST. If it says "Remote, US", kill it based on "US"
-    const hasNegative = negative.some(k => {
-      // Use word boundaries for short acronyms like US, UK so we don't match 'dusseldorf'
-      if (k.length <= 3) {
-        return new RegExp(`\\b${k}\\b`).test(lower);
-      }
-      return lower.includes(k);
-    });
-
-    if (hasNegative) return false;
+    if (negative.some(k => hit(k, lower))) return false;
 
     // Then check positives.
     if (positive.length === 0) return true;
     return positive.some(k => lower.includes(k));
+  };
+
+  filter.negatives = negative;
+  filter.hit = hit;
+  return filter;
+}
+
+/**
+ * Location check for the TITLE.
+ *
+ * Some boards put the location in the job title and leave the location
+ * field empty — Retool posts "Data Scientist San Francisco, United States"
+ * with no location field at all, and Wolt posts "Senior Software Engineer
+ * Engineering Full-time Helsinki, Finland". Without this, a US role passes
+ * the location filter and lands in a Germany-only digest.
+ *
+ * A title that names BOTH a disallowed place and an allowed one is kept:
+ * Wolt's "Full-time Tallinn, Estonia Helsinki, Finland Berlin, Germany
+ * Stockholm, Sweden" is a role that is open in Berlin.
+ */
+export function buildTitleLocationFilter(locationFilter) {
+  const negative = (locationFilter?.negative || []).map(k => k.toLowerCase());
+  // "Remote" and "Regional" are not places — a title saying "Remote" must
+  // not rescue one that also says "APAC".
+  const allowedPlaces = (locationFilter?.positive || [])
+    .map(k => k.toLowerCase())
+    .filter(k => k !== 'remote' && k !== 'regional');
+
+  const hit = (k, lower) => {
+    if (k.length <= 3) return new RegExp(`\\b${k}\\b`).test(lower);
+    return lower.includes(k);
+  };
+
+  return (title) => {
+    if (!title) return true;
+    const lower = String(title).toLowerCase();
+    const hasBadPlace = negative.some(k => hit(k, lower));
+    if (!hasBadPlace) return true;
+    // A bad place alongside an allowed one: the role is open there too.
+    return allowedPlaces.some(k => lower.includes(k));
   };
 }

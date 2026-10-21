@@ -11,7 +11,7 @@
  *   node scripts/test-role-filter.mjs
  */
 
-import { buildTitleFilter, buildDateWindow, buildLocationFilter } from '../scripts/lib/role-filter.mjs';
+import { buildTitleFilter, buildDateWindow, buildLocationFilter, buildTitleLocationFilter } from '../scripts/lib/role-filter.mjs';
 
 let fail = 0;
 function check(ok, label, detail) {
@@ -43,7 +43,12 @@ const NEGATIVE = [
   'Part-time', 'Part Time', '20h', '15h', 'Seasonal', 'Apprentice', 'Azubi',
 ];
 
-const tf = buildTitleFilter({ positive: POSITIVE, negative: NEGATIVE });
+const ROLE = [
+  'Engineer', 'Developer', 'Development', 'Entwickler', 'Ingenieur',
+  'Programmer', 'Scientist', 'Researcher',
+];
+
+const tf = buildTitleFilter({ positive: POSITIVE, negative: NEGATIVE, role: ROLE });
 
 const TITLE_CASES = [
   ['Senior ML Engineer (m/f/d)', true, 'true positive'],
@@ -70,6 +75,18 @@ const TITLE_CASES = [
   ['Storage Engineer', false, 'REGRESSION: "Storage" must not match "rag"'],
   ['HTML Developer', false, 'REGRESSION: "HTML" must not match "ml"'],
   ['Detail-Oriented Analyst', false, 'REGRESSION: "detail" must not match "ai"'],
+  // role-type signal: the title must name a hands-on role
+  ['Chief of Staff - Strategy & AI Enablement (m/f/d)', false, 'not a developer role'],
+  ['Guest Experience Agent (m/w/d) Bochum | Vollzeit | Operations', false, 'not a developer role'],
+  ['AI Motion Expert (all genders) Creative Production Berlin', false, 'not a developer role'],
+  ['Agent Deployment Manager', false, 'not a developer role'],
+  ['Jurist It Und Softwarerecht', false, 'not a developer role'],
+  ['Developer', false, 'single word is a category heading, not a posting'],
+  ['Python', false, 'single word is a category heading, not a posting'],
+  ['Softwareentwicklung', false, 'single word is a category heading, not a posting'],
+  ['Senior Software Engineer - Machine Learning', true, 'developer role'],
+  ['Senior Data Scientist', true, 'scientist role'],
+  ['KI Ingenieur (m/w/d)', true, 'German engineer title'],
 ];
 for (const [title, want, why] of TITLE_CASES) {
   const got = tf(title);
@@ -123,6 +140,27 @@ check(lf('London, UK') === false, 'location: UK is rejected');
   check(live('Marketing Automation Engineer') === false, 'portals.yml rejects a Marketing role');
   check(live('HTML Developer') === false, 'portals.yml rejects an HTML role');
   check(live('Backend Developer') === false, 'portals.yml rejects a Backend role');
+}
+
+// ── title location filter ───────────────────────────────────────────────
+{
+  const { readFileSync } = await import('fs');
+  const { dirname, join } = await import('path');
+  const { fileURLToPath } = await import('url');
+  const yaml = (await import('js-yaml')).default;
+  const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+  const cfg = yaml.load(readFileSync(join(root, 'portals.yml'), 'utf-8'));
+  const tlf = buildTitleLocationFilter(cfg.location_filter);
+  check(tlf('Senior Software Engineer I Portugal') === false, 'title location: Portugal is rejected');
+  check(tlf('Senior Software Engineer Engineering Full-time Helsinki, Finland') === false, 'title location: Finland is rejected');
+  check(tlf('Software Engineer Engineering Full-time London, United Kingdom') === false, 'title location: United Kingdom is rejected');
+  check(tlf('Senior Applied AI Partner Solution Engineer - APAC Remote') === false, 'title location: APAC is rejected');
+  check(tlf('Software Engineer II - Mobile Developer New Bengaluru') === false, 'title location: Bengaluru is rejected');
+  // multi-location title that also offers Berlin stays
+  check(tlf('Senior Software Engineer, Feature Engineering Platform Engineering Full-time Tallinn, Estonia Helsinki, Finland Berlin, Germany Stockholm, Sweden') === true,
+    'title location: a multi-location title offering Berlin is kept');
+  check(tlf('Senior ML Engineer Berlin') === true, 'title location: Berlin is kept');
+  check(tlf('Senior ML Engineer') === true, 'title location: a title with no place is kept');
 }
 
 console.log(fail === 0 ? '\nAll cases pass' : `\n${fail} FAILURES`);
