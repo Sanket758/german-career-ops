@@ -97,11 +97,25 @@ title_filter:
     - "Software Developer"
     - "Developer"
     - "Software"
+  # -- Role-type signal (2026-10-20) --
+  # The title must ALSO name a hands-on role. Without it, "Chief of Staff -
+  # Strategy & AI Enablement" matches on "AI" and "Guest Experience Agent"
+  # matches on "Agent". Empty list = no role requirement.
+  role:
+    - "Engineer"
+    - "Developer"
+    - "Development"
+    - "Entwickler"
+    - "Ingenieur"
+    - "Programmer"
+    - "Scientist"
+    - "Researcher"
   negative:
     # Exclude non-matching tech stacks and roles
     - ".NET"
     - "Java "
     - "HTML"
+    - "ABAP"
     - "iOS"
     - "Android"
     - "PHP"
@@ -132,6 +146,9 @@ title_filter:
     - "GTM"
     - "Talent Pool"
     - "Business Development"
+    # 2026-10-21: the sibling spelling is a sales role too, and it slipped
+    # through ("Business Developer Leader" at Exotec). Matched as a whole word.
+    - "Business Developer"
     - "Head of"
     - "Growth"
     - "Paid Social"
@@ -247,6 +264,75 @@ location_filter:
     - UAE
     - Dubai
     - Singapore
+    # 2026-10-21 — city-level guard for the French-robotics sweep. The country
+    # entries above only fire when the country is spelled out; a French board
+    # that names a city in the job TITLE (not the location field) would
+    # otherwise pass the title-location check. These are the HQs of the 37
+    # French robotics companies reviewed, plus the main French robotics
+    # clusters. Deliberately excludes French place names that are also common
+    # English words (Nice, Orange, Cannes, Lourdes).
+    - Paris
+    - Toulouse
+    - Lille
+    - Lyon
+    - Bordeaux
+    - Nantes
+    - Montpellier
+    - Grenoble
+    - Brest
+    - Angers
+    - Annecy
+    - Chambéry
+    - Poitiers
+    - Saint-Étienne
+    - Saint-Étienne-du-Rouvray
+    - Strasbourg
+    - Montbéliard
+    - Reims
+    - Le Mans
+    - Tours
+    - Dijon
+    - Le Havre
+    - La Rochelle
+    - Vannes
+    - Lorient
+    - Sète
+    - Saint-Nazaire
+    - La Ciotat
+    - Six-Fours-les-Plages
+    - La Garde
+    - Saint-Germain-en-Laye
+    - Nanterre
+    - Arcueil
+    - Courbevoie
+    - Boulogne-Billancourt
+    - Lias
+    - Bruges
+    - Pressac
+    - Escalquens
+    - Villeneuve-la-Garenne
+    - Vénissieux
+    - Villeurbanne
+    - Meylan
+    - Chazelles
+    # 2026-10-20: places seen in job TITLES, not in the location field.
+    # Boards like Wolt and Talkdesk put the city in the title and leave the
+    # location field empty, so these would otherwise pass the filter.
+    - United Kingdom
+    - Portugal
+    - Porto
+    - Finland
+    - Helsinki
+    - Estonia
+    - Sweden
+    - Ireland
+    - Denmark
+    - Norway
+    - Lithuania
+    - Latvia
+    - Bengaluru
+    - New Delhi
+    - APAC
 
 # -- Search queries --
 # Each query triggers a WebSearch. Use site: to filter by portal.
@@ -590,6 +676,37 @@ search_queries:
 
   - name: HN — Robotics/ROS2 Remote (Track B)
     query: 'site:news.ycombinator.com "Robotics" OR "ROS2" OR "ROS 2" remote'
+    enabled: true
+
+  # ============================================
+  # FRENCH ROBOTICS — German-reachable subset (2026-10-21)
+  # These companies are France-origin but have a German entity hiring in
+  # Germany. France itself stays out of scope (no French, no French work
+  # permit) — see research/french-robotics/README.md.
+  # ============================================
+
+  - name: Exotec — German roles
+    query: 'site:apply.workable.com/exotec ("Germany" OR "Munich" OR "Landshut") ("robot" OR "vision" OR "software" OR "perception" OR "engineer")'
+    enabled: true
+
+  - name: EasyMile — Berlin roles
+    query: 'site:easymile.welcomekit.co/jobs OR "EasyMile" Berlin (job OR careers OR "Software Engineer" OR "Perception" OR "SLAM" OR ROS)'
+    enabled: true
+
+  - name: Exail — Hamburg roles
+    query: 'site:jobs.exail.com Hamburg OR "Exail" Germany ("job" OR "careers" OR "software engineer" OR "IA" OR algorithmie OR perception OR drones)'
+    enabled: true
+
+  - name: SCALLOG — Germany roles
+    query: 'SCALLOG OR Scallog Robotik Intralogistik Deutschland OR Germany (Stellenangebot OR job OR Karriere OR careers)'
+    enabled: true
+
+  - name: SBG Systems — Germany roles
+    query: 'site:career.sbg-systems.com/jobs Germany OR Augsburg OR Deutschland (engineer OR "Field Application" OR algorithm OR navigation)'
+    enabled: true
+
+  - name: Genesis AI — simulation/robot-learning roles
+    query: 'site:jobs.ashbyhq.com/genesis (simulation OR "Robot Learning" OR "Foundation Models" OR robotics OR "ML Compiler" OR "AI Infrastructure") (London OR Remote OR UK OR Europe)'
     enabled: true
 
 # -- Tracked companies --
@@ -2702,4 +2819,39 @@ tracked_companies:
     notes: Warehouse / fulfilment; Supply chain / procurement. Vendor (AI product for retail / inventory). Berlin confirmed.
     priority: tier1
     enabled: true
+  - name: Exotec
+    careers_url: https://apply.workable.com/exotec/
+    notes: German entity Exotec Deutschland GmbH (LabCampus 48, 85356 München-Flughafen; Rödersteinstr. 6, 84034 Landshut). Warehouse-robotics OEM (Skypod). Workable board, 83 roles; the 4 German ones are currently sales/admin — watch for R&D/perception seats. 2026-10-21 sweep.
+    priority: tier2
+    enabled: true
+  - name: EasyMile
+    careers_url: https://easymile.welcomekit.co/
+    notes: German entity EasyMile GmbH (Kastanienallee 84, 10435 Berlin; HRB 193152, Amtsgericht Charlottenburg). Level-4 driverless vehicles. 11 roles, all Toulouse today — watch for a Berlin perception/SLAM posting. 2026-10-21 sweep.
+    priority: tier2
+    enabled: true
+  - name: Exail
+    careers_url: https://jobs.exail.com/en/annonces
+    notes: German entity Exail GmbH (Esplanade 40, 20354 Hamburg; HRB 159940, Amtsgericht Hamburg). Maritime robotics + defence (DriX USV/AUV, inertial nav, photonics). DigitalRecruiters board, 127 roles; exactly 1 in Germany (Hamburg customer support, German+English). Group runs AI/algorithmie-UAS, C++ drone-software and video-perception roles. 2026-10-21 sweep.
+    priority: tier2
+    enabled: true
+  - name: SCALLOG
+    careers_url: https://www.welcometothejungle.com/fr/companies/scallog
+    scan_method: websearch
+    scan_query: SCALLOG OR Scallog Robotik Intralogistik Deutschland OR Germany OR Decathlon OR XPROMA (Stellenangebot OR job OR Karriere OR careers)
+    notes: "WATCH — no German legal entity (French SAS, Nanterre) but the strongest German signal in the 37-company set: full German-language site (scallog.com/de), a dedicated Germany growth push via integrator XPROMA, and 60 robots / 8 stations installed for Decathlon in Germany. Embedded-software lead on the team. The WTTJ board is bot-protected (HTTP 202/403) so the scanner cannot read it — this entry relies on the websearch fallback. 2026-10-21 sweep."
+    priority: tier3
+    enabled: true
+  - name: SBG Systems
+    careers_url: https://career.sbg-systems.com/jobs
+    notes: "German office confirmed three ways: the job text states 'international presence in USA, Germany, Singapore, Australia, India, Japan, Poland and the UK'; the company timeline records 'Opening of our Australian, German, and Indian local offices' (2023); and a live Germany-anchored posting — 'Junior Sales Engineer DACH', Location: Augsburg. German-language careers page at sbg-systems.com/de/career/. MEMS IMU/AHRS/INS maker (Carrières-sur-Seine HQ); the Germany role is sales today, but a navigation-algorithms seat in Germany is plausible. Teamtailor board — the generic HTML path reads it (11 roles, 0 pass the title filter today, so no noise). 2026-10-21 sweep."
+    priority: tier2
+    enabled: true
+  - name: Genesis AI
+    careers_url: https://jobs.ashbyhq.com/genesis
+    notes: "Not a German company, but the strongest technical fit in the whole 37-company set: Genesis AI builds Genesis World, a multi-physics simulation engine + GPU path-traced renderer 'powering the next generation of robotics and embodied AI' — the same domain as Sanket's Webots/ROS2/Nav2 simulation work. 72 openings on Ashby: Bay Area 31, Paris 25, London 15, Remote 1, Germany 0. The London roles (allowed relocation target per profile.yml) include Genesis-World Core Simulation Engine Engineer, Robot Learning, Foundation Models, Training/AI Infrastructure, Simulation Infrastructure, ML Compiler. Paris roles are dropped by the location filter; the one 'Remote' role is a senior asset-pipeline role, not a fit. 2026-10-21 sweep."
+    priority: tier3
+    enabled: true
+
+
+
 

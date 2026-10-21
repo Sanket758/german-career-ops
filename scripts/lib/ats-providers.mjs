@@ -50,6 +50,12 @@ function titleFromSlug(slug) {
     .trim();
 }
 
+function cleanText(raw) {
+  return decodeEntities(String(raw || '').replace(/<[^>]+>/g, ' '))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // ── detection ───────────────────────────────────────────────────────────
 export function detectProvider(careersUrl) {
   if (!careersUrl || !/^https?:/i.test(careersUrl)) return null;
@@ -126,6 +132,37 @@ export function detectProvider(careersUrl) {
     }
   }
 
+  // Workable — the board is a JS shell (no <a href> job links in the HTML),
+  // so the HTML/browser path loses every posting. The widget endpoint returns
+  // the same board as JSON: title, url, city/state/country, published_on.
+  if (host === 'apply.workable.com') {
+    const slug = path.split('/').filter(Boolean)[0];
+    if (slug) return mk('workable', `https://apply.workable.com/api/v1/widget/accounts/${slug}?details=true`, slug);
+  }
+
+  // DigitalRecruiters careers sites (jobs.exail.com, ...). The board is a JS
+  // app: /en/annonces renders no job links in the HTML, so the list has to
+  // come from the public JSON API. The board path always ends in /annonces.
+  if (/\/annonces?\/?$/.test(path)) {
+    const segs = path.split('/').filter(Boolean);
+    const locale = segs.length > 1 ? segs[0] : 'en';
+    // The board URL carries a short locale ("en"); the API wants the full one
+    // ("en_GB") and rejects the short form.
+    const apiLocale = { en: 'en_GB', fr: 'fr_FR', nl: 'nl_NL', de: 'de_DE', es: 'es_ES', it: 'it_IT' }[locale] || 'en_GB';
+    return mk('digitalrecruiters',
+      `https://api.digitalrecruiters.com/public/v1/careers-site/job-ads?domainName=${host}`,
+      host, { domain: host, locale, apiLocale });
+  }
+
+  // WelcomeKit / Welcome to the Jungle company boards. The board is
+  // server-rendered and each card carries its office city, which the generic
+  // HTML extractor throws away — a board full of French roles would then look
+  // location-less and slip past the location filter.
+  if (host.endsWith('.welcomekit.co')) {
+    const slug = path.split('/').filter(Boolean)[0] || host;
+    return mk('welcomekit', careersUrl, slug);
+  }
+
   // join.com
   if (host === 'join.com') {
     const slug = path.match(/^\/companies\/([^/]+)/)?.[1];
@@ -193,6 +230,116 @@ function parseRecruitee(json, company) {
     date: toISODate(j.created_at || j.published_at),
     provider: 'recruitee',
   }));
+}
+
+/**
+ * Workable.
+ *
+ * The widget payload carries one entry per posting with `locations[]`
+ * (city / region / country, plus a `hidden` flag) and a `telecommuting`
+ * boolean. Three location shapes have to be distinguished, because the
+ * location string is what the location filter runs on:
+ *
+ *  - An on-site seat: "Munich, Bavaria, Germany".
+ *  - A country-scoped remote seat ("Lead Solutions Engineer", seat France).
+ *    It must keep the country, or a France-only remote role reads as a plain
+ *    "Remote" and slips past the location filter.
+ *  - An open remote seat ("… — EMEA Remote", seat authored in Paris). Workable
+ *    hides the placeholder location for these, but not always — so the title's
+ *    own scope word is the fallback signal.
+ */
+const WORKABLE_OPEN_SCOPE = /\b(emea|europe|european|global|worldwide|world-wide|anywhere|international|apac)\b/i;
+
+function parseWorkable(json, company) {
+  const jobs = json?.jobs;
+  if (!Array.isArray(jobs)) return [];
+  return jobs.map(j => {
+    const locs = Array.isArray(j.locations) ? j.locations : [];
+    const visible = locs.filter(l => l && !l.hidden);
+    const use = visible.length ? visible : locs;
+    const parts = [];
+    for (const l of use) {
+      for (const k of ['city', 'region', 'country']) {
+        const v = l?.[k];
+        if (v && !parts.includes(v)) parts.push(v);
+      }
+    }
+    const allHidden = locs.length > 0 && visible.length === 0;
+    const openRemote = allHidden || WORKABLE_OPEN_SCOPE.test(j.title || '');
+    const location = j.telecommuting && openRemote ? 'Remote' : parts.join(', ');
+    return {
+      title: j.title || '',
+      url: j.shortlink || j.url || '',
+      company,
+      location,
+      date: toISODate(j.published_on || j.created_at),
+      provider: 'workable',
+    };
+  }).filter(j => j.title);
+}
+
+/**
+ * WelcomeKit (the board behind a Welcome to the Jungle company page).
+ *
+ * Each posting is a card: an anchor with the job URL, an <h3> with the title
+ * and a list item with the office city. The city is the part that matters
+ * here — it is what the location filter runs on, and it is the difference
+ * between a Toulouse role being rejected and a Berlin role being kept.
+ */
+function parseWelcomeKit(html, company, provider) {
+  if (typeof html !== 'string') return [];
+  const base = provider?.url || '';
+  const out = [];
+  const seen = new Set();
+  const re = /<a\b[^>]*class="[^"]*jobs-list-item-link[^"]*"[^>]*\bhref\s*=\s*"([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const href = m[1];
+    const inner = m[2];
+    let abs;
+    try { abs = new URL(href, base).href; } catch { continue; }
+    abs = abs.split('#')[0];
+    if (!abs || seen.has(abs)) continue;
+    seen.add(abs);
+
+    const titleMatch = inner.match(/<h3[^>]*>([\s\S]*?)<\/h3>/i);
+    const officeMatch = inner.match(/jobs-list-item-office[^>]*>([\s\S]*?)<\/li>/i);
+    const title = titleMatch ? cleanText(decodeEntities(titleMatch[1])) : '';
+    const location = officeMatch ? cleanText(decodeEntities(officeMatch[1].replace(/<[^>]+>/g, ' '))) : '';
+    if (!title) continue;
+    out.push({
+      title,
+      url: abs,
+      company,
+      location,
+      date: null,
+      provider: 'welcomekit',
+    });
+  }
+  return out;
+}
+
+/**
+ * DigitalRecruiters.
+ *
+ * The board lists a `location` that is a bare city ("Hamburg", "La Ciotat"),
+ * with no country. That is enough for the location filter: German cities are
+ * in the positive list, French ones are not — so a French role is dropped by
+ * its own city name. The list payload carries no date, so these postings are
+ * undated and the scan treats them as such.
+ */
+function parseDigitalRecruiters(json, company, provider) {
+  const items = Array.isArray(json?.items) ? json.items : [];
+  const domain = provider?.domain || provider?.slug || '';
+  const locale = provider?.locale || 'en';
+  return items.map(j => ({
+    title: j.title || '',
+    url: j.url ? `https://${domain}/${locale}/annonce/${j.url}` : '',
+    company,
+    location: j.location || '',
+    date: null,
+    provider: 'digitalrecruiters',
+  })).filter(j => j.title && j.url);
 }
 
 function parseSmartRecruiters(json, company) {
@@ -340,12 +487,15 @@ export function parsePayload(type, payload, companyName, baseUrl, provider) {
       case 'lever': return parseLever(payload, companyName);
       case 'ashby': return parseAshby(payload, companyName);
       case 'recruitee': return parseRecruitee(payload, companyName);
+      case 'workable': return parseWorkable(payload, companyName);
+      case 'digitalrecruiters': return parseDigitalRecruiters(payload, companyName, provider);
       case 'smartrecruiters': return parseSmartRecruiters(payload, companyName);
       case 'bamboohr': return parseBambooHR(payload, companyName, provider);
       case 'workday': return parseWorkday(payload, companyName, provider, baseUrl);
       case 'personio': return parsePersonioXml(payload, companyName, provider);
       case 'join': return parseJoin(payload, companyName, provider);
       case 'softgarden': return parseSoftgarden(payload, companyName, provider);
+      case 'welcomekit': return parseWelcomeKit(payload, companyName, provider);
       default: return [];
     }
   } catch {
@@ -373,7 +523,43 @@ async function get(url, timeoutMs = 20000) {
 
 export async function fetchFromProvider(provider, companyName) {
   if (!provider) return [];
-  const text = await get(provider.url);
+
+  if (provider.type === 'digitalrecruiters') {
+    // The public careers-site API is POST-only. `limit` is honoured, `offset`
+    // is not — a board larger than one page has to be walked with `page`.
+    const perPage = 200;
+    const jobs = [];
+    const seen = new Set();
+    for (let page = 1; page <= 5; page++) {
+      const body = JSON.stringify({
+        domainName: provider.domain,
+        locale: provider.apiLocale || 'en_GB',
+        limit: perPage,
+        page,
+      });
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 20000);
+      let json;
+      try {
+        const res = await fetch(provider.url, {
+          method: 'POST', signal: ac.signal,
+          headers: { 'User-Agent': UA, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body,
+        });
+        if (!res.ok) break;
+        json = await res.json();
+      } catch { break; } finally { clearTimeout(timer); }
+      const batch = parseDigitalRecruiters(json, companyName, provider);
+      for (const j of batch) {
+        if (seen.has(j.url)) continue;
+        seen.add(j.url);
+        jobs.push(j);
+      }
+      const total = json?.count ?? batch.length;
+      if (!batch.length || jobs.length >= total) break;
+    }
+    return jobs;
+  }
 
   if (provider.type === 'workday') {
     // Workday needs a POST body and pagination.
@@ -401,7 +587,9 @@ export async function fetchFromProvider(provider, companyName) {
     return jobs;
   }
 
-  if (provider.type === 'personio' || provider.type === 'join' || provider.type === 'softgarden') {
+  const text = await get(provider.url);
+
+  if (provider.type === 'personio' || provider.type === 'join' || provider.type === 'softgarden' || provider.type === 'welcomekit') {
     return parsePayload(provider.type, text, companyName, provider.url, provider);
   }
 

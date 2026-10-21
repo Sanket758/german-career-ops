@@ -37,6 +37,13 @@ const DETECT_CASES = [
   ['https://aklamio.bamboohr.com/careers', 'bamboohr'],
   ['https://misterspex.wd103.myworkdayjobs.com/de-DE/Mister_Spex_Careers', 'workday'],
   ['https://join.com/companies/mellohqcom', 'join'],
+  ['https://apply.workable.com/exotec/', 'workable'],
+  ['https://apply.workable.com/huggingface/', 'workable'],
+  ['https://jobs.exail.com/en/annonces', 'digitalrecruiters'],
+  ['https://jobs.exail.com/fr/annonces', 'digitalrecruiters'],
+  ['https://jobs.exail.com/en/annonce/4245053-customer-support-engineer-fm-20354-hamburg', null],
+  ['https://easymile.welcomekit.co/', 'welcomekit'],
+  ['https://balyo.welcomekit.co/', 'welcomekit'],
   ['https://home24.career.softgarden.de/', 'softgarden'],
   ['https://wenglorsensoric.softgarden.io/de/vacancies', 'softgarden'],
   ['https://www.kittl.com/careers', null],
@@ -72,6 +79,19 @@ check(hr && hr.url === 'https://aklamio.bamboohr.com/careers/list',
 const gh = detectProvider('https://job-boards.eu.greenhouse.io/hive');
 check(gh && gh.url === 'https://boards-api.greenhouse.io/v1/boards/hive/jobs',
   'greenhouse → boards-api', gh && gh.url);
+const wo = detectProvider('https://apply.workable.com/exotec/');
+check(wo && wo.url === 'https://apply.workable.com/api/v1/widget/accounts/exotec?details=true',
+  'workable → widget API', wo && wo.url);
+const woHf = detectProvider('https://apply.workable.com/huggingface/');
+check(woHf && woHf.slug === 'huggingface',
+  'workable tenant slug from the board path', woHf && woHf.slug);
+const dr = detectProvider('https://jobs.exail.com/en/annonces');
+check(dr && dr.domain === 'jobs.exail.com',
+  'digitalrecruiters domain from the board host', dr && dr.domain);
+check(dr && dr.locale === 'en',
+  'digitalrecruiters locale from the board path', dr && dr.locale);
+check(dr && dr.url.startsWith('https://api.digitalrecruiters.com/public/v1/careers-site/job-ads'),
+  'digitalrecruiters → careers-site API', dr && dr.url);
 
 // ── 2. parsers (offline fixtures) ───────────────────────────────────────
 const FIX = {
@@ -130,6 +150,93 @@ const FIX = {
       postedOn: '2026-10-16T00:00:00Z',
     }],
   },
+  workable: {
+    jobs: [
+      {
+        title: 'Senior Solutions Engineer',
+        shortlink: 'https://apply.workable.com/j/EF6552A1DD',
+        url: 'https://apply.workable.com/j/EF6552A1DD',
+        city: 'Munich',
+        state: 'Bavaria',
+        country: 'Germany',
+        published_on: '2026-10-05',
+        telecommuting: false,
+        locations: [{ country: 'Germany', countryCode: 'DE', city: 'Munich', region: 'Bavaria', hidden: false }],
+      },
+      {
+        title: 'Lead Solutions Engineer',
+        shortlink: 'https://apply.workable.com/j/873B8BBE4A',
+        city: '',
+        state: '',
+        country: 'France',
+        published_on: '2026-10-01',
+        telecommuting: true,
+        locations: [{ country: 'France', countryCode: 'FR', city: '', region: null, hidden: false }],
+      },
+      {
+        title: 'Open-Source Machine Learning Engineer - EMEA Remote',
+        shortlink: 'https://apply.workable.com/j/HF0000001',
+        city: 'Paris',
+        state: 'Île-de-France',
+        country: 'France',
+        published_on: '2026-05-29',
+        telecommuting: true,
+        locations: [{ country: 'France', countryCode: 'FR', city: 'Paris', region: 'Île-de-France', hidden: true }],
+      },
+      {
+        // Same EMEA role, but Workable left the authoring seat visible.
+        title: 'Open-Source Machine Learning Engineer - EMEA Remote',
+        shortlink: 'https://apply.workable.com/j/HF0000002',
+        city: 'Paris',
+        state: 'Île-de-France',
+        country: 'France',
+        published_on: '2026-05-29',
+        telecommuting: true,
+        locations: [{ country: 'France', countryCode: 'FR', city: 'Paris', region: 'Île-de-France', hidden: false }],
+      },
+    ],
+  },
+  digitalrecruiters: {
+    count: 2,
+    items: [
+      {
+        title: 'Customer Support Engineer - F/M',
+        location: 'Hamburg',
+        url: '4245053-customer-support-engineer-fm-20354-hamburg',
+        contract: 'Permanent Contract',
+        job: 'Customer Support',
+      },
+      {
+        title: 'Référent IA & Algorithmie - UAS - H/F',
+        location: 'La Garde',
+        url: '4609969-referent-ia-algorithmie-uas-hf-83130-la-garde',
+        contract: 'Permanent Contract',
+        job: 'AI',
+      },
+    ],
+  },
+  welcomekit: `<div class='jobs-by-department-item'>
+  <ul class='jobs-list'>
+    <li class='jobs-list-item' data-department='25717' data-office='11413'>
+      <a class="jobs-list-item-link" href="/jobs/embedded-software-engineer-cdi-toulouse-f-m_toulouse">
+        <h3 class='jobs-list-item-title'> Embedded Software Engineer - CDI - Toulouse (F/M) </h3>
+        <ul class='jobs-list-item-details'>
+          <li class='jobs-list-item-contract-type'><i class='icon-secondary icon-briefcase'></i> Full-Time </li>
+          <li class='jobs-list-item-office'><i class='icon-secondary icon-location'></i> Toulouse </li>
+        </ul>
+      </a>
+    </li>
+    <li class='jobs-list-item' data-department='25717' data-office='11413'>
+      <a class="jobs-list-item-link" href="/jobs/robotics-software-engineer-berlin_berlin">
+        <h3 class='jobs-list-item-title'> Robotics Software Engineer - Berlin </h3>
+        <ul class='jobs-list-item-details'>
+          <li class='jobs-list-item-contract-type'><i class='icon-secondary icon-briefcase'></i> Full-Time </li>
+          <li class='jobs-list-item-office'><i class='icon-secondary icon-location'></i> Berlin </li>
+        </ul>
+      </a>
+    </li>
+  </ul>
+</div>`,
 };
 
 function parseOne(type, payload, company) {
@@ -175,6 +282,57 @@ const wdJob = parseOne('workday', FIX.workday, 'Mister Spex');
 check(wdJob && wdJob.title === 'Assistant Store Manager in Wildau', 'workday title', wdJob && wdJob.title);
 check(wdJob && wdJob.url.startsWith('https://'), 'workday absolute url', wdJob && wdJob.url);
 
+// workable — three location shapes that must not be confused
+const woJobs = parsePayload('workable', FIX.workable, 'Exotec', 'https://apply.workable.com/api/v1/widget/accounts/exotec?details=true');
+check(woJobs.length === 4, 'workable → 4 postings', `got ${woJobs.length}`);
+check(woJobs[0] && woJobs[0].location === 'Munich, Bavaria, Germany',
+  'workable on-site location keeps city/region/country', woJobs[0] && woJobs[0].location);
+check(woJobs[0] && woJobs[0].date === '2026-10-05', 'workable date from published_on', woJobs[0] && woJobs[0].date);
+check(woJobs[0] && woJobs[0].url === 'https://apply.workable.com/j/EF6552A1DD',
+  'workable job url from shortlink', woJobs[0] && woJobs[0].url);
+check(woJobs[0] && woJobs[0].provider === 'workable', 'workable provider tag', woJobs[0] && woJobs[0].provider);
+// A country-scoped remote seat must keep its country, or a France-only remote
+// role would read as plain "Remote" and slip past the location filter.
+check(woJobs[1] && woJobs[1].location === 'France',
+  'workable country-scoped remote keeps the country', woJobs[1] && woJobs[1].location);
+// A genuinely open remote seat hides the placeholder location, or names its
+// scope in the title — either way the location is "Remote", not the city the
+// posting happens to be authored from.
+check(woJobs[2] && woJobs[2].location === 'Remote',
+  'workable open remote seat (hidden location) → "Remote"', woJobs[2] && woJobs[2].location);
+check(woJobs[3] && woJobs[3].location === 'Remote',
+  'workable open remote seat (scope word in title) → "Remote"', woJobs[3] && woJobs[3].location);
+
+// digitalrecruiters — city-only locations, no dates
+const drJobs = parsePayload('digitalrecruiters', FIX.digitalrecruiters, 'Exail',
+  'https://api.digitalrecruiters.com/public/v1/careers-site/job-ads?domainName=jobs.exail.com',
+  { domain: 'jobs.exail.com', locale: 'en' });
+check(drJobs.length === 2, 'digitalrecruiters → 2 postings', `got ${drJobs.length}`);
+check(drJobs[0] && drJobs[0].title === 'Customer Support Engineer - F/M',
+  'digitalrecruiters title', drJobs[0] && drJobs[0].title);
+check(drJobs[0] && drJobs[0].location === 'Hamburg',
+  'digitalrecruiters location is the bare city', drJobs[0] && drJobs[0].location);
+check(drJobs[0] && drJobs[0].url === 'https://jobs.exail.com/en/annonce/4245053-customer-support-engineer-fm-20354-hamburg',
+  'digitalrecruiters job url from the slug + board locale', drJobs[0] && drJobs[0].url);
+check(drJobs[0] && drJobs[0].date === null,
+  'digitalrecruiters date is null (the list payload carries none)', drJobs[0] && drJobs[0].date);
+
+// welcomekit — the office city is the point: without it a French role looks
+// location-less and slips past the location filter.
+const wkJobs = parsePayload('welcomekit', FIX.welcomekit, 'EasyMile',
+  'https://easymile.welcomekit.co/', { url: 'https://easymile.welcomekit.co/' });
+check(wkJobs.length === 2, 'welcomekit → 2 postings', `got ${wkJobs.length}`);
+check(wkJobs[0] && wkJobs[0].title === 'Embedded Software Engineer - CDI - Toulouse (F/M)',
+  'welcomekit title', wkJobs[0] && wkJobs[0].title);
+check(wkJobs[0] && wkJobs[0].location === 'Toulouse',
+  'welcomekit location is the office city', wkJobs[0] && wkJobs[0].location);
+check(wkJobs[0] && wkJobs[0].url === 'https://easymile.welcomekit.co/jobs/embedded-software-engineer-cdi-toulouse-f-m_toulouse',
+  'welcomekit job url is absolute', wkJobs[0] && wkJobs[0].url);
+check(wkJobs[1] && wkJobs[1].location === 'Berlin',
+  'welcomekit keeps a German office city', wkJobs[1] && wkJobs[1].location);
+check(wkJobs[0] && wkJobs[0].date === null,
+  'welcomekit date is null (the board carries none)', wkJobs[0] && wkJobs[0].date);
+
 // personio XML
 const PERSONIO_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <workzag-jobs>
@@ -203,7 +361,7 @@ check(pJobs[1] && pJobs[1].url.includes('2720102'), 'personio job url carries th
 check(pJobs[0] && pJobs[0].date === null, 'personio without <createdAt> → null date', pJobs[0] && pJobs[0].date);
 
 // malformed payloads must not throw
-for (const t of ['greenhouse', 'lever', 'ashby', 'recruitee', 'smartrecruiters', 'bamboohr', 'workday', 'personio', 'join', 'softgarden']) {
+for (const t of ['greenhouse', 'lever', 'ashby', 'recruitee', 'smartrecruiters', 'bamboohr', 'workday', 'personio', 'join', 'softgarden', 'workable', 'digitalrecruiters', 'welcomekit']) {
   let threw = null, out = null;
   try { out = parsePayload(t, { totally: 'wrong' }, 'X', 'https://example.com'); } catch (e) { threw = e.message; }
   check(threw === null && Array.isArray(out) && out.length === 0,

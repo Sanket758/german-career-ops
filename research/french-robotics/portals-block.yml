@@ -1,0 +1,48 @@
+# =============================================
+# FRENCH ROBOTICS COMPANIES — German-reachable subset
+# Generated from research/french-robotics (2026-10-21).
+# Source list: "37 French Robotics Startups" (LinkedIn, Boring Sage).
+# Scope: German entity / German postings / EU-remote only — France is NOT a
+# target region (no French, no French work permit) and stays in
+# location_filter.negative. Every careers_url below is a board the scanner
+# can read (Workable / WelcomeKit / DigitalRecruiters) or a websearch fallback.
+# Append under the `tracked_companies:` key of portals.yml.
+# =============================================
+
+  - name: Exotec
+    careers_url: https://apply.workable.com/exotec/
+    notes: "German entity Exotec Deutschland GmbH (LabCampus 48, 85356 München-Flughafen; Rödersteinstr. 6, 84034 Landshut). Warehouse-robotics OEM (Skypod). Workable board, 83 roles; the 4 German ones are currently sales/admin — watch for R&D/perception seats. 2026-10-21 sweep."
+    priority: tier2
+    enabled: true
+
+  - name: EasyMile
+    careers_url: https://easymile.welcomekit.co/
+    notes: "German entity EasyMile GmbH (Kastanienallee 84, 10435 Berlin; HRB 193152, Amtsgericht Charlottenburg). Level-4 driverless vehicles. 11 roles, all Toulouse today — watch for a Berlin perception/SLAM posting. 2026-10-21 sweep."
+    priority: tier2
+    enabled: true
+
+  - name: Exail
+    careers_url: https://jobs.exail.com/en/annonces
+    notes: "German entity Exail GmbH (Esplanade 40, 20354 Hamburg; HRB 159940, Amtsgericht Hamburg). Maritime robotics + defence (DriX USV/AUV, inertial nav, photonics). DigitalRecruiters board, 127 roles; exactly 1 in Germany (Hamburg customer support, German+English). Group runs AI/algorithmie-UAS, C++ drone-software and video-perception roles. 2026-10-21 sweep."
+    priority: tier2
+    enabled: true
+
+  - name: SCALLOG
+    careers_url: https://www.welcometothejungle.com/fr/companies/scallog
+    scan_method: websearch
+    scan_query: 'SCALLOG OR Scallog Robotik Intralogistik Deutschland OR Germany OR Decathlon OR XPROMA (Stellenangebot OR job OR Karriere OR careers)'
+    notes: "WATCH — no German legal entity (French SAS, Nanterre) but the strongest German signal in the 37-company set: full German-language site (scallog.com/de), a dedicated Germany growth push via integrator XPROMA, and 60 robots / 8 stations installed for Decathlon in Germany. Embedded-software lead on the team. The WTTJ board is bot-protected (HTTP 202/403) so the scanner cannot read it — this entry relies on the websearch fallback. 2026-10-21 sweep."
+    priority: tier3
+    enabled: true
+
+  - name: SBG Systems
+    careers_url: https://career.sbg-systems.com/jobs
+    notes: "German office confirmed three ways: the job text states 'international presence in USA, Germany, Singapore, Australia, India, Japan, Poland and the UK'; the company timeline records 'Opening of our Australian, German, and Indian local offices' (2023); and a live Germany-anchored posting — 'Junior Sales Engineer DACH', Location: Augsburg. German-language careers page at sbg-systems.com/de/career/. MEMS IMU/AHRS/INS maker (Carrières-sur-Seine HQ); the Germany role is sales today, but a navigation-algorithms seat in Germany is plausible. Teamtailor board — the generic HTML path reads it (11 roles, 0 pass the title filter today, so no noise). 2026-10-21 sweep."
+    priority: tier2
+    enabled: true
+
+  - name: Genesis AI
+    careers_url: https://jobs.ashbyhq.com/genesis
+    notes: "Not a German company, but the strongest technical fit in the whole 37-company set: Genesis AI builds Genesis World, a multi-physics simulation engine + GPU path-traced renderer 'powering the next generation of robotics and embodied AI' — the same domain as Sanket's Webots/ROS2/Nav2 simulation work. 72 openings on Ashby: Bay Area 31, Paris 25, London 15, Remote 1, Germany 0. The London roles (Genesis-World Core Simulation Engine, Robot Learning, Foundation Models, Training/AI Infrastructure, Simulation Infrastructure, ML Compiler) are currently DROPPED by location_filter — 'United Kingdom' is in that filter's negative list and 'London' matches no positive. Only a genuinely 'Remote' posting survives; today that is one senior asset-pipeline role, not a fit. Wired anyway because the board is a single API call and an EU-remote robotics role would land immediately. Surfacing UK on-site roles would need a filter change plus a sponsorship decision — not taken here. 2026-10-21 sweep."
+    priority: tier3
+    enabled: true
